@@ -37,6 +37,6 @@ subprojects {
 
 tasks.register<Copy>("setUpGitHooks") {
     group = "help"
-    from("$rootDir/.hooks")
+    from("$rootDir/scripts")
     into("$rootDir/.git/hooks")
 }
