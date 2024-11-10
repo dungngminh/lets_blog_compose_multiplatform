@@ -98,6 +98,9 @@ kotlin {
             implementation(libs.compottie)
             implementation(libs.compottie.resources)
             implementation(libs.compottie.dot)
+
+            // Napier
+            implementation(libs.napier)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

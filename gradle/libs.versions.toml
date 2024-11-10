@@ -17,6 +17,7 @@ kotlin = "2.0.21"
 ktor = "3.0.0"
 logback = "1.5.11"
 kotlinxSerializationJson = "1.7.3"
+napier = "2.7.1"
 navigationCompose = "2.8.0-alpha10"
 kotlinx-coroutines = "1.9.0"
 koin-bom = "4.0.0"
@@ -54,6 +55,7 @@ ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "k
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
 compottie-dot = { module = "io.github.alexzhirkevich:compottie-dot", version.ref = "compottie" }
 compottie-resources = { module = "io.github.alexzhirkevich:compottie-resources", version.ref = "compottie" }
+napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
