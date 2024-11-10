@@ -47,7 +47,7 @@ fun SplashScreen(
 
     val progress by animateLottieCompositionAsState(lottieComposition)
 
-    val isSplashDone by derivedStateOf { progress == 1f }
+    val isSplashDone by derivedStateOf { progress >= 0.5f }
 
     LaunchedEffect(isSplashDone) {
         if (isSplashDone) {

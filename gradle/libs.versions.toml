@@ -22,6 +22,7 @@ kotlinx-coroutines = "1.9.0"
 koin-bom = "4.0.0"
 kotlin-plugin-serialization = "2.0.20"
 compottie = "2.0.0-rc02"
+spotlessPlugin = "7.0.0.BETA1"
 
 [libraries]
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -63,3 +64,4 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-plugin-serialization" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotlessPlugin" }
