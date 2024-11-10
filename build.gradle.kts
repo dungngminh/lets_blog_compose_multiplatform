@@ -39,4 +39,11 @@ tasks.register<Copy>("setUpGitHooks") {
     group = "help"
     from("$rootDir/scripts")
     into("$rootDir/.git/hooks")
+    filePermissions {
+        user {
+            read = true
+            execute = true
+        }
+        other.execute = false
+    }
 }
