@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
+import me.dungngminh.lets_blog_kmp.presentation.onboarding.OnboardingScreen
 import me.dungngminh.lets_blog_kmp.presentation.splash.SplashScreen
 
 @Serializable
@@ -37,6 +38,12 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
     ) {
         composable<Splash> {
             SplashScreen {
+                navController.navigate(Onboarding)
+            }
+        }
+
+        composable<Onboarding> {
+            OnboardingScreen {
             }
         }
     }

@@ -20,9 +20,7 @@ fun App(modifier: Modifier = Modifier) {
         ) {
             val navController = rememberNavController()
             Scaffold(modifier = modifier) {
-                AppNavigation(
-                    navController = navController,
-                )
+                AppNavigation(navController = navController)
             }
         }
     }

@@ -19,20 +19,20 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
         }
     }
-    
+
     jvm("desktop")
-    
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "composeApp"
@@ -41,21 +41,23 @@ kotlin {
             val projectDirPath = project.projectDir.path
             commonWebpackConfig {
                 outputFileName = "composeApp.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(rootDirPath)
-                        add(projectDirPath)
+                devServer =
+                    (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                        static =
+                            (static ?: mutableListOf()).apply {
+                                // Serve sources to debug inside browser
+                                add(rootDirPath)
+                                add(projectDirPath)
+                            }
                     }
-                }
             }
         }
         binaries.executable()
     }
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -68,11 +70,12 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
             implementation(libs.androidx.lifecycle.runtime.compose)
 
-            // ViewMdeol
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.viewmodel.ktx)
+            // ViewModel
+
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
 
             // Navigation
             implementation(libs.androidx.navigation.compose)
@@ -81,13 +84,20 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(projects.shared)
 
+            // Koin
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
-
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose.viewmodel.navigation)
+
+            // Serialization
             implementation(libs.kotlinx.serialization.json)
+
+            // Lottie
+            implementation(libs.compottie)
+            implementation(libs.compottie.resources)
+            implementation(libs.compottie.dot)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -98,12 +108,21 @@ kotlin {
 
 android {
     namespace = "me.dungngminh.lets_blog_kmp"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
         applicationId = "me.dungngminh.lets_blog_kmp"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.android.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0"
     }
