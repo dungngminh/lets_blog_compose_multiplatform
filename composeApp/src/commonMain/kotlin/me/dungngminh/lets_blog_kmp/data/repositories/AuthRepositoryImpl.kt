@@ -1,9 +1,12 @@
 package me.dungngminh.lets_blog_kmp.data.repositories
 
 import kotlinx.coroutines.flow.Flow
+import me.dungngminh.lets_blog_kmp.data.datasource.RemoteAuthDatasource
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
-class AuthRepositoryImpl : AuthRepository {
+class AuthRepositoryImpl(
+    private val authDatasource: RemoteAuthDatasource,
+) : AuthRepository {
     override val authStateFlow: Flow<Unit>
         get() = TODO("Not yet implemented")
 

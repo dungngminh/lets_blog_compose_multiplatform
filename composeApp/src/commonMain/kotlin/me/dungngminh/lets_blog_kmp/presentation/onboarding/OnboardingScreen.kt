@@ -13,7 +13,12 @@ fun OnboardingScreen(
     onDoneClick: () -> Unit,
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+        Column(
+            modifier =
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+        ) {
         }
     }
 }
