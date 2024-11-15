@@ -46,5 +46,8 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             OnboardingScreen {
             }
         }
+
+        composable<Main> {
+        }
     }
 }
