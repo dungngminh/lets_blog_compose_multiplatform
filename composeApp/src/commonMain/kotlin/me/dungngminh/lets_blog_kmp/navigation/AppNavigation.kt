@@ -9,6 +9,14 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
 import letsblogkmp.composeapp.generated.resources.Res
+import letsblogkmp.composeapp.generated.resources.ic_favorite
+import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
+import letsblogkmp.composeapp.generated.resources.ic_home
+import letsblogkmp.composeapp.generated.resources.ic_home_filled
+import letsblogkmp.composeapp.generated.resources.ic_search
+import letsblogkmp.composeapp.generated.resources.ic_search_filled
+import letsblogkmp.composeapp.generated.resources.ic_user
+import letsblogkmp.composeapp.generated.resources.ic_user_filled
 import letsblogkmp.composeapp.generated.resources.lets_blog_title
 import me.dungngminh.lets_blog_kmp.presentation.main.favorite.FavoriteScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeScreen
@@ -57,10 +65,30 @@ enum class MainScreenDestination(
     val selectedIcon: DrawableResource,
     val route: Route,
 ) {
-    Home(title = Res.string.lets_blog_title, icon = Res.drawable, route = Route.Home),
-    Search(title = Res.string.lets_blog_title, icon = Res.drawable.email, route = Route.Search),
-    Favorite(title = Res.string.lets_blog_title, icon = Res.drawable.email, route = Route.Favorite),
-    Profile(title = Res.string.lets_blog_title, icon = Res.drawable.email, route = Route.Profile),
+    Home(
+        title = Res.string.lets_blog_title,
+        icon = Res.drawable.ic_home,
+        selectedIcon = Res.drawable.ic_home_filled,
+        route = Route.Home,
+    ),
+    Search(
+        title = Res.string.lets_blog_title,
+        icon = Res.drawable.ic_search,
+        selectedIcon = Res.drawable.ic_search_filled,
+        route = Route.Search,
+    ),
+    Favorite(
+        title = Res.string.lets_blog_title,
+        icon = Res.drawable.ic_favorite,
+        selectedIcon = Res.drawable.ic_favorite_filled,
+        route = Route.Favorite,
+    ),
+    Profile(
+        title = Res.string.lets_blog_title,
+        icon = Res.drawable.ic_user,
+        selectedIcon = Res.drawable.ic_user_filled,
+        route = Route.Profile,
+    ),
 }
 
 @Composable
@@ -71,11 +99,20 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
     ) {
         composable<Route.Splash> {
             SplashScreen {
-                navController.navigate(Route.Onboarding)
+                navController.navigate(Route.Onboarding) {
+                    popUpTo<Route.Splash> {
+                        inclusive = true
+                    }
+                }
             }
         }
         composable<Route.Onboarding> {
             OnboardingScreen {
+                navController.navigate(Route.Main) {
+                    popUpTo<Route.Onboarding> {
+                        inclusive = true
+                    }
+                }
             }
         }
         authGraph()
@@ -101,10 +138,10 @@ fun NavGraphBuilder.mainGraph() {
 }
 
 fun NavGraphBuilder.authGraph() {
-    navigation<Auth>(startDestination = SignIn) {
-        composable<SignIn> {
+    navigation<Route.Auth>(startDestination = Route.SignIn) {
+        composable<Route.SignIn> {
         }
-        composable<SignUp> {
+        composable<Route.SignUp> {
         }
     }
 }
