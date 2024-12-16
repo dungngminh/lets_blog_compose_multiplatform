@@ -17,74 +17,77 @@ import letsblogkmp.composeapp.generated.resources.ic_search
 import letsblogkmp.composeapp.generated.resources.ic_search_filled
 import letsblogkmp.composeapp.generated.resources.ic_user
 import letsblogkmp.composeapp.generated.resources.ic_user_filled
-import letsblogkmp.composeapp.generated.resources.lets_blog_title
+import letsblogkmp.composeapp.generated.resources.nav_bar_favorite_label
+import letsblogkmp.composeapp.generated.resources.nav_bar_home_label
+import letsblogkmp.composeapp.generated.resources.nav_bar_profile_label
+import letsblogkmp.composeapp.generated.resources.nav_bar_search_label
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.onboarding.OnboardingScreen
 import me.dungngminh.lets_blog_kmp.presentation.splash.SplashScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 
-sealed interface Route {
-    @Serializable
-    data object Splash : Route
+interface AppRoute
 
-    @Serializable
-    data object Onboarding : Route
+@Serializable
+object SplashRoute : AppRoute
 
-    @Serializable
-    data object Main : Route
+@Serializable
+object OnboardingRoute : AppRoute
 
-    @Serializable
-    data object Home : Route
+@Serializable
+object MainRoute : AppRoute
 
-    @Serializable
-    data object Search : Route
+@Serializable
+object HomeRoute : AppRoute
 
-    @Serializable
-    data object Favorite : Route
+@Serializable
+object SearchRoute : AppRoute
 
-    @Serializable
-    data object Profile : Route
+@Serializable
+object FavoriteRoute : AppRoute
 
-    @Serializable
-    data object Auth : Route
+@Serializable
+object ProfileRoute : AppRoute
 
-    @Serializable
-    data object SignIn : Route
+@Serializable
+object AuthRoute : AppRoute
 
-    @Serializable
-    data object SignUp : Route
-}
+@Serializable
+object SignInRoute : AppRoute
+
+@Serializable
+object SignUpRoute : AppRoute
 
 enum class MainScreenDestination(
     val title: StringResource,
     val icon: DrawableResource,
     val selectedIcon: DrawableResource,
-    val route: Route,
+    val route: AppRoute,
 ) {
     Home(
-        title = Res.string.lets_blog_title,
+        title = Res.string.nav_bar_home_label,
         icon = Res.drawable.ic_home,
         selectedIcon = Res.drawable.ic_home_filled,
-        route = Route.Home,
+        route = HomeRoute,
     ),
     Search(
-        title = Res.string.lets_blog_title,
+        title = Res.string.nav_bar_search_label,
         icon = Res.drawable.ic_search,
         selectedIcon = Res.drawable.ic_search_filled,
-        route = Route.Search,
+        route = SearchRoute,
     ),
     Favorite(
-        title = Res.string.lets_blog_title,
+        title = Res.string.nav_bar_favorite_label,
         icon = Res.drawable.ic_favorite,
         selectedIcon = Res.drawable.ic_favorite_filled,
-        route = Route.Favorite,
+        route = FavoriteRoute,
     ),
     Profile(
-        title = Res.string.lets_blog_title,
+        title = Res.string.nav_bar_profile_label,
         icon = Res.drawable.ic_user,
         selectedIcon = Res.drawable.ic_user_filled,
-        route = Route.Profile,
+        route = ProfileRoute,
     ),
 }
 
@@ -92,38 +95,38 @@ enum class MainScreenDestination(
 fun AppNavigation(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
-        startDestination = Route.Splash,
+        startDestination = SplashRoute,
     ) {
-        composable<Route.Splash> {
+        composable<SplashRoute> {
             SplashScreen {
-                navController.navigate(Route.Onboarding) {
-                    popUpTo<Route.Splash> {
+                navController.navigate(OnboardingRoute) {
+                    popUpTo<SplashRoute> {
                         inclusive = true
                     }
                 }
             }
         }
         authGraph()
-        composable<Route.Onboarding> {
+        composable<OnboardingRoute> {
             OnboardingScreen {
-                navController.navigate(Route.Main) {
-                    popUpTo<Route.Onboarding> {
+                navController.navigate(MainRoute) {
+                    popUpTo<OnboardingRoute> {
                         inclusive = true
                     }
                 }
             }
         }
-        composable<Route.Main> {
+        composable<MainRoute> {
             MainScreen()
         }
     }
 }
 
 fun NavGraphBuilder.authGraph() {
-    navigation<Route.Auth>(startDestination = Route.SignIn) {
-        composable<Route.SignIn> {
+    navigation<AuthRoute>(startDestination = SignInRoute) {
+        composable<SignInRoute> {
         }
-        composable<Route.SignUp> {
+        composable<SignUpRoute> {
         }
     }
 }

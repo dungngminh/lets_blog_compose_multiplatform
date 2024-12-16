@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -138,9 +138,9 @@ fun OnboardingIndicator(
 ) {
     val color =
         if (isSelected) {
-            MaterialTheme.colors.primary
+            MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         }
     Box(
         modifier =
@@ -174,8 +174,8 @@ fun OnboardingContentView(
         Text(
             content.title,
             style =
-                MaterialTheme.typography.h4
-                    .copy(color = MaterialTheme.colors.onSurface),
+                MaterialTheme.typography.bodyLarge
+                    .copy(color = MaterialTheme.colorScheme.onSurface),
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(

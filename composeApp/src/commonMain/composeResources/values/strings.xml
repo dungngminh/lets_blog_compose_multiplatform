@@ -5,4 +5,8 @@
     <string name="password_title">Password</string>
     <string name="input_your_email_label">Input your email</string>
     <string name="input_your_password_label">Input your password</string>
+    <string name="nav_bar_home_label">Home</string>
+    <string name="nav_bar_profile_label">Profile</string>
+    <string name="nav_bar_search_label">Search</string>
+    <string name="nav_bar_favorite_label">Notification</string>
 </resources>
