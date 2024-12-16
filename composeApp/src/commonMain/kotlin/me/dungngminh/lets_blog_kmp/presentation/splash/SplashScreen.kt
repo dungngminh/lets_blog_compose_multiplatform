@@ -1,5 +1,6 @@
 package me.dungngminh.lets_blog_kmp.presentation.splash
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -90,4 +91,10 @@ fun SplashScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun SplashScreenPreview() {
+    SplashScreen(onSplashDone = {})
 }

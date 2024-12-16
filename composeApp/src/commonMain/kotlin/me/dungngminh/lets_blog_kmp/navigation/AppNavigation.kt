@@ -18,10 +18,7 @@ import letsblogkmp.composeapp.generated.resources.ic_search_filled
 import letsblogkmp.composeapp.generated.resources.ic_user
 import letsblogkmp.composeapp.generated.resources.ic_user_filled
 import letsblogkmp.composeapp.generated.resources.lets_blog_title
-import me.dungngminh.lets_blog_kmp.presentation.main.favorite.FavoriteScreen
-import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeScreen
-import me.dungngminh.lets_blog_kmp.presentation.main.profile.ProfileScreen
-import me.dungngminh.lets_blog_kmp.presentation.main.search.SearchScreen
+import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.onboarding.OnboardingScreen
 import me.dungngminh.lets_blog_kmp.presentation.splash.SplashScreen
 import org.jetbrains.compose.resources.DrawableResource
@@ -106,6 +103,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 }
             }
         }
+        authGraph()
         composable<Route.Onboarding> {
             OnboardingScreen {
                 navController.navigate(Route.Main) {
@@ -115,24 +113,8 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 }
             }
         }
-        authGraph()
-        mainGraph()
-    }
-}
-
-fun NavGraphBuilder.mainGraph() {
-    navigation<Route.Main>(startDestination = Route.Home) {
-        composable<Route.Home> {
-            HomeScreen()
-        }
-        composable<Route.Search> {
-            SearchScreen()
-        }
-        composable<Route.Favorite> {
-            FavoriteScreen()
-        }
-        composable<Route.Profile> {
-            ProfileScreen()
+        composable<Route.Main> {
+            MainScreen()
         }
     }
 }
