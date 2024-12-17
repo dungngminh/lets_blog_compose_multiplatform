@@ -28,6 +28,7 @@ import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.onboarding1
 import letsblogkmp.composeapp.generated.resources.onboarding2
 import letsblogkmp.composeapp.generated.resources.onboarding3
+import me.dungngminh.lets_blog_kmp.commons.theme.LetsBlogAppTheme
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -47,24 +48,24 @@ fun OnboardingScreen(
             OnboardingContent(
                 title = "What should I know about Blogie?",
                 description =
-                    "Blogie is an open platform where 170 million\n" +
+                "Blogie is an open platform where 170 million\n" +
                         "readers come to find insightful and dynamic\n" +
                         "thinking.",
                 image = Res.drawable.onboarding1,
             ),
             OnboardingContent(
                 title =
-                    "Write your ideas on\n" +
+                "Write your ideas on\n" +
                         "the blog",
                 description = "You can write your idea here and share it with other people.",
                 image = Res.drawable.onboarding2,
             ),
             OnboardingContent(
                 title =
-                    "Read according to\n" +
+                "Read according to\n" +
                         "your passion ",
                 description =
-                    "You can read and explore your passion by\n" +
+                "You can read and explore your passion by\n" +
                         "using this application.",
                 image = Res.drawable.onboarding3,
             ),
@@ -78,9 +79,9 @@ fun OnboardingScreen(
     Scaffold(modifier = modifier) { innerPadding ->
         Column(
             modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
+            Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
         ) {
             HorizontalPager(
                 modifier = Modifier.weight(1f),
@@ -90,16 +91,16 @@ fun OnboardingScreen(
                 OnboardingContentView(
                     content = content,
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
                 )
             }
             Row(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 for (i in onboardingContent.indices) {
@@ -144,13 +145,13 @@ fun OnboardingIndicator(
         }
     Box(
         modifier =
-            modifier
-                .height(8.dp)
-                .width(8.dp)
-                .background(
-                    color = color,
-                    shape = MaterialTheme.shapes.small,
-                ),
+        modifier
+            .height(8.dp)
+            .width(8.dp)
+            .background(
+                color = color,
+                shape = MaterialTheme.shapes.small,
+            ),
     )
 }
 
@@ -166,16 +167,16 @@ fun OnboardingContentView(
             painter = painterResource(content.image),
             contentDescription = null,
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(400.dp),
+            Modifier
+                .fillMaxWidth()
+                .height(400.dp),
         )
         Spacer(modifier = Modifier.height(40.dp))
         Text(
             content.title,
             style =
-                MaterialTheme.typography.bodyLarge
-                    .copy(color = MaterialTheme.colorScheme.onSurface),
+            MaterialTheme.typography.bodyLarge
+                .copy(color = MaterialTheme.colorScheme.onSurface),
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -187,5 +188,7 @@ fun OnboardingContentView(
 @Preview
 @Composable
 fun OnboardingScreenPreview() {
-    OnboardingScreen(onDoneClick = {})
+    LetsBlogAppTheme {
+        OnboardingScreen(onDoneClick = {})
+    }
 }

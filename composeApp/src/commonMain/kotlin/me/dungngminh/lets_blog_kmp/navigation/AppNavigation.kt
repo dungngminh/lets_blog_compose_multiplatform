@@ -21,6 +21,7 @@ import letsblogkmp.composeapp.generated.resources.nav_bar_favorite_label
 import letsblogkmp.composeapp.generated.resources.nav_bar_home_label
 import letsblogkmp.composeapp.generated.resources.nav_bar_profile_label
 import letsblogkmp.composeapp.generated.resources.nav_bar_search_label
+import me.dungngminh.lets_blog_kmp.presentation.auth.sign_in.SignInScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.onboarding.OnboardingScreen
 import me.dungngminh.lets_blog_kmp.presentation.splash.SplashScreen
@@ -106,7 +107,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 }
             }
         }
-        authGraph()
+        authGraph(navController)
         composable<OnboardingRoute> {
             OnboardingScreen {
                 navController.navigate(MainRoute) {
@@ -117,14 +118,23 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             }
         }
         composable<MainRoute> {
-            MainScreen()
+            MainScreen(
+                onLoginClick = {
+                    navController.navigate(AuthRoute)
+                }
+            )
         }
     }
 }
 
-fun NavGraphBuilder.authGraph() {
+fun NavGraphBuilder.authGraph(navController: NavHostController) {
     navigation<AuthRoute>(startDestination = SignInRoute) {
         composable<SignInRoute> {
+            SignInScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
         composable<SignUpRoute> {
         }

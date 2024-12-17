@@ -36,8 +36,9 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
+    onLoginClick: () -> Unit = {},
 ) {
+    val navController = rememberNavController()
     Scaffold(
         modifier = modifier,
         bottomBar = {
@@ -71,7 +72,7 @@ fun MainScreen(
                 FavoriteScreen()
             }
             composable<ProfileRoute> {
-                ProfileScreen()
+                ProfileScreen(onLoginClick = onLoginClick)
             }
         }
     }

@@ -53,39 +53,33 @@ fun SplashScreen(
 
     LaunchedEffect(isSplashDone) {
         if (isSplashDone) {
-            Napier.v("Checker")
             currentOnSplashDone()
         }
     }
 
     Scaffold(modifier = modifier) { innerPadding ->
         Box(
-            modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             Column {
                 Image(
-                    painter =
-                        rememberLottiePainter(composition = lottieComposition),
+                    painter = rememberLottiePainter(composition = lottieComposition),
                     contentDescription = "Splash animation",
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
                 )
-
                 Spacer(modifier = Modifier.height(24.dp))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Text(
                         stringResource(Res.string.lets_blog_title),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.headlineLarge,
                     )
                 }
             }
