@@ -26,7 +26,6 @@ compottie = "2.0.0-rc02"
 spotlessPlugin = "7.0.0.BETA1"
 kspPlugin = "2.0.20-1.0.25"
 koin-annotations-bom = "1.4.0"
-akkurate = "0.9.1"
 
 [libraries]
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

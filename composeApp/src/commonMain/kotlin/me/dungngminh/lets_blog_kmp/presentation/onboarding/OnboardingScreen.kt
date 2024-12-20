@@ -168,6 +168,7 @@ fun OnboardingContentView(
             contentDescription = null,
             modifier =
                 Modifier
+                    .padding(top = 12.dp)
                     .fillMaxWidth()
                     .height(400.dp),
         )

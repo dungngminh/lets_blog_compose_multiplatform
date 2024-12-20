@@ -127,7 +127,9 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                     navController.navigate(CreatePostRoute)
                 },
                 onLoginClick = {
-                    navController.navigate(AuthRoute)
+                    navController.navigate(AuthRoute) {
+                        restoreState = true
+                    }
                 },
             )
         }

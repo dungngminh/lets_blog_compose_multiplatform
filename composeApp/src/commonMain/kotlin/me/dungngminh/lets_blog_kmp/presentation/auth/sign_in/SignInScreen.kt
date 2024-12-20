@@ -54,7 +54,7 @@ fun SignInScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    viewModel: SignInViewModel = viewModel(),
+    viewModel: SignInViewModel = viewModel { SignInViewModel() },
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
