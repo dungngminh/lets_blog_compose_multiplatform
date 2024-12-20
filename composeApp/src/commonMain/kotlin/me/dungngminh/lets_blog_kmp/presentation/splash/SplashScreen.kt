@@ -22,7 +22,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.aakira.napier.Napier
 import io.github.alexzhirkevich.compottie.DotLottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
@@ -59,18 +58,20 @@ fun SplashScreen(
 
     Scaffold(modifier = modifier) { innerPadding ->
         Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             Column {
                 Image(
                     painter = rememberLottiePainter(composition = lottieComposition),
                     contentDescription = "Splash animation",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(

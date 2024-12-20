@@ -11,7 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, onLoginClick: () -> Unit) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    onLoginClick: () -> Unit,
+) {
     Scaffold(modifier = modifier) {
         Box(
             modifier = Modifier.padding(it).fillMaxSize(),

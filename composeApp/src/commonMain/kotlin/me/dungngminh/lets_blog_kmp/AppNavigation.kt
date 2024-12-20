@@ -1,4 +1,4 @@
-package me.dungngminh.lets_blog_kmp.navigation
+package me.dungngminh.lets_blog_kmp
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
@@ -22,6 +22,7 @@ import letsblogkmp.composeapp.generated.resources.nav_bar_home_label
 import letsblogkmp.composeapp.generated.resources.nav_bar_profile_label
 import letsblogkmp.composeapp.generated.resources.nav_bar_search_label
 import me.dungngminh.lets_blog_kmp.presentation.auth.sign_in.SignInScreen
+import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.onboarding.OnboardingScreen
 import me.dungngminh.lets_blog_kmp.presentation.splash.SplashScreen
@@ -59,6 +60,9 @@ object SignInRoute : AppRoute
 
 @Serializable
 object SignUpRoute : AppRoute
+
+@Serializable
+object CreatePostRoute : AppRoute
 
 enum class MainScreenDestination(
     val title: StringResource,
@@ -119,10 +123,18 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         }
         composable<MainRoute> {
             MainScreen(
+                onFabClick = {
+                    navController.navigate(CreatePostRoute)
+                },
                 onLoginClick = {
                     navController.navigate(AuthRoute)
-                }
+                },
             )
+        }
+        composable<CreatePostRoute> {
+            CreateBlogScreen {
+                navController.popBackStack()
+            }
         }
     }
 }
@@ -133,7 +145,10 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
             SignInScreen(
                 onBackClick = {
                     navController.popBackStack()
-                }
+                },
+                onSignUpClick = {
+                    navController.navigate(SignUpRoute)
+                },
             )
         }
         composable<SignUpRoute> {

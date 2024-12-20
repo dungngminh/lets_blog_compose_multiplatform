@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
     <string name="lets_blog_title">Let's Blog</string>
-    <string name="email_title">Email</string>
-    <string name="password_title">Password</string>
-    <string name="input_your_email_label">Input your email</string>
-    <string name="input_your_password_label">Input your password</string>
     <string name="nav_bar_home_label">Home</string>
     <string name="nav_bar_profile_label">Profile</string>
     <string name="nav_bar_search_label">Search</string>
     <string name="nav_bar_favorite_label">Notification</string>
+    <string name="fab_create_blog_label">Create blog</string>
+    <string name="sign_in_page_sign_in_title">Sign in</string>
+    <string name="sign_in_page_sign_in_button_label">Sign in</string>
+    <string name="sign_in_page_sign_up_button_label">Sign up</string>
+    <string name="sign_in_page_email_label">Email</string>
+    <string name="sign_in_page_email_hint_label">Input your email</string>
+    <string name="sign_in_page_password_hint_label">Input your password</string>
+    <string name="sign_in_page_password_label">Password</string>
+    <string name="sign_in_page_new_in_lets_blog_label">New in Let's Blog?</string>
+    <string name="sign_in_page_sign_up_now_label">Sign up now</string>
+    <string name="sign_up_page_sign_up_title">Sign up</string>
+    <string name="sign_up_page_sign_up_button_label">Sign up</string>
+    <string name="sign_up_page_sign_in_button_label">Sign in</string>
+    <string name="sign_up_page_username_label">Username</string>
+    <string name="sign_up_page_username_hint_label">Input your username</string>
+    <string name="sign_up_page_email_label">Email</string>
+    <string name="sign_up_page_email_hint_label">Input your email</string>
+    <string name="sign_up_page_password_label">Password</string>
+    <string name="sign_up_page_password_hint_label">Input your password</string>
+    <string name="sign_up_page_confirm_password_hint_label">Input your password again</string>
+    <string name="sign_up_page_confirm_password_label">Confirm password</string>
+    <string name="sign_up_page_already_have_account_label">Already have an account?</string>
+    <string name="sign_up_page_sign_in_now_label">Sign in now</string>
+    <string name="validation_error_password_empty">Password cannot be empty</string>
+    <string name="validation_error_password_too_short">Password must be at least %1$d characters</string>
+    <string name="validation_error_email_empty">Email cannot be empty</string>
+    <string name="validation_error_email_invalid">Email is invalid</string>
 </resources>

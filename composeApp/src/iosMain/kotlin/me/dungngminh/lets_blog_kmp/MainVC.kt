@@ -4,7 +4,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 
-fun MainViewController() {
+fun MainVC() {
     Napier.base(DebugAntilog())
     ComposeUIViewController { App() }
 }
