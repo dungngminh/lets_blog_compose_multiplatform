@@ -1,11 +1,10 @@
-package me.dungngminh.lets_blog_kmp.presentation.auth.sign_in
+package me.dungngminh.lets_blog_kmp.presentation.sign_in
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,6 +30,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cafe.adriel.voyager.core.model.rememberScreenModel
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_eye
 import letsblogkmp.composeapp.generated.resources.ic_eye_closed
@@ -46,28 +49,31 @@ import letsblogkmp.composeapp.generated.resources.validation_error_email_invalid
 import letsblogkmp.composeapp.generated.resources.validation_error_password_empty
 import letsblogkmp.composeapp.generated.resources.validation_error_password_too_short
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
+import me.dungngminh.lets_blog_kmp.presentation.sign_up.SignUpScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-@Composable
-fun SignInScreen(
-    modifier: Modifier = Modifier,
-    onBackClick: () -> Unit,
-    onSignUpClick: () -> Unit,
-    viewModel: SignInViewModel = viewModel { SignInViewModel() },
-) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+object SignInScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val viewModel = rememberScreenModel { SignInViewModel() }
 
-    SignInScreenContent(
-        modifier = modifier,
-        state = state,
-        onBackClick = onBackClick,
-        onEmailChange = viewModel::changeEmail,
-        onPasswordChange = viewModel::changePassword,
-        onSignUpClick = onSignUpClick,
-        onPasswordVisibilityToggle = viewModel::togglePasswordVisibility,
-        onSignInClick = viewModel::signIn,
-    )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        SignInScreenContent(
+            state = state,
+            onBackClick = {
+                navigator.pop()
+            },
+            onEmailChange = viewModel::changeEmail,
+            onPasswordChange = viewModel::changePassword,
+            onSignUpClick = {
+                navigator.push(SignUpScreen)
+            },
+            onPasswordVisibilityToggle = viewModel::togglePasswordVisibility,
+            onSignInClick = viewModel::signIn,
+        )
+    }
 }
 
 @Composable
@@ -93,7 +99,6 @@ fun SignInScreenContent(
             modifier =
                 Modifier
                     .padding(innerPadding)
-                    .fillMaxSize()
                     .padding(16.dp),
         ) {
             Spacer(modifier = Modifier.height(24.dp))
@@ -233,7 +238,9 @@ fun PreviewSignInScreen() {
         },
         state =
             SignInState(
-                isLoading = true,
+                isLoading = false,
+                isSignInFormValid = true,
+                email = "ngminhdung1311@gmail.com",
             ),
         onEmailChange = {
         },

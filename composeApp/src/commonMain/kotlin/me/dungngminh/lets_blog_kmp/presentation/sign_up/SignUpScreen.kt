@@ -1,4 +1,4 @@
-package me.dungngminh.lets_blog_kmp.presentation.auth.sign_up
+package me.dungngminh.lets_blog_kmp.presentation.sign_up
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -9,9 +9,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 
-@Composable
-fun SignUpScreen(modifier: Modifier = Modifier) {
+object SignUpScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow.parent
+        SignUpScreenContent(
+            onBackClick = {
+                navigator?.pop()
+            },
+            onUsernameChange = { },
+            onEmailChange = { },
+            onPasswordChange = { },
+            onConfirmPasswordChange = { },
+            onSignUpClick = { },
+        )
+    }
 }
 
 @Composable
@@ -26,7 +42,7 @@ fun SignUpScreenContent(
 ) {
     Scaffold(
         topBar = {
-            SignUpTopBar(onBackClick = { })
+            SignUpTopBar(onBackClick = onBackClick)
         },
     ) {
     }

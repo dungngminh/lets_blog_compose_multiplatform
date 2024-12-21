@@ -8,18 +8,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.tab.Tab
+import cafe.adriel.voyager.navigator.tab.TabOptions
+import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
+import org.jetbrains.compose.resources.stringResource
+
+object SearchTab : Tab {
+    @Composable
+    override fun Content() {
+        SearchScreenContent()
+    }
+
+    override val options: TabOptions
+        @Composable
+        get() =
+            TabOptions(
+                index =
+                    MainScreenDestination.entries
+                        .indexOf(MainScreenDestination.Search)
+                        .toUShort(),
+                title = stringResource(MainScreenDestination.Search.title),
+            )
+}
 
 @Composable
-fun SearchScreen(modifier: Modifier = Modifier) {
+private fun SearchScreenContent(modifier: Modifier = Modifier) {
     Scaffold(modifier = modifier) {
         Box(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .padding(it),
+                    .padding(it)
+                    .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            Text("SearchScreen")
+            Text("Search Screen")
         }
     }
 }

@@ -22,6 +22,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.alexzhirkevich.compottie.DotLottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
@@ -29,12 +32,26 @@ import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.lets_blog_title
+import me.dungngminh.lets_blog_kmp.presentation.onboarding.OnboardingScreen
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
+class SplashScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
+        SplashScreenContent(
+            onSplashDone = {
+                navigator.replace(OnboardingScreen())
+            },
+        )
+    }
+}
+
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun SplashScreen(
+private fun SplashScreenContent(
     modifier: Modifier = Modifier,
     onSplashDone: () -> Unit,
 ) {
@@ -91,5 +108,5 @@ fun SplashScreen(
 @Preview
 @Composable
 fun SplashScreenPreview() {
-    SplashScreen(onSplashDone = {})
+    SplashScreenContent(onSplashDone = {})
 }
