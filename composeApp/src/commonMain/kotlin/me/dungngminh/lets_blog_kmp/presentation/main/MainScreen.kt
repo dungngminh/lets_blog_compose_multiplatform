@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
@@ -47,7 +46,6 @@ import me.dungngminh.lets_blog_kmp.presentation.main.favorite.FavoriteTab
 import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeTab
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.ProfileTab
 import me.dungngminh.lets_blog_kmp.presentation.main.search.SearchTab
-import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -57,26 +55,31 @@ enum class MainScreenDestination(
     val title: StringResource,
     val icon: DrawableResource,
     val selectedIcon: DrawableResource,
+    val tab: Tab,
 ) {
     Home(
         title = Res.string.nav_bar_home_label,
         icon = Res.drawable.ic_home,
         selectedIcon = Res.drawable.ic_home_filled,
+        tab = HomeTab,
     ),
     Search(
         title = Res.string.nav_bar_search_label,
         icon = Res.drawable.ic_search,
         selectedIcon = Res.drawable.ic_search_filled,
+        tab = SearchTab,
     ),
     Favorite(
         title = Res.string.nav_bar_favorite_label,
         icon = Res.drawable.ic_favorite,
         selectedIcon = Res.drawable.ic_favorite_filled,
+        tab = FavoriteTab,
     ),
     Profile(
         title = Res.string.nav_bar_profile_label,
         icon = Res.drawable.ic_user,
         selectedIcon = Res.drawable.ic_user_filled,
+        tab = ProfileTab,
     ),
 }
 
@@ -97,7 +100,6 @@ fun MainScreenContent(
     modifier: Modifier = Modifier,
     onFabClick: () -> Unit,
 ) {
-    val rootNavigator = LocalNavigator.currentOrThrow
     TabNavigator(HomeTab) {
         Scaffold(
             modifier = modifier,
@@ -108,7 +110,7 @@ fun MainScreenContent(
                 CreateBlogFabButton(onFabClick = onFabClick)
             },
             bottomBar = {
-                MainNavigationBar(rootNavigator = rootNavigator)
+                MainNavigationBar()
             },
         )
     }
@@ -134,22 +136,12 @@ private fun CreateBlogFabButton(
 }
 
 @Composable
-private fun MainNavigationBar(
-    modifier: Modifier = Modifier,
-    rootNavigator: Navigator,
-) {
+private fun MainNavigationBar(modifier: Modifier = Modifier) {
     NavigationBar(modifier = modifier) {
-        TabNavigationItem(tab = HomeTab)
-        TabNavigationItem(tab = SearchTab)
-        TabNavigationItem(tab = FavoriteTab)
-        TabNavigationItem(
-            tab =
-                ProfileTab(
-                    onLoginClick = {
-                        rootNavigator.push(SignInScreen)
-                    },
-                ),
-        )
+        MainScreenDestination.entries
+            .forEach {
+                TabNavigationItem(tab = it.tab)
+            }
     }
 }
 

@@ -9,18 +9,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
+import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.stringResource
 
-data class ProfileTab(
-    val onLoginClick: () -> Unit,
-) : Tab {
+object ProfileTab : Tab {
     @Composable
     override fun Content() {
+        val parent = LocalNavigator.currentOrThrow.parent
         ProfileScreenContent(
-            onLoginClick = onLoginClick,
+            onLoginClick = {
+                parent?.push(SignInScreen)
+            },
         )
     }
 
