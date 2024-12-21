@@ -115,6 +115,15 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+
+            // Voyager
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.tabNavigator)
+            implementation(libs.voyager.screenModel)
+            implementation(libs.voyager.koin)
+
+            // Windows Class
+            implementation(libs.material3.windowSizeClass)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

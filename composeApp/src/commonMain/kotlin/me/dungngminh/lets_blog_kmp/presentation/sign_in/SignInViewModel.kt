@@ -1,7 +1,7 @@
-package me.dungngminh.lets_blog_kmp.presentation.auth.sign_in
+package me.dungngminh.lets_blog_kmp.presentation.sign_in
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -28,7 +28,7 @@ data class SignInState(
     val error: String? = null,
 )
 
-class SignInViewModel : ViewModel() {
+class SignInViewModel : ScreenModel {
     private val _state = MutableStateFlow(SignInState())
     val state = _state
 
@@ -83,7 +83,7 @@ class SignInViewModel : ViewModel() {
             it.copy(isLoading = true)
         }
         // TODO call api
-        viewModelScope.launch {
+        screenModelScope.launch {
             delay(2000)
             _state.update {
                 it.copy(isLoading = false)

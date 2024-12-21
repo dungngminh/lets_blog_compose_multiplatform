@@ -9,9 +9,35 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.tab.Tab
+import cafe.adriel.voyager.navigator.tab.TabOptions
+import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
+import org.jetbrains.compose.resources.stringResource
+
+data class ProfileTab(
+    val onLoginClick: () -> Unit,
+) : Tab {
+    @Composable
+    override fun Content() {
+        ProfileScreenContent(
+            onLoginClick = onLoginClick,
+        )
+    }
+
+    override val options: TabOptions
+        @Composable
+        get() =
+            TabOptions(
+                index =
+                    MainScreenDestination.entries
+                        .indexOf(MainScreenDestination.Profile)
+                        .toUShort(),
+                title = stringResource(MainScreenDestination.Profile.title),
+            )
+}
 
 @Composable
-fun ProfileScreen(
+private fun ProfileScreenContent(
     modifier: Modifier = Modifier,
     onLoginClick: () -> Unit,
 ) {
