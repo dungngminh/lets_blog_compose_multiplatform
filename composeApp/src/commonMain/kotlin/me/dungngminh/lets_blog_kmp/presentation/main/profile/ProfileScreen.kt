@@ -51,7 +51,7 @@ private fun ProfileScreenContent(
             contentAlignment = Alignment.Center,
         ) {
             Button(onClick = onLoginClick) {
-                Text("Login in")
+                Text("Log in")
             }
         }
     }

@@ -16,10 +16,10 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 object SignUpScreen : Screen {
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
+        val navigator = LocalNavigator.currentOrThrow.parent
         SignUpScreenContent(
             onBackClick = {
-                navigator.pop()
+                navigator?.pop()
             },
             onUsernameChange = { },
             onEmailChange = { },
@@ -42,7 +42,7 @@ fun SignUpScreenContent(
 ) {
     Scaffold(
         topBar = {
-            SignUpTopBar(onBackClick = { })
+            SignUpTopBar(onBackClick = onBackClick)
         },
     ) {
     }
