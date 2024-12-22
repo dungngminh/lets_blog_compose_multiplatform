@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.googleKsp)
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -118,6 +119,7 @@ kotlin {
 
             // Ktorfit
             implementation(libs.ktorfit)
+            implementation(libs.ktorfit.converters.flow)
 
             // Voyager
             implementation(libs.voyager.navigator)
@@ -128,6 +130,14 @@ kotlin {
 
             // Windows Class
             implementation(libs.material3.windowSizeClass)
+
+            // Flow Ext
+            implementation(libs.flowExt)
+
+            // Multiplatform Settings
+            implementation(libs.multiplatformSettings.noArg)
+            implementation(libs.multiplatformSettings.coroutines)
+            implementation(libs.multiplatformSettings.makeObservable)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

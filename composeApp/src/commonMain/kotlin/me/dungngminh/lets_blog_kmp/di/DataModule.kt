@@ -1,24 +1,88 @@
 package me.dungngminh.lets_blog_kmp.di
 
+import com.russhwolf.settings.ExperimentalSettingsApi
+import com.russhwolf.settings.Settings
+import com.russhwolf.settings.coroutines.toFlowSettings
+import com.russhwolf.settings.observable.makeObservable
 import de.jensklingenberg.ktorfit.Ktorfit
-import me.dungngminh.lets_blog_kmp.data.datasource.RemoteAuthDatasource
+import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.header
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import me.dungngminh.lets_blog_kmp.data.api_service.createAuthService
+import me.dungngminh.lets_blog_kmp.data.local.UserStore
 import me.dungngminh.lets_blog_kmp.data.repositories.AuthRepositoryImpl
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 import org.koin.dsl.module
 
-private val KtorfitInstance =
+@OptIn(ExperimentalSerializationApi::class)
+private val httpModule =
     module {
+        single {
+            HttpClient {
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            prettyPrint = true
+                            prettyPrintIndent = "    "
+                            isLenient = true
+                            ignoreUnknownKeys = true
+                        },
+                    )
+                }
+                install(DefaultRequest) {
+                    header(HttpHeaders.ContentType, ContentType.Application.Json)
+                }
+            }
+        }
+
         single {
             Ktorfit
                 .Builder()
-                .baseUrl("https://backend.backend.orb.local/")
+                .httpClient(get<HttpClient>())
+                .baseUrl("http://10.0.2.2:8080/")
+                .converterFactories(FlowConverterFactory())
                 .build()
+        }
+    }
+
+private val ApiModule =
+    module {
+        single { get<Ktorfit>().createAuthService() }
+    }
+
+@OptIn(ExperimentalSettingsApi::class)
+private val LocalModule =
+    module {
+        single { Settings() }
+        single {
+            UserStore(
+                get<Settings>().makeObservable().toFlowSettings(),
+            )
+        }
+    }
+
+private val RepositoryModule =
+    module {
+        single<AuthRepository> {
+            AuthRepositoryImpl(
+                authService = get(),
+                userStore = get(),
+                ioDispatcher = ioDispatcher,
+            )
         }
     }
 
 internal val DataModule =
     module {
-        includes(KtorfitInstance)
-        single { RemoteAuthDatasource(get()) }
-        single<AuthRepository> { AuthRepositoryImpl(get()) }
+        includes(httpModule)
+        includes(ApiModule)
+        includes(LocalModule)
+        includes(RepositoryModule)
     }

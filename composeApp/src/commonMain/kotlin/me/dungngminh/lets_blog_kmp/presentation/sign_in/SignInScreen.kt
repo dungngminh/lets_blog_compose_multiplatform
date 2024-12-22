@@ -33,8 +33,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import letsblogkmp.composeapp.generated.resources.Res
@@ -60,7 +60,7 @@ object SignInScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = rememberScreenModel { SignInViewModel() }
+        val viewModel = koinScreenModel<SignInViewModel>()
 
         val state by viewModel.state.collectAsStateWithLifecycle()
         SignInScreenContent(

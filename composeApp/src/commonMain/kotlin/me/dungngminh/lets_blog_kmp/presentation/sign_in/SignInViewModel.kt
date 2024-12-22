@@ -2,12 +2,15 @@ package me.dungngminh.lets_blog_kmp.presentation.sign_in
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.delay
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.isValidEmail
+import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
 enum class SignInValidationError {
     EMPTY_EMAIL,
@@ -28,12 +31,20 @@ data class SignInState(
     val error: String? = null,
 )
 
-class SignInViewModel : ScreenModel {
+class SignInViewModel(
+    private val authRepository: AuthRepository,
+) : ScreenModel {
     private val _state = MutableStateFlow(SignInState())
     val state = _state
 
     val currentState: SignInState
         get() = _state.value
+
+    init {
+        authRepository.authStateFlow
+            .onEach { Napier.v("$it") }
+            .launchIn(screenModelScope)
+    }
 
     fun changeEmail(email: String) {
         val emailInput = email.trim()
@@ -79,16 +90,22 @@ class SignInViewModel : ScreenModel {
     }
 
     fun signIn() {
-        _state.update {
-            it.copy(isLoading = true)
-        }
-        // TODO call api
-        screenModelScope.launch {
-            delay(2000)
-            _state.update {
-                it.copy(isLoading = false)
-            }
-        }
+        authRepository
+            .login(email = currentState.email, password = currentState.password)
+            .onStart { _state.update { it.copy(isLoading = true) } }
+            .onEach { result ->
+                result
+                    .onSuccess {
+                        _state.update { it.copy(isLoading = false) }
+                    }.onFailure {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                error = it.toString(),
+                            )
+                        }
+                    }
+            }.launchIn(screenModelScope)
     }
 
     private fun isFormValid(

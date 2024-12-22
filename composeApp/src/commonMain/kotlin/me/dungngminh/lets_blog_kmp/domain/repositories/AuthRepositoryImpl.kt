@@ -3,7 +3,7 @@ package me.dungngminh.lets_blog_kmp.domain.repositories
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
-    val authStateFlow: Flow<Unit>
+    val authStateFlow: Flow<String?>
 
     fun login(
         email: String,
