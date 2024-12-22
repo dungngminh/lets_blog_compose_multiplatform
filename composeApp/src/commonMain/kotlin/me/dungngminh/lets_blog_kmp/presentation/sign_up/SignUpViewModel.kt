@@ -1,12 +1,17 @@
 package me.dungngminh.lets_blog_kmp.presentation.sign_up
 
-import androidx.compose.ui.util.fastAll
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.MIN_USERNAME_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.isValidEmail
+import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
 enum class SignUpValidationError {
     EMPTY_USERNAME,
@@ -28,14 +33,16 @@ data class SignUpState(
     val passwordVisible: Boolean = true,
     val confirmPasswordVisible: Boolean = true,
     val error: String? = null,
-    val usernameError: SignUpValidationError = SignUpValidationError.NONE,
-    val emailError: SignUpValidationError = SignUpValidationError.NONE,
-    val passwordError: SignUpValidationError = SignUpValidationError.NONE,
-    val confirmPasswordError: SignUpValidationError = SignUpValidationError.NONE,
+    val usernameError: SignUpValidationError? = null,
+    val emailError: SignUpValidationError? = null,
+    val passwordError: SignUpValidationError? = null,
+    val confirmPasswordError: SignUpValidationError? = null,
     val isSignUpFormValid: Boolean = false,
 )
 
-class SignUpViewModel : ScreenModel {
+class SignUpViewModel(
+    private val authRepository: AuthRepository,
+) : ScreenModel {
     private val _state = MutableStateFlow(SignUpState())
     val state = _state
 
@@ -128,6 +135,27 @@ class SignUpViewModel : ScreenModel {
     }
 
     fun signUp() {
+        authRepository
+            .register(
+                name = currentState.username,
+                email = currentState.email,
+                password = currentState.password,
+                confirmPassword = currentState.confirmPassword,
+            ).onStart { _state.update { it.copy(isLoading = true) } }
+            .onEach { result ->
+                Napier.v("$result")
+                result
+                    .onSuccess {
+                        _state.update { it.copy(isLoading = false) }
+                    }.onFailure {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                error = it.toString(),
+                            )
+                        }
+                    }
+            }.launchIn(screenModelScope)
     }
 
     fun onErrorShown() {
@@ -154,6 +182,6 @@ class SignUpViewModel : ScreenModel {
             emailValidationError,
             passwordValidationError,
             confirmPasswordValidationError,
-        ).fastAll { it == SignUpValidationError.NONE }
+        ).all { it == SignUpValidationError.NONE }
     }
 }

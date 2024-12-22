@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -36,7 +37,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_eye
 import letsblogkmp.composeapp.generated.resources.ic_eye_closed
@@ -59,22 +59,27 @@ import org.jetbrains.compose.resources.stringResource
 object SignInScreen : Screen {
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
+        val navigator = LocalNavigator.current
         val viewModel = koinScreenModel<SignInViewModel>()
+
+        val sortKeyboardController = LocalSoftwareKeyboardController.current
 
         val state by viewModel.state.collectAsStateWithLifecycle()
         SignInScreenContent(
             state = state,
             onBackClick = {
-                navigator.pop()
+                navigator?.pop()
             },
             onEmailChange = viewModel::changeEmail,
             onPasswordChange = viewModel::changePassword,
             onSignUpClick = {
-                navigator.push(SignUpScreen)
+                navigator?.push(SignUpScreen)
             },
             onPasswordVisibilityToggle = viewModel::togglePasswordVisibility,
-            onSignInClick = viewModel::signIn,
+            onSignInClick = {
+                viewModel.signIn()
+                sortKeyboardController?.hide()
+            },
         )
     }
 }
@@ -112,7 +117,11 @@ fun SignInScreenContent(
             OutlinedTextField(
                 value = state.email,
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.emailError != SignInValidationError.NONE,
+                isError =
+                    when (state.emailError) {
+                        null, SignInValidationError.NONE -> false
+                        else -> true
+                    },
                 keyboardOptions =
                     KeyboardOptions(
                         imeAction = ImeAction.Next,
@@ -140,7 +149,11 @@ fun SignInScreenContent(
             OutlinedTextField(
                 value = state.password,
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.passwordError != SignInValidationError.NONE,
+                isError =
+                    when (state.passwordError) {
+                        null, SignInValidationError.NONE -> false
+                        else -> true
+                    },
                 keyboardActions =
                     KeyboardActions(onGo = {
                         if (state.isSignInFormValid) {

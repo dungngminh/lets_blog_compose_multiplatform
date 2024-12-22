@@ -4,6 +4,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
+import java.awt.Dimension
 
 fun main() {
     Napier.base(DebugAntilog())
@@ -12,6 +13,7 @@ fun main() {
             onCloseRequest = ::exitApplication,
             title = "LetsBlogKMP",
         ) {
+            window.minimumSize = Dimension(1000, 800)
             App()
         }
     }

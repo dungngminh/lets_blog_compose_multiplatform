@@ -23,8 +23,8 @@ enum class SignInValidationError {
 data class SignInState(
     val email: String = "",
     val password: String = "",
-    val emailError: SignInValidationError = SignInValidationError.NONE,
-    val passwordError: SignInValidationError = SignInValidationError.NONE,
+    val emailError: SignInValidationError? = null,
+    val passwordError: SignInValidationError? = null,
     val isLoading: Boolean = false,
     val passwordVisible: Boolean = true,
     val isSignInFormValid: Boolean = false,
@@ -112,10 +112,9 @@ class SignInViewModel(
         emailError: SignInValidationError? = null,
         passwordError: SignInValidationError? = null,
     ): Boolean {
-        val isEmailValueValid =
-            (emailError ?: currentState.emailError) == SignInValidationError.NONE
-        val isPasswordValueValid =
-            (passwordError ?: currentState.passwordError) == SignInValidationError.NONE
-        return isEmailValueValid && isPasswordValueValid
+        val emailValidationError = emailError ?: currentState.emailError
+        val passwordValidationError = passwordError ?: currentState.passwordError
+        return listOf(emailValidationError, passwordValidationError)
+            .all { it == SignInValidationError.NONE }
     }
 }

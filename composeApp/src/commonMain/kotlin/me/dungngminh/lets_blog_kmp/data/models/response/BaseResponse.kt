@@ -6,5 +6,7 @@ import kotlinx.serialization.Serializable
 data class BaseResponse<T>(
     val success: Boolean,
     val message: String,
-    val result: T,
-)
+    val result: T? = null,
+) {
+    fun unwrap(): T = result!!
+}

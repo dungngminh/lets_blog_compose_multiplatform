@@ -14,6 +14,7 @@ interface AuthRepository {
         name: String,
         email: String,
         password: String,
+        confirmPassword: String,
     ): Flow<Result<Unit>>
 
     fun checkAuth(): Flow<Unit>

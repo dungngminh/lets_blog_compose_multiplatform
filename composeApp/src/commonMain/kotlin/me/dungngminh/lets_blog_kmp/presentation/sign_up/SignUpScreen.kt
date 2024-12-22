@@ -27,14 +27,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -45,8 +47,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import cafe.adriel.voyager.core.model.rememberScreenModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
@@ -79,13 +82,11 @@ object SignUpScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = rememberScreenModel { SignUpViewModel() }
+        val viewModel = koinScreenModel<SignUpViewModel>()
 
         val state by viewModel.state.collectAsStateWithLifecycle()
         SignUpScreenContent(
-            onBackClick = {
-                navigator.pop()
-            },
+            onBackClick = navigator::pop,
             state = state,
             onUsernameChange = viewModel::changeUsername,
             onEmailChange = viewModel::changeEmail,
@@ -94,9 +95,8 @@ object SignUpScreen : Screen {
             onConfirmPasswordVisibilityToggle = viewModel::toggleConfirmPasswordVisibility,
             onPasswordVisibilityToggle = viewModel::togglePasswordVisibility,
             onSignUpClick = viewModel::signUp,
-            onSignInNowClick = {
-                navigator.pop()
-            },
+            onSignInNowClick = navigator::pop,
+            onErrorShown = viewModel::onErrorShown,
         )
     }
 }
@@ -115,12 +115,26 @@ fun SignUpScreenContent(
     onConfirmPasswordVisibilityToggle: () -> Unit,
     onSignUpClick: () -> Unit,
     onSignInNowClick: () -> Unit,
+    onErrorShown: () -> Unit,
 ) {
     val sortKeyboardController = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
     val bringIntoViewRequest = remember { BringIntoViewRequester() }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(state.error) {
+        state.error?.let {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(it)
+                onErrorShown()
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             SignUpTopBar(onBackClick = onBackClick)
         },
@@ -145,7 +159,7 @@ fun SignUpScreenContent(
                     Modifier
                         .fillMaxWidth()
                         .bringIntoView(bringIntoViewRequest),
-                isError = state.usernameError != SignUpValidationError.NONE,
+                isError = isFormError(state.usernameError),
                 supportingText = {
                     if (state.usernameError != SignUpValidationError.NONE) {
                         Text(
@@ -180,7 +194,7 @@ fun SignUpScreenContent(
                     Modifier
                         .fillMaxWidth()
                         .bringIntoView(bringIntoViewRequest),
-                isError = state.emailError != SignUpValidationError.NONE,
+                isError = isFormError(state.emailError),
                 supportingText = {
                     if (state.emailError != SignUpValidationError.NONE) {
                         Text(
@@ -211,7 +225,7 @@ fun SignUpScreenContent(
                     Modifier
                         .fillMaxWidth()
                         .bringIntoView(bringIntoViewRequest),
-                isError = state.passwordError != SignUpValidationError.NONE,
+                isError = isFormError(state.passwordError),
                 supportingText = {
                     if (state.passwordError != SignUpValidationError.NONE) {
                         Text(
@@ -264,7 +278,7 @@ fun SignUpScreenContent(
                     Modifier
                         .fillMaxWidth()
                         .bringIntoView(bringIntoViewRequest),
-                isError = state.confirmPasswordError != SignUpValidationError.NONE,
+                isError = isFormError(state.confirmPasswordError),
                 supportingText = {
                     if (state.confirmPasswordError != SignUpValidationError.NONE) {
                         Text(
@@ -352,6 +366,12 @@ fun SignUpScreenContent(
     }
 }
 
+fun isFormError(validationError: SignUpValidationError? = null): Boolean =
+    when (validationError) {
+        SignUpValidationError.NONE, null -> false
+        else -> true
+    }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpTopBar(onBackClick: () -> Unit) {
@@ -385,6 +405,7 @@ fun PreviewSignInScreen() {
         onConfirmPasswordVisibilityToggle = {},
         onSignUpClick = {},
         onSignInNowClick = {},
+        onErrorShown = {},
     )
 }
 

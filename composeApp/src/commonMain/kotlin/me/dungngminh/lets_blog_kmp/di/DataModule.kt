@@ -17,8 +17,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import me.dungngminh.lets_blog_kmp.data.api_service.createAuthService
 import me.dungngminh.lets_blog_kmp.data.local.UserStore
-import me.dungngminh.lets_blog_kmp.data.repositories.AuthRepositoryImpl
-import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 import org.koin.dsl.module
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -46,7 +44,7 @@ private val httpModule =
             Ktorfit
                 .Builder()
                 .httpClient(get<HttpClient>())
-                .baseUrl("http://10.0.2.2:8080/")
+                .baseUrl("http://192.168.1.112:1311/")
                 .converterFactories(FlowConverterFactory())
                 .build()
         }
@@ -68,21 +66,9 @@ private val LocalModule =
         }
     }
 
-private val RepositoryModule =
-    module {
-        single<AuthRepository> {
-            AuthRepositoryImpl(
-                authService = get(),
-                userStore = get(),
-                ioDispatcher = ioDispatcher,
-            )
-        }
-    }
-
 internal val DataModule =
     module {
         includes(httpModule)
         includes(ApiModule)
         includes(LocalModule)
-        includes(RepositoryModule)
     }

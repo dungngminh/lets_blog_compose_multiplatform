@@ -17,5 +17,5 @@ interface AuthService {
     @POST("api/auth/register")
     fun register(
         @Body registerRequest: RegisterRequest,
-    ): Flow<Unit>
+    ): Flow<BaseResponse<Unit>>
 }

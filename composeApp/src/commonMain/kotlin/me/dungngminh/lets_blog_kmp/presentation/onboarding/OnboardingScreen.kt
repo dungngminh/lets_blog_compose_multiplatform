@@ -63,25 +63,25 @@ class OnboardingScreen : Screen {
                 OnboardingContent(
                     title = "What should I know about Blogie?",
                     description =
-                        "Blogie is an open platform where 170 million\n" +
-                            "readers come to find insightful and dynamic\n" +
-                            "thinking.",
+                        "Blogie is an open platform where 170 million" +
+                            " readers come to find insightful and dynamic" +
+                            " thinking.",
                     image = Res.drawable.onboarding1,
                 ),
                 OnboardingContent(
                     title =
-                        "Write your ideas on\n" +
-                            "the blog",
+                        "Write your ideas on" +
+                            " the blog",
                     description = "You can write your idea here and share it with other people.",
                     image = Res.drawable.onboarding2,
                 ),
                 OnboardingContent(
                     title =
-                        "Read according to\n" +
-                            "your passion ",
+                        "Read according to" +
+                            " your passion ",
                     description =
-                        "You can read and explore your passion by\n" +
-                            "using this application.",
+                        "You can read and explore your passion by" +
+                            " using this application.",
                     image = Res.drawable.onboarding3,
                 ),
             )
@@ -114,18 +114,18 @@ class OnboardingScreen : Screen {
                 Row(
                     modifier =
                         Modifier
+                            .padding(bottom = 24.dp)
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    for (i in onboardingContent.indices) {
+                    onboardingContent.indices.forEachIndexed { index, _ ->
                         Spacer(modifier = Modifier.width(8.dp))
                         OnboardingIndicator(
-                            isSelected = i == pagerState.currentPage,
+                            isSelected = index == pagerState.currentPage,
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-
                     val isLastPage = pagerState.currentPage == onboardingContent.size - 1
                     TextButton(onClick = {
                         if (isLastPage) {
