@@ -116,11 +116,15 @@ kotlin {
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
 
+            // Ktorfit
+            implementation(libs.ktorfit)
+
             // Voyager
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tabNavigator)
             implementation(libs.voyager.screenModel)
             implementation(libs.voyager.koin)
+            implementation(libs.voyager.transitions)
 
             // Windows Class
             implementation(libs.material3.windowSizeClass)

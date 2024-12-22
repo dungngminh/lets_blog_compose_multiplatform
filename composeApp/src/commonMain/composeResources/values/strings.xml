@@ -32,4 +32,8 @@
     <string name="validation_error_password_too_short">Password must be at least %1$d characters</string>
     <string name="validation_error_email_empty">Email cannot be empty</string>
     <string name="validation_error_email_invalid">Email is invalid</string>
+    <string name="validation_error_username_empty">Username cannot be empty</string>
+    <string name="validation_error_username_too_short">Username must be at least %1$d characters</string>
+    <string name="validation_error_confirm_password_empty">Confirm password cannot be empty</string>
+    <string name="validation_error_confirm_password_not_match">Confirm password does not match</string>
 </resources>

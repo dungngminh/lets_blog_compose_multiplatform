@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -25,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -101,7 +104,6 @@ fun SignInScreenContent(
                     .padding(innerPadding)
                     .padding(16.dp),
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
             Text(
                 stringResource(Res.string.sign_in_page_sign_in_title),
                 style = MaterialTheme.typography.displayLarge,
@@ -111,6 +113,10 @@ fun SignInScreenContent(
                 value = state.email,
                 modifier = Modifier.fillMaxWidth(),
                 isError = state.emailError != SignInValidationError.NONE,
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                    ),
                 supportingText = {
                     if (state.emailError != SignInValidationError.NONE) {
                         Text(
@@ -135,6 +141,16 @@ fun SignInScreenContent(
                 value = state.password,
                 modifier = Modifier.fillMaxWidth(),
                 isError = state.passwordError != SignInValidationError.NONE,
+                keyboardActions =
+                    KeyboardActions(onGo = {
+                        if (state.isSignInFormValid) {
+                            onSignInClick()
+                        }
+                    }),
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction = ImeAction.Go,
+                    ),
                 supportingText = {
                     if (state.passwordError != SignInValidationError.NONE) {
                         Text(
