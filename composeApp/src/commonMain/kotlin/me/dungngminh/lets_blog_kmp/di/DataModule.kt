@@ -44,7 +44,7 @@ private val httpModule =
             Ktorfit
                 .Builder()
                 .httpClient(get<HttpClient>())
-                .baseUrl("http://192.168.1.112:1311/")
+                .baseUrl("https://letsblog.up.railway.app/")
                 .converterFactories(FlowConverterFactory())
                 .build()
         }
@@ -61,7 +61,9 @@ private val LocalModule =
         single { Settings() }
         single {
             UserStore(
-                get<Settings>().makeObservable().toFlowSettings(),
+                get<Settings>()
+                    .makeObservable()
+                    .toFlowSettings(),
             )
         }
     }
