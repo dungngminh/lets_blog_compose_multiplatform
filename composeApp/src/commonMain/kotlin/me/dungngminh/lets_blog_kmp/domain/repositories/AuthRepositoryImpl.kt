@@ -5,17 +5,17 @@ import kotlinx.coroutines.flow.Flow
 interface AuthRepository {
     val authStateFlow: Flow<String?>
 
-    fun login(
+    suspend fun login(
         email: String,
         password: String,
-    ): Flow<Result<Unit>>
+    ): Result<Unit>
 
-    fun register(
+    suspend fun register(
         name: String,
         email: String,
         password: String,
         confirmPassword: String,
-    ): Flow<Result<Unit>>
+    ): Result<Unit>
 
-    fun checkAuth(): Flow<Unit>
+    suspend fun checkAuth(): String?
 }

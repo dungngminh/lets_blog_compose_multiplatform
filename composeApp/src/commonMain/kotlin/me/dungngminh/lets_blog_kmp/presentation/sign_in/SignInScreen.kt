@@ -20,11 +20,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -37,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
+import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_eye
 import letsblogkmp.composeapp.generated.resources.ic_eye_closed
@@ -60,13 +65,31 @@ object SignInScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = koinScreenModel<SignInViewModel>()
-
+        val snackbarHostState = remember { SnackbarHostState() }
         val sortKeyboardController = LocalSoftwareKeyboardController.current
-
+        val viewModel = koinScreenModel<SignInViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+
+        LaunchedEffect(Unit) {
+            viewModel.state.collect { state ->
+                when {
+                    state.isLoginSuccess -> {
+                        navigator?.pop()
+                    }
+
+                    state.error != null -> {
+                        launch {
+                            snackbarHostState.showSnackbar(state.error)
+                        }
+                        viewModel.onErrorMessageShown()
+                    }
+                }
+            }
+        }
+
         SignInScreenContent(
             state = state,
+            snackbarHostState = snackbarHostState,
             onBackClick = {
                 navigator?.pop()
             },
@@ -87,6 +110,7 @@ object SignInScreen : Screen {
 @Composable
 fun SignInScreenContent(
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState,
     state: SignInState,
     onBackClick: () -> Unit,
     onEmailChange: (String) -> Unit,
@@ -96,6 +120,7 @@ fun SignInScreenContent(
     onSignInClick: () -> Unit,
 ) {
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SignInTopBar(
                 onBackClick = onBackClick,
@@ -260,6 +285,7 @@ fun SignInTopBar(onBackClick: () -> Unit) {
 @Preview
 @Composable
 fun PreviewSignInScreen() {
+    val snackbarHostState = remember { SnackbarHostState() }
     SignInScreenContent(
         onBackClick = {
         },
@@ -278,5 +304,6 @@ fun PreviewSignInScreen() {
         onPasswordVisibilityToggle = {
         },
         onSignInClick = {},
+        snackbarHostState = snackbarHostState,
     )
 }

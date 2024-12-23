@@ -1,13 +1,9 @@
 package me.dungngminh.lets_blog_kmp.data.repositories
 
-import com.hoc081098.flowext.FlowExtPreview
-import com.hoc081098.flowext.mapToResult
-import com.hoc081098.flowext.mapToUnit
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
 import me.dungngminh.lets_blog_kmp.data.local.UserStore
 import me.dungngminh.lets_blog_kmp.data.models.request.LoginRequest
@@ -23,43 +19,43 @@ class AuthRepositoryImpl(
         get() =
             userStore.tokenFlow
 
-    @OptIn(FlowExtPreview::class)
-    override fun login(
+    override suspend fun login(
         email: String,
         password: String,
-    ): Flow<Result<Unit>> =
-        authService
-            .login(
-                LoginRequest(
-                    email = email,
-                    password = password,
-                ),
-            ).map {
-                Napier.i("login: $it")
-                userStore.saveToken(it.unwrap().token)
-            }.mapToResult()
-            .flowOn(ioDispatcher)
+    ): Result<Unit> =
+        runCatching {
+            withContext(ioDispatcher) {
+                val loginResponse =
+                    authService.login(
+                        LoginRequest(
+                            email = email,
+                            password = password,
+                        ),
+                    )
+                userStore.saveToken(loginResponse.unwrap().token)
+            }
+        }
 
-    @OptIn(FlowExtPreview::class)
-    override fun register(
+    override suspend fun register(
         name: String,
         email: String,
         password: String,
         confirmPassword: String,
-    ): Flow<Result<Unit>> =
-        authService
-            .register(
+    ) = runCatching {
+        withContext(ioDispatcher) {
+            val registerRequest =
                 RegisterRequest(
-                    fullName = name,
                     email = email,
                     password = password,
                     confirmationPassword = confirmPassword,
-                ),
-            ).mapToUnit()
-            .mapToResult()
-            .flowOn(ioDispatcher)
-
-    override fun checkAuth(): Flow<Unit> {
-        TODO("Not yet implemented")
+                    fullName = name,
+                )
+            authService.register(registerRequest)
+        }
     }
+
+    override suspend fun checkAuth(): String? =
+        withContext(ioDispatcher) {
+            userStore.tokenFlow.firstOrNull()
+        }
 }

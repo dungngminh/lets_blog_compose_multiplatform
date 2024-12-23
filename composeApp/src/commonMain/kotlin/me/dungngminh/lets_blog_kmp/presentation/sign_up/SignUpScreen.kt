@@ -85,8 +85,33 @@ object SignUpScreen : Screen {
         val viewModel = koinScreenModel<SignUpViewModel>()
 
         val state by viewModel.state.collectAsStateWithLifecycle()
+
+        val snackbarHostState = remember { SnackbarHostState() }
+        val coroutineScope = rememberCoroutineScope()
+
+        LaunchedEffect(Unit) {
+            viewModel.state.collect { state ->
+                when {
+                    state.error != null -> {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(state.error)
+                            viewModel.onErrorShown()
+                        }
+                    }
+
+                    state.isSignUpSuccess -> {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Sign up success")
+                        }
+                        navigator.pop()
+                    }
+                }
+            }
+        }
+
         SignUpScreenContent(
             onBackClick = navigator::pop,
+            snackbarHostState = snackbarHostState,
             state = state,
             onUsernameChange = viewModel::changeUsername,
             onEmailChange = viewModel::changeEmail,
@@ -96,7 +121,6 @@ object SignUpScreen : Screen {
             onPasswordVisibilityToggle = viewModel::togglePasswordVisibility,
             onSignUpClick = viewModel::signUp,
             onSignInNowClick = navigator::pop,
-            onErrorShown = viewModel::onErrorShown,
         )
     }
 }
@@ -106,6 +130,7 @@ object SignUpScreen : Screen {
 fun SignUpScreenContent(
     modifier: Modifier = Modifier,
     state: SignUpState,
+    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onUsernameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
@@ -115,26 +140,14 @@ fun SignUpScreenContent(
     onConfirmPasswordVisibilityToggle: () -> Unit,
     onSignUpClick: () -> Unit,
     onSignInNowClick: () -> Unit,
-    onErrorShown: () -> Unit,
 ) {
     val sortKeyboardController = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
     val bringIntoViewRequest = remember { BringIntoViewRequester() }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(state.error) {
-        state.error?.let {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(it)
-                onErrorShown()
-            }
-        }
-    }
 
     Scaffold(
-        modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        modifier = modifier,
         topBar = {
             SignUpTopBar(onBackClick = onBackClick)
         },
@@ -396,6 +409,7 @@ fun SignUpTopBar(onBackClick: () -> Unit) {
 fun PreviewSignInScreen() {
     SignUpScreenContent(
         state = SignUpState(),
+        snackbarHostState = SnackbarHostState(),
         onBackClick = {},
         onUsernameChange = {},
         onEmailChange = {},
@@ -405,7 +419,6 @@ fun PreviewSignInScreen() {
         onConfirmPasswordVisibilityToggle = {},
         onSignUpClick = {},
         onSignInNowClick = {},
-        onErrorShown = {},
     )
 }
 

@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.presentation.sign_in
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.hoc081098.flowext.flowFromSuspend
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -29,6 +30,7 @@ data class SignInState(
     val passwordVisible: Boolean = true,
     val isSignInFormValid: Boolean = false,
     val error: String? = null,
+    val isLoginSuccess: Boolean = false,
 )
 
 class SignInViewModel(
@@ -90,22 +92,38 @@ class SignInViewModel(
     }
 
     fun signIn() {
-        authRepository
-            .login(email = currentState.email, password = currentState.password)
-            .onStart { _state.update { it.copy(isLoading = true) } }
-            .onEach { result ->
-                result
-                    .onSuccess {
-                        _state.update { it.copy(isLoading = false) }
-                    }.onFailure {
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                error = it.toString(),
-                            )
-                        }
+        flowFromSuspend {
+            authRepository.login(
+                email = currentState.email,
+                password = currentState.password,
+            )
+        }.onStart {
+            _state.update { it.copy(isLoading = true) }
+        }.onEach { result ->
+            result.fold(
+                onSuccess = {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isLoginSuccess = true,
+                        )
                     }
-            }.launchIn(screenModelScope)
+                },
+                onFailure = {
+                    Napier.e("SignInState", it)
+                    _state.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            error = it.stackTraceToString(),
+                        )
+                    }
+                },
+            )
+        }.launchIn(screenModelScope)
+    }
+
+    fun onErrorMessageShown() {
+        _state.update { it.copy(error = null) }
     }
 
     private fun isFormValid(

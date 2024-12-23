@@ -2,7 +2,7 @@ package me.dungngminh.lets_blog_kmp.presentation.sign_up
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import io.github.aakira.napier.Napier
+import com.hoc081098.flowext.flowFromSuspend
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -38,6 +38,7 @@ data class SignUpState(
     val passwordError: SignUpValidationError? = null,
     val confirmPasswordError: SignUpValidationError? = null,
     val isSignUpFormValid: Boolean = false,
+    val isSignUpSuccess: Boolean = false,
 )
 
 class SignUpViewModel(
@@ -135,27 +136,35 @@ class SignUpViewModel(
     }
 
     fun signUp() {
-        authRepository
-            .register(
+        flowFromSuspend {
+            authRepository.register(
                 name = currentState.username,
                 email = currentState.email,
                 password = currentState.password,
                 confirmPassword = currentState.confirmPassword,
-            ).onStart { _state.update { it.copy(isLoading = true) } }
-            .onEach { result ->
-                Napier.v("$result")
-                result
-                    .onSuccess {
-                        _state.update { it.copy(isLoading = false) }
-                    }.onFailure {
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                error = it.toString(),
-                            )
-                        }
+            )
+        }.onStart {
+            _state.update { it.copy(isLoading = true) }
+        }.onEach { result ->
+            result.fold(
+                onSuccess = {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isSignUpSuccess = true,
+                        )
                     }
-            }.launchIn(screenModelScope)
+                },
+                onFailure = {
+                    _state.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            error = it.toString(),
+                        )
+                    }
+                },
+            )
+        }.launchIn(screenModelScope)
     }
 
     fun onErrorShown() {
