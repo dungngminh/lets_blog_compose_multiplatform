@@ -22,7 +22,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.alexzhirkevich.compottie.DotLottie
@@ -32,6 +34,8 @@ import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.lets_blog_title
+import me.dungngminh.lets_blog_kmp.AppViewModel
+import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.onboarding.OnboardingScreen
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
@@ -40,10 +44,17 @@ class SplashScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val appViewModel = koinScreenModel<AppViewModel>()
+
+        val state by appViewModel.state.collectAsStateWithLifecycle()
 
         SplashScreenContent(
             onSplashDone = {
-                navigator.replace(OnboardingScreen())
+                if (state.isOnboardingCompleted) {
+                    navigator.replace(MainScreen())
+                } else {
+                    navigator.replace(OnboardingScreen())
+                }
             },
         )
     }

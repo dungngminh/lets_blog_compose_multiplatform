@@ -7,7 +7,7 @@ import org.koin.dsl.module
 
 expect val ioDispatcher: CoroutineDispatcher
 
-val DispatcherModule =
+internal val DispatcherModule =
     module {
         single(named("Dispatchers.Main")) { Dispatchers.Main }
         single(named("Dispatchers.Default")) { Dispatchers.Default }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
 import me.dungngminh.lets_blog_kmp.data.local.UserStore
+import me.dungngminh.lets_blog_kmp.data.local.UserStoreData
 import me.dungngminh.lets_blog_kmp.data.models.request.LoginRequest
 import me.dungngminh.lets_blog_kmp.data.models.request.RegisterRequest
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
@@ -15,9 +16,9 @@ class AuthRepositoryImpl(
     private val userStore: UserStore,
     private val ioDispatcher: CoroutineDispatcher,
 ) : AuthRepository {
-    override val authStateFlow: Flow<String?>
+    override val userStoreDataFlow: Flow<UserStoreData?>
         get() =
-            userStore.tokenFlow
+            userStore.userStoreDataFlow
 
     override suspend fun login(
         email: String,
@@ -26,13 +27,20 @@ class AuthRepositoryImpl(
         runCatching {
             withContext(ioDispatcher) {
                 val loginResponse =
-                    authService.login(
-                        LoginRequest(
-                            email = email,
-                            password = password,
-                        ),
-                    )
-                userStore.saveToken(loginResponse.unwrap().token)
+                    authService
+                        .login(
+                            LoginRequest(
+                                email = email,
+                                password = password,
+                            ),
+                        ).unwrap()
+
+                userStore.updateUserData(
+                    UserStoreData(
+                        token = loginResponse.token,
+                        userId = loginResponse.id,
+                    ),
+                )
             }
         }
 
@@ -54,8 +62,12 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun checkAuth(): String? =
+    override suspend fun checkAuth(): UserStoreData? =
         withContext(ioDispatcher) {
-            userStore.tokenFlow.firstOrNull()
+            userStore.userStoreDataFlow.firstOrNull()
         }
+
+    override suspend fun logout() {
+        userStore.clearUserData()
+    }
 }

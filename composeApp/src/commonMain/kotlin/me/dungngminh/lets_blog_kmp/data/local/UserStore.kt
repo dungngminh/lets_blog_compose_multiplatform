@@ -3,15 +3,34 @@ package me.dungngminh.lets_blog_kmp.data.local
 import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+@Serializable
+data class UserStoreData(
+    val token: String,
+    val userId: String,
+)
 
 @OptIn(ExperimentalSettingsApi::class)
 class UserStore(
     private val flowSettings: FlowSettings,
 ) {
-    val tokenFlow: Flow<String?> = flowSettings.getStringOrNullFlow(TOKEN_KEY)
+    val userStoreDataFlow: Flow<UserStoreData?> =
+        flowSettings
+            .getStringOrNullFlow(TOKEN_KEY)
+            .map { it?.let { Json.decodeFromString<UserStoreData>(it) } }
+            .distinctUntilChanged()
 
-    suspend fun saveToken(token: String) {
-        flowSettings.putString(TOKEN_KEY, token)
+    suspend fun updateUserData(userStoreData: UserStoreData) {
+        flowSettings.putString(TOKEN_KEY, Json.encodeToString(userStoreData))
+    }
+
+    suspend fun clearUserData() {
+        flowSettings.remove(TOKEN_KEY)
     }
 
     companion object {

@@ -1,9 +1,10 @@
 package me.dungngminh.lets_blog_kmp.domain.repositories
 
 import kotlinx.coroutines.flow.Flow
+import me.dungngminh.lets_blog_kmp.data.local.UserStoreData
 
 interface AuthRepository {
-    val authStateFlow: Flow<String?>
+    val userStoreDataFlow: Flow<UserStoreData?>
 
     suspend fun login(
         email: String,
@@ -17,5 +18,7 @@ interface AuthRepository {
         confirmPassword: String,
     ): Result<Unit>
 
-    suspend fun checkAuth(): String?
+    suspend fun logout()
+
+    suspend fun checkAuth(): UserStoreData?
 }

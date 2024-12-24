@@ -42,12 +42,6 @@ class SignInViewModel(
     val currentState: SignInState
         get() = _state.value
 
-    init {
-        authRepository.authStateFlow
-            .onEach { Napier.v("$it") }
-            .launchIn(screenModelScope)
-    }
-
     fun changeEmail(email: String) {
         val emailInput = email.trim()
         val emailError =

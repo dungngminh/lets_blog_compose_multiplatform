@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.onboarding1
 import letsblogkmp.composeapp.generated.resources.onboarding2
 import letsblogkmp.composeapp.generated.resources.onboarding3
+import me.dungngminh.lets_blog_kmp.AppViewModel
 import me.dungngminh.lets_blog_kmp.commons.theme.LetsBlogAppTheme
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import org.jetbrains.compose.resources.DrawableResource
@@ -46,8 +48,10 @@ class OnboardingScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val appViewModel = koinScreenModel<AppViewModel>()
         OnboardingScreenContent(
             onDoneClick = {
+                appViewModel.saveIsOnboardingCompleted()
                 navigator.replace(MainScreen())
             },
         )
