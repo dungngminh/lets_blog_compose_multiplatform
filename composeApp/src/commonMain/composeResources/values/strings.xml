@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
     <string name="lets_blog_title">Let's Blog</string>
+    <string name="onboarding_page_done_button_label">Done</string>
+    <string name="onboarding_page_next_button_label">Next</string>
     <string name="nav_bar_home_label">Home</string>
     <string name="nav_bar_profile_label">Profile</string>
     <string name="nav_bar_search_label">Search</string>

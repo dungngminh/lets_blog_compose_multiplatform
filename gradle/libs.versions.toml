@@ -31,6 +31,8 @@ voyager = "1.1.0-beta03"
 ktorfit = "2.2.0"
 flowExt = "1.0.0"
 multiplatform-settings = "1.2.0"
+kotlinDatetime = "0.6.1"
+kotlinCollectionsImmutable = "0.3.8"
 
 [libraries]
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -77,7 +79,6 @@ multiplatformSettings-noArg = { module = "com.russhwolf:multiplatform-settings-n
 multiplatformSettings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatform-settings" }
 multiplatformSettings-makeObservable = { module = "com.russhwolf:multiplatform-settings-make-observable", version.ref = "multiplatform-settings" }
 
-
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
 compottie-dot = { module = "io.github.alexzhirkevich:compottie-dot", version.ref = "compottie" }
 compottie-resources = { module = "io.github.alexzhirkevich:compottie-resources", version.ref = "compottie" }
@@ -88,6 +89,8 @@ voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", vers
 voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyager" }
 voyager-tabNavigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime" , version.ref = "kotlinDatetime"}
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable" , version.ref = "kotlinCollectionsImmutable"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -140,6 +140,12 @@ kotlin {
             implementation(libs.multiplatformSettings.noArg)
             implementation(libs.multiplatformSettings.coroutines)
             implementation(libs.multiplatformSettings.makeObservable)
+
+            // Datetime
+            implementation(libs.kotlinx.datetime)
+
+            // Immutable Collections
+            implementation(libs.kotlinx.collections.immutable)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

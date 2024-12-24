@@ -32,11 +32,14 @@ import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.onboarding1
 import letsblogkmp.composeapp.generated.resources.onboarding2
 import letsblogkmp.composeapp.generated.resources.onboarding3
+import letsblogkmp.composeapp.generated.resources.onboarding_page_done_button_label
+import letsblogkmp.composeapp.generated.resources.onboarding_page_next_button_label
 import me.dungngminh.lets_blog_kmp.AppViewModel
 import me.dungngminh.lets_blog_kmp.commons.theme.LetsBlogAppTheme
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 data class OnboardingContent(
     val title: String,
@@ -130,6 +133,7 @@ class OnboardingScreen : Screen {
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
+
                     val isLastPage = pagerState.currentPage == onboardingContent.size - 1
                     TextButton(onClick = {
                         if (isLastPage) {
@@ -141,9 +145,9 @@ class OnboardingScreen : Screen {
                         }
                     }) {
                         if (isLastPage) {
-                            Text("Done")
+                            Text(stringResource(Res.string.onboarding_page_done_button_label))
                         } else {
-                            Text("Next")
+                            Text(stringResource(Res.string.onboarding_page_next_button_label))
                         }
                     }
                 }
