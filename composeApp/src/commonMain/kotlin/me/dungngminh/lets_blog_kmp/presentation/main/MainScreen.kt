@@ -12,9 +12,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.CurrentTab
@@ -46,6 +49,7 @@ import me.dungngminh.lets_blog_kmp.presentation.main.favorite.FavoriteTab
 import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeTab
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.ProfileTab
 import me.dungngminh.lets_blog_kmp.presentation.main.search.SearchTab
+import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -87,9 +91,15 @@ class MainScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val userSessionViewModel = koinScreenModel<UserSessionViewModel>()
+        val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
         MainScreenContent(
             onFabClick = {
-                navigator.push(CreateBlogScreen)
+                if (userSessionState is UserSessionState.Authenticated) {
+                    navigator.push(CreateBlogScreen)
+                } else {
+                    navigator.push(SignInScreen)
+                }
             },
         )
     }

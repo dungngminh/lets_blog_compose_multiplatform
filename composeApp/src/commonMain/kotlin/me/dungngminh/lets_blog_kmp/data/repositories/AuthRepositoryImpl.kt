@@ -7,8 +7,8 @@ import kotlinx.coroutines.withContext
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
 import me.dungngminh.lets_blog_kmp.data.local.UserStore
 import me.dungngminh.lets_blog_kmp.data.local.UserStoreData
-import me.dungngminh.lets_blog_kmp.data.models.request.LoginRequest
-import me.dungngminh.lets_blog_kmp.data.models.request.RegisterRequest
+import me.dungngminh.lets_blog_kmp.data.models.request.auth.LoginRequest
+import me.dungngminh.lets_blog_kmp.data.models.request.auth.RegisterRequest
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
 class AuthRepositoryImpl(

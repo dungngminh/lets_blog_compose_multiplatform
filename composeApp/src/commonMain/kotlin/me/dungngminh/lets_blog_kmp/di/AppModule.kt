@@ -12,7 +12,12 @@ private val ViewModelModule =
         factory { SignInViewModel(get()) }
         factory { SignUpViewModel(get()) }
         factory { AppViewModel(get()) }
-        factory { UserSessionViewModel(get()) }
+        factory {
+            UserSessionViewModel(
+                authRepository = get(),
+                userRepository = get(),
+            )
+        }
     }
 
 @JvmField

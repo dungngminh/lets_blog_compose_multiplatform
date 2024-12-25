@@ -5,4 +5,8 @@ data class Blog(
     val title: String,
     val content: String,
     val imageUrl: String,
+    val category: BlogCategory,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val creator: User,
 )

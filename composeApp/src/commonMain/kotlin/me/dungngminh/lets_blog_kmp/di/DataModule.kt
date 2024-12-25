@@ -26,7 +26,11 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
+import me.dungngminh.lets_blog_kmp.data.api_service.BlogService
+import me.dungngminh.lets_blog_kmp.data.api_service.UserService
 import me.dungngminh.lets_blog_kmp.data.api_service.createAuthService
+import me.dungngminh.lets_blog_kmp.data.api_service.createBlogService
+import me.dungngminh.lets_blog_kmp.data.api_service.createUserService
 import me.dungngminh.lets_blog_kmp.data.local.AppSettingStore
 import me.dungngminh.lets_blog_kmp.data.local.UserStore
 import org.koin.dsl.module
@@ -87,6 +91,7 @@ private val httpModule =
                 .httpClient(get<HttpClient>())
                 .baseUrl("https://letsblog.up.railway.app/")
                 .converterFactories(FlowConverterFactory())
+                .converterFactories()
                 .build()
         }
     }
@@ -96,6 +101,14 @@ private val ApiModule =
         single<AuthService> {
             get<Ktorfit>()
                 .createAuthService()
+        }
+        single<UserService> {
+            get<Ktorfit>()
+                .createUserService()
+        }
+        single<BlogService> {
+            get<Ktorfit>()
+                .createBlogService()
         }
     }
 

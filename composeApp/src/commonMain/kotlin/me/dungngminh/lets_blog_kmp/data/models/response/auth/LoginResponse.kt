@@ -1,4 +1,4 @@
-package me.dungngminh.lets_blog_kmp.data.models.response
+package me.dungngminh.lets_blog_kmp.data.models.response.auth
 
 import kotlinx.serialization.Serializable
 
