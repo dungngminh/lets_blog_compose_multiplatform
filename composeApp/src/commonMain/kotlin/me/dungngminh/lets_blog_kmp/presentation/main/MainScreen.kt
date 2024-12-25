@@ -204,5 +204,8 @@ private fun Tab.icon(isSelected: Boolean): DrawableResource =
 @Composable
 fun MainScreenPreview() {
     LetsBlogAppTheme {
+        MainScreenContent(
+            onFabClick = {},
+        )
     }
 }

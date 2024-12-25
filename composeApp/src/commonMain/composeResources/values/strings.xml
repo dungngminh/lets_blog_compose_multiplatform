@@ -6,7 +6,7 @@
     <string name="nav_bar_home_label">Home</string>
     <string name="nav_bar_profile_label">Profile</string>
     <string name="nav_bar_search_label">Search</string>
-    <string name="nav_bar_favorite_label">Notification</string>
+    <string name="nav_bar_favorite_label">Favorite</string>
     <string name="fab_create_blog_label">Create blog</string>
     <string name="sign_in_page_sign_in_title">Sign in</string>
     <string name="sign_in_page_sign_in_button_label">Sign in</string>
@@ -38,4 +38,10 @@
     <string name="validation_error_username_too_short">Username must be at least %1$d characters</string>
     <string name="validation_error_confirm_password_empty">Confirm password cannot be empty</string>
     <string name="validation_error_confirm_password_not_match">Confirm password does not match</string>
+    <string name="home_screen_greeting_label">%1$s, %2$s</string>
+    <string name="home_screen_good_morning_label">Good morning</string>
+    <string name="home_screen_good_afternoon_label">Good afternoon</string>
+    <string name="home_screen_good_evening_label">Good evening</string>
+    <string name="general_my_friend">my friend</string>
+    <string name="home_screen_welcome_to_lets_blog_label">Welcome to Let's Blog</string>
 </resources>

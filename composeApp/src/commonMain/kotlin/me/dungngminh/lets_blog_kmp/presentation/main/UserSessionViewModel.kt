@@ -36,12 +36,9 @@ class UserSessionViewModel(
                     }
             }.stateIn(
                 scope = screenModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.Lazily,
                 initialValue = UserSessionState.Initial,
             )
-
-    fun retry() {
-    }
 
     fun logout() {
         screenModelScope.launch {

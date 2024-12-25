@@ -1,6 +1,7 @@
 package me.dungngminh.lets_blog_kmp.data.repositories
 
 import com.hoc081098.flowext.flowFromSuspend
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -17,6 +18,7 @@ class UserRepositoryImpl(
     override fun getUserProfile(id: String): Flow<Result<User>> =
         flowFromSuspend {
             runCatching {
+                Napier.d("getUserProfile: $id")
                 val response = userService.getUserProfile(id)
                 val userResponse = response.unwrap()
                 userResponse.toUser()
