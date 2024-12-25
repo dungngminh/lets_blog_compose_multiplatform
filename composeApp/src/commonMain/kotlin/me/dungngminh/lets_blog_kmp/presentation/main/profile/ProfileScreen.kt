@@ -19,6 +19,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import io.github.aakira.napier.Napier
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
@@ -30,6 +31,7 @@ object ProfileTab : Tab {
     override fun Content() {
         val parent = LocalNavigator.currentOrThrow.parent ?: return
         val userSessionViewModel = parent.koinNavigatorScreenModel<UserSessionViewModel>()
+        Napier.d("userSessionViewModel=$userSessionViewModel")
         val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
         ProfileScreenContent(
             userSessionState = userSessionState,

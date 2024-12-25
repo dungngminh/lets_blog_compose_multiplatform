@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.CurrentTab
@@ -91,7 +91,7 @@ class MainScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val userSessionViewModel = koinScreenModel<UserSessionViewModel>()
+        val userSessionViewModel = navigator.koinNavigatorScreenModel<UserSessionViewModel>()
         val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
         MainScreenContent(
             onFabClick = {
