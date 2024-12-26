@@ -17,7 +17,6 @@ kotlin = "2.0.20"
 ktor = "3.0.1"
 logback = "1.5.11"
 kotlinxSerializationJson = "1.7.3"
-material3WindowSizeClass = "1.7.3"
 napier = "2.7.1"
 navigationCompose = "2.8.0-alpha10"
 kotlinx-coroutines = "1.9.0"
@@ -33,7 +32,8 @@ flowExt = "1.0.0"
 multiplatform-settings = "1.2.0"
 kotlinDatetime = "0.6.1"
 kotlinCollectionsImmutable = "0.3.8"
-coil = "3.0.4"
+landscapistCoil3 = "2.4.4"
+sandwich = "2.0.10"
 
 [libraries]
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -84,7 +84,8 @@ multiplatformSettings-makeObservable = { module = "com.russhwolf:multiplatform-s
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
 compottie-dot = { module = "io.github.alexzhirkevich:compottie-dot", version.ref = "compottie" }
 compottie-resources = { module = "io.github.alexzhirkevich:compottie-resources", version.ref = "compottie" }
-material3-windowSizeClass = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClass" }
+compose-material3-windowSizeClass = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "compose-multiplatform" }
+compose-material3-adaptiveNavigationSuite = { module = "org.jetbrains.compose.material3:material3-adaptive-navigation-suite", version.ref = "compose-multiplatform" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
@@ -95,8 +96,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime" , version
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable" , version.ref = "kotlinCollectionsImmutable"}
 
 # Coil
-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
-coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "landscapistCoil3" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

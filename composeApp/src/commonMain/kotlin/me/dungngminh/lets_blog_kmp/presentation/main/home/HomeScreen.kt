@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +30,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import coil3.compose.SubcomposeAsyncImage
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -109,16 +107,6 @@ private fun HomeScreenContent(
             }
             item(contentType = "spacer") {
                 Spacer(modifier = Modifier.height(12.dp))
-            }
-            items(10, key = { it }) {
-                SubcomposeAsyncImage(
-                    model = "https://picsum.photos/200/300?random=$it",
-                    contentDescription = null,
-                    modifier =
-                        Modifier
-                            .padding(horizontal = 16.dp)
-                            .height(200.dp),
-                )
             }
         }
     }

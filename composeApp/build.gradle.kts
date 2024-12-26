@@ -77,6 +77,10 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            // Windows Class
+            implementation(libs.compose.material3.windowSizeClass)
+            // Adaptive Navigation
+            implementation(libs.compose.material3.adaptiveNavigationSuite)
 
             implementation(libs.androidx.lifecycle.runtime.compose)
 
@@ -130,9 +134,6 @@ kotlin {
             implementation(libs.voyager.koin)
             implementation(libs.voyager.transitions)
 
-            // Windows Class
-            implementation(libs.material3.windowSizeClass)
-
             // Flow Ext
             implementation(libs.flowExt)
 
@@ -148,15 +149,13 @@ kotlin {
             implementation(libs.kotlinx.collections.immutable)
 
             // Coil
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor)
+            implementation(libs.landscapist.coil3)
         }
 
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.cio)
-            implementation(libs.ktor.client.java)
         }
 
         wasmJsMain.dependencies {
