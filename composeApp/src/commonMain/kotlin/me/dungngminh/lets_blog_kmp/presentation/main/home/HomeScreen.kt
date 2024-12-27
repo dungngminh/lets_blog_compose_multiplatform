@@ -15,31 +15,42 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -49,10 +60,13 @@ import letsblogkmp.composeapp.generated.resources.home_screen_good_afternoon_lab
 import letsblogkmp.composeapp.generated.resources.home_screen_good_evening_label
 import letsblogkmp.composeapp.generated.resources.home_screen_good_morning_label
 import letsblogkmp.composeapp.generated.resources.home_screen_greeting_label
+import letsblogkmp.composeapp.generated.resources.home_screen_tap_to_search_label
 import letsblogkmp.composeapp.generated.resources.home_screen_welcome_to_lets_blog_label
+import me.dungngminh.lets_blog_kmp.commons.extensions.timeAgo
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
+import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
@@ -61,19 +75,29 @@ import org.jetbrains.compose.resources.stringResource
 object HomeTab : Tab {
     @Composable
     override fun Content() {
+        val tabNavigator = LocalTabNavigator.current
         val parentNavigator = LocalNavigator.currentOrThrow.parent ?: return
+
         val userSessionViewModel = parentNavigator.koinNavigatorScreenModel<UserSessionViewModel>()
 
         val homeViewModel = koinScreenModel<HomeScreenViewModel>()
 
         val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
 
-        val homeUiState by homeViewModel.blogState.collectAsStateWithLifecycle()
+        val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+
         HomeScreenContent(
             userSessionState = userSessionState,
             homeUiState = homeUiState,
-            onSearchBarClick = homeViewModel::loadMore,
-            onRetry = homeViewModel::retry,
+            onSearchBarClick = {
+                tabNavigator.current = MainScreenDestination.Search.tab
+            },
+            onBlogRefresh = {
+                homeViewModel.refreshBlogs()
+            },
+            onBlogClick = {
+                parentNavigator.push(DetailBlogScreen(it))
+            },
         )
     }
 
@@ -88,75 +112,108 @@ object HomeTab : Tab {
             )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenContent(
     modifier: Modifier = Modifier,
     userSessionState: UserSessionState,
     homeUiState: HomeScreenUiState,
     onSearchBarClick: () -> Unit,
-    onRetry: () -> Unit,
+    onBlogRefresh: () -> Unit,
     onBlogClick: (Blog) -> Unit = {},
 ) {
-    Scaffold(modifier = modifier) { innerPadding ->
-        LazyColumn(
+    val refreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+    Scaffold(
+        modifier = modifier,
+    ) { innerPadding ->
+        PullToRefreshBox(
+            state = refreshState,
             modifier =
-                modifier
+                Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
+            isRefreshing = false,
+            onRefresh = {
+                // Just for refresh, loading animation will use shimmer instead of
+                coroutineScope.launch {
+                    onBlogRefresh()
+                    refreshState.animateToHidden()
+                }
+            },
         ) {
-            item {
-                HomeGreeting(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .clickable {
-                                onRetry()
-                            },
-                    userSessionState = userSessionState,
+            LazyColumn {
+                item {
+                    HomeGreeting(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .clickable {
+                                    onBlogRefresh()
+                                },
+                        userSessionState = userSessionState,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    HomeSearchBar(
+                        modifier = modifier.padding(horizontal = 16.dp),
+                    ) {
+                        onSearchBarClick()
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+                blogContentView(
+                    homeUiState = homeUiState,
+                    onBlogClick = onBlogClick,
                 )
             }
-            item(contentType = "spacer") {
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-            item {
-                Box(
-                    modifier =
-                        Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                onSearchBarClick()
-                            }.padding(horizontal = 16.dp, vertical = 8.dp),
-                ) {
-                    Text("Search bar")
-                }
-            }
-            item(contentType = "spacer") {
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-            blogsView(
-                homeUiState = homeUiState,
-                onBlogClick = onBlogClick,
-            )
         }
     }
 }
 
-private fun LazyListScope.blogsView(
+@Composable
+private fun HomeSearchBar(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .clickable {
+                    onClick()
+                }.padding(
+                    horizontal = 16.dp,
+                    vertical = 8.dp,
+                ),
+    ) {
+        Text(
+            stringResource(Res.string.home_screen_tap_to_search_label),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+    }
+}
+
+private fun LazyListScope.blogContentView(
     homeUiState: HomeScreenUiState,
     onBlogClick: (Blog) -> Unit,
 ) {
-    when (homeUiState) {
-        is HomeScreenUiState.Error -> {
+    when {
+        homeUiState.errorMessage != null -> {
             item {
-                Text("Error: ${homeUiState.message}")
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(homeUiState.errorMessage)
+                }
             }
         }
 
-        HomeScreenUiState.Loading, HomeScreenUiState.Initial -> {
+        homeUiState.isLoading -> {
             item {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -167,30 +224,40 @@ private fun LazyListScope.blogsView(
             }
         }
 
-        is HomeScreenUiState.Loaded -> {
-            if (homeUiState.blogs.isEmpty()) {
-                item {
-                    EmptyBlogView()
-                }
-            } else {
-                items(
-                    homeUiState.blogs.size,
-                    key = { homeUiState.blogs[it].id },
-                ) {
-                    val blog = homeUiState.blogs[it]
-                    BlogCard(
-                        blog = blog,
-                        modifier =
-                            Modifier
-                                .padding(horizontal = 16.dp)
-                                .clickable { onBlogClick(blog) }
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                    )
-                    if (it != homeUiState.blogs.size - 1) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
+        else ->
+            blogsView(
+                blogs = homeUiState.blogs.toImmutableList(),
+                onBlogClick = onBlogClick,
+            )
+    }
+}
+
+private fun LazyListScope.blogsView(
+    blogs: ImmutableList<Blog>,
+    onBlogClick: (Blog) -> Unit,
+) {
+    if (blogs.isEmpty()) {
+        item {
+            EmptyBlogView()
+        }
+    } else {
+        items(
+            blogs,
+            key = { it.id },
+        ) { blog ->
+            BlogCard(
+                blog = blog,
+                modifier =
+                    Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                onClick = {
+                    onBlogClick(blog)
+                },
+            )
+            val isLast by remember { derivedStateOf { blog == blogs.lastOrNull() } }
+            if (!isLast) {
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
@@ -205,24 +272,44 @@ private fun EmptyBlogView() {
 private fun BlogCard(
     modifier: Modifier = Modifier,
     blog: Blog,
+    onClick: () -> Unit = {},
 ) {
-    Card(
+    ElevatedCard(
         modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        onClick = onClick,
     ) {
         Row(
+            modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             CoilImage(
                 imageModel = { blog.imageUrl },
-                modifier = Modifier.size(100.dp),
+                modifier =
+                    Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(8.dp)),
                 imageOptions = ImageOptions(contentScale = ContentScale.Crop),
             )
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(blog.title, style = MaterialTheme.typography.bodyMedium)
-                Text(blog.creator.name, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    blog.title,
+                    style =
+                        MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        ),
+                )
+                Text(
+                    blog.createdAt.timeAgo(),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    blog.creator.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
     }
@@ -260,9 +347,18 @@ private fun HomeGreeting(
             modifier =
                 Modifier
                     .size(48.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-        ) {}
+                    .clip(CircleShape),
+        ) {
+            if (userSessionState is UserSessionState.Authenticated) {
+                CoilImage(
+                    imageModel = { userSessionState.user.avatarUrl },
+                    imageOptions = ImageOptions(contentScale = ContentScale.Crop),
+                    loading = {
+                        CircularProgressIndicator()
+                    },
+                )
+            }
+        }
     }
 }
 
@@ -285,24 +381,26 @@ private fun greetingByTime(): String {
 @Preview
 @Composable
 fun PreviewBlogCard() {
-    BlogCard(
-        blog =
-            Blog(
-                id = "libero",
-                title = "pri",
-                content = "verterem",
-                imageUrl = "https://duckduckgo.com/?q=vituperatoribus",
-                category = BlogCategory.TRAVEL,
-                createdAt = 7578,
-                updatedAt = 9168,
-                creator =
-                    User(
-                        id = "propriae",
-                        name = "Gregorio Stone",
-                        email = "dadad",
-                    ),
-            ),
-    )
+    MaterialTheme {
+        BlogCard(
+            blog =
+                Blog(
+                    id = "libero",
+                    title = "pri",
+                    content = "verterem",
+                    imageUrl = "https://duckduckgo.com/?q=vituperatoribus",
+                    category = BlogCategory.TRAVEL,
+                    createdAt = 7578,
+                    updatedAt = 9168,
+                    creator =
+                        User(
+                            id = "propriae",
+                            name = "Gregorio Stone",
+                            email = "dadad",
+                        ),
+                ),
+        )
+    }
 }
 
 @Preview
@@ -312,9 +410,9 @@ fun PreviewHomeScreenContent() {
         userSessionState = UserSessionState.Initial,
         onSearchBarClick = {
         },
-        onRetry = {},
+        onBlogRefresh = {},
         homeUiState =
-            HomeScreenUiState.Loaded(
+            HomeScreenUiState(
                 blogs =
                     persistentListOf(
                         Blog(

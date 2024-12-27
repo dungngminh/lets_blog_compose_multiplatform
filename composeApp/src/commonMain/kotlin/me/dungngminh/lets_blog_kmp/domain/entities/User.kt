@@ -1,5 +1,8 @@
 package me.dungngminh.lets_blog_kmp.domain.entities
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class User(
     val id: String,
     val name: String,

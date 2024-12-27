@@ -21,7 +21,7 @@ private val ViewModelModule =
         }
         factory {
             HomeScreenViewModel(
-                blogRepository = get()
+                blogRepository = get(),
             )
         }
     }

@@ -45,9 +45,9 @@ object ProfileTab : Tab {
         get() =
             TabOptions(
                 index =
-                MainScreenDestination.entries
-                    .indexOf(MainScreenDestination.Profile)
-                    .toUShort(),
+                    MainScreenDestination.entries
+                        .indexOf(MainScreenDestination.Profile)
+                        .toUShort(),
                 title = stringResource(MainScreenDestination.Profile.title),
             )
 }
@@ -89,9 +89,7 @@ private fun ProfileScreenContent(
                             Text("Log in")
                         }
                     }
-
                 }
-
             }
         }
     }

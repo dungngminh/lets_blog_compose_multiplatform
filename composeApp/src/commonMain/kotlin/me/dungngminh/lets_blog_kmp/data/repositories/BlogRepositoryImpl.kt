@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.data.repositories
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.invoke
+import kotlinx.coroutines.withContext
 import me.dungngminh.lets_blog_kmp.data.api_service.BlogService
 import me.dungngminh.lets_blog_kmp.data.mappers.toApiString
 import me.dungngminh.lets_blog_kmp.data.mappers.toBlog
@@ -21,7 +22,7 @@ class BlogRepositoryImpl(
         offset: Int,
         blogCategory: BlogCategory?,
     ): Result<List<Blog>> =
-        ioDispatcher.invoke {
+        withContext(ioDispatcher) {
             runCatching {
                 val response =
                     blogService.getBlogs(
@@ -34,7 +35,7 @@ class BlogRepositoryImpl(
         }
 
     override suspend fun getBlogById(id: String): Result<Blog> =
-        ioDispatcher.invoke {
+        withContext(ioDispatcher) {
             runCatching {
                 val response = blogService.getBlogById(id = id)
                 response
@@ -49,15 +50,17 @@ class BlogRepositoryImpl(
         blogCategory: BlogCategory,
         content: String,
     ): Result<Unit> =
-        ioDispatcher.runCatching {
-            blogService.createBlog(
-                CreateBlogRequest(
-                    title = title,
-                    imageUrl = imageUrl,
-                    category = blogCategory.toApiString(),
-                    content = content,
-                ),
-            )
+        withContext(ioDispatcher) {
+            runCatching {
+                blogService.createBlog(
+                    CreateBlogRequest(
+                        title = title,
+                        imageUrl = imageUrl,
+                        category = blogCategory.toApiString(),
+                        content = content,
+                    ),
+                )
+            }
         }
 
     override suspend fun deleteBlog(id: String): Result<Unit> =

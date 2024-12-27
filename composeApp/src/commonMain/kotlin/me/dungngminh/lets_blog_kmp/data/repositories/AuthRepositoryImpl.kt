@@ -26,18 +26,19 @@ class AuthRepositoryImpl(
     ): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
-                val response = authService.login(
-                    LoginRequest(
-                        email = email,
-                        password = password,
+                val response =
+                    authService.login(
+                        LoginRequest(
+                            email = email,
+                            password = password,
+                        ),
                     )
-                )
                 val data = response.unwrap()
                 userStore.updateUserData(
                     UserStoreData(
                         token = data.token,
                         userId = data.id,
-                    )
+                    ),
                 )
             }
         }

@@ -2,73 +2,90 @@ package me.dungngminh.lets_blog_kmp.presentation.main.home
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.hoc081098.flowext.flatMapFirst
-import com.hoc081098.flowext.flowFromSuspend
-import com.hoc081098.flowext.startWith
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
 
-sealed class HomeScreenUiState {
-    data object Initial : HomeScreenUiState()
-
-    data object Loading : HomeScreenUiState()
-
-    data class Loaded(
-        val blogs: ImmutableList<Blog> = persistentListOf(),
-    ) : HomeScreenUiState()
-
-    data class Error(
-        val message: String? = null,
-    ) : HomeScreenUiState()
-}
+data class HomeScreenUiState(
+    val trendingBlogs: List<Blog> = emptyList(),
+    val blogs: List<Blog> = emptyList(),
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null,
+)
 
 class HomeScreenViewModel(
     private val blogRepository: BlogRepository,
 ) : ScreenModel {
-    private val loadMorePage = MutableStateFlow(1)
-
-    val blogState =
-        loadMorePage
-            .filter { it > 0 }
-            .flatMapFirst { page ->
-                flowFromSuspend {
-                    blogRepository.getBlogs(
-                        limit = DEFAULT_PAGE_SITE,
-                        offset = page,
-                    )
-                }
-            }.map { result ->
-                result.fold(onSuccess = {
-                    HomeScreenUiState.Loaded(it.toImmutableList())
-                }, onFailure = {
-                    HomeScreenUiState.Error(it.message)
-                })
-            }.startWith(HomeScreenUiState.Loading)
-            .stateIn(
+    private val _uiState = MutableStateFlow(HomeScreenUiState())
+    val uiState =
+        _uiState
+            .onStart {
+                fetchBlogs()
+            }.stateIn(
                 scope = screenModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = HomeScreenUiState.Initial,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = HomeScreenUiState(),
             )
 
-    fun loadMore() {
-        loadMorePage.update { it + 1 }
+    private var currentPage = 1
+
+    private fun fetchBlogs() {
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null,
+                blogs = persistentListOf(),
+            )
+        }
+        screenModelScope.launch {
+            blogRepository
+                .getBlogs(
+                    searchQuery = null,
+                    limit = 10,
+                    offset = currentPage,
+                    blogCategory = null,
+                ).onSuccess { fetchedBlogs ->
+                    _uiState.update { state ->
+                        state.copy(
+                            blogs = fetchedBlogs,
+                            isLoading = false,
+                        )
+                    }
+                }.onFailure { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message,
+                        )
+                    }
+                }
+        }
     }
 
-    fun retry() {
-        loadMorePage.update { 0 }
-        loadMorePage.update { 1 }
+    fun loadMoreBlogs() {
+        currentPage++
+        screenModelScope.launch {
+            blogRepository
+                .getBlogs(
+                    limit = 10,
+                    offset = currentPage,
+                    blogCategory = null,
+                ).onSuccess { fetchedBlogs ->
+                    _uiState.update { state ->
+                        state.copy(blogs = state.blogs + fetchedBlogs)
+                    }
+                }
+        }
     }
 
-    companion object {
-        private const val DEFAULT_PAGE_SITE = 10
+    fun refreshBlogs() {
+        currentPage = 1
+        fetchBlogs()
     }
 }

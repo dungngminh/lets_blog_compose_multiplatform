@@ -3,7 +3,6 @@ package me.dungngminh.lets_blog_kmp.presentation.sign_in
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.hoc081098.flowext.flowFromSuspend
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -107,7 +106,7 @@ class SignInViewModel(
                     _state.update { state ->
                         state.copy(
                             isLoading = false,
-                            error = it.message
+                            error = it.message,
                         )
                     }
                 },

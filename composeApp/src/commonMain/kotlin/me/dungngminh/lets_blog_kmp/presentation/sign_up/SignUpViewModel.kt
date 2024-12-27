@@ -159,7 +159,7 @@ class SignUpViewModel(
                     _state.update { state ->
                         state.copy(
                             isLoading = false,
-                            error = it.message
+                            error = it.message,
                         )
                     }
                 },
