@@ -6,7 +6,6 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.russhwolf.settings.observable.makeObservable
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -90,8 +89,6 @@ private val httpModule =
                 .Builder()
                 .httpClient(get<HttpClient>())
                 .baseUrl("https://letsblog.up.railway.app/")
-                .converterFactories(FlowConverterFactory())
-                .converterFactories()
                 .build()
         }
     }

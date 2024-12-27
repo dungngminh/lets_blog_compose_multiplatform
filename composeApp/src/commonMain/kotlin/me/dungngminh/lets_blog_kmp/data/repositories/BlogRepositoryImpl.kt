@@ -1,9 +1,7 @@
 package me.dungngminh.lets_blog_kmp.data.repositories
 
-import com.hoc081098.flowext.flowFromSuspend
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.invoke
 import me.dungngminh.lets_blog_kmp.data.api_service.BlogService
 import me.dungngminh.lets_blog_kmp.data.mappers.toApiString
 import me.dungngminh.lets_blog_kmp.data.mappers.toBlog
@@ -17,13 +15,13 @@ class BlogRepositoryImpl(
     private val blogService: BlogService,
     private val ioDispatcher: CoroutineDispatcher,
 ) : BlogRepository {
-    override fun getBlogs(
+    override suspend fun getBlogs(
         searchQuery: String?,
         limit: Int,
         offset: Int,
         blogCategory: BlogCategory?,
-    ): Flow<Result<List<Blog>>> =
-        flowFromSuspend {
+    ): Result<List<Blog>> =
+        ioDispatcher.invoke {
             runCatching {
                 val response =
                     blogService.getBlogs(
@@ -33,16 +31,17 @@ class BlogRepositoryImpl(
                 val blogsResponse = response.unwrap()
                 blogsResponse.map { it.toBlog() }
             }
-        }.flowOn(ioDispatcher)
+        }
 
-    override fun getBlogById(id: String): Flow<Result<Blog>> =
-        flowFromSuspend {
+    override suspend fun getBlogById(id: String): Result<Blog> =
+        ioDispatcher.invoke {
             runCatching {
-                val response = blogService.getBlogById(id)
-                val blogResponse = response.unwrap()
-                blogResponse.toBlog()
+                val response = blogService.getBlogById(id = id)
+                response
+                    .unwrap()
+                    .toBlog()
             }
-        }.flowOn(ioDispatcher)
+        }
 
     override suspend fun createBlog(
         title: String,

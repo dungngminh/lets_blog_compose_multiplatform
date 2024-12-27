@@ -125,7 +125,6 @@ kotlin {
 
             // Ktorfit
             implementation(libs.ktorfit)
-            implementation(libs.ktorfit.converters.flow)
 
             // Voyager
             implementation(libs.voyager.navigator)

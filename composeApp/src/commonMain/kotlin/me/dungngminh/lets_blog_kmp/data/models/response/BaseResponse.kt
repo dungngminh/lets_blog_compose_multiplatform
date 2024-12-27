@@ -8,5 +8,5 @@ data class BaseResponse<T>(
     val message: String,
     val result: T? = null,
 ) {
-    fun unwrap(): T = result!!
+    fun unwrap(): T = if (success) result!! else throw Exception(message)
 }

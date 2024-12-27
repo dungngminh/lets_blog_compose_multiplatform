@@ -45,9 +45,9 @@ object ProfileTab : Tab {
         get() =
             TabOptions(
                 index =
-                    MainScreenDestination.entries
-                        .indexOf(MainScreenDestination.Profile)
-                        .toUShort(),
+                MainScreenDestination.entries
+                    .indexOf(MainScreenDestination.Profile)
+                    .toUShort(),
                 title = stringResource(MainScreenDestination.Profile.title),
             )
 }
@@ -64,24 +64,34 @@ private fun ProfileScreenContent(
             modifier = Modifier.padding(it).fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            if (userSessionState is UserSessionState.Authenticated) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    Text("Welcome, ${userSessionState.user.name}")
-                    Button(onClick = onLogoutClick) {
-                        Text("Log out")
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                when (userSessionState) {
+                    is UserSessionState.Authenticated -> {
+                        Text("Welcome, ${userSessionState.user.name}")
+                        Button(onClick = onLogoutClick) {
+                            Text("Log out")
+                        }
                     }
-                }
-            } else {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    Text("Please log in")
-                    Button(onClick = onLoginClick) {
-                        Text("Log in")
+
+                    is UserSessionState.Initial -> {
+                        Text("Loading...")
                     }
+
+                    is UserSessionState.Error -> {
+                        Text("Error: ${userSessionState.message}")
+                    }
+
+                    is UserSessionState.Unauthenticated -> {
+                        Text("Please log in")
+                        Button(onClick = onLoginClick) {
+                            Text("Log in")
+                        }
+                    }
+
                 }
+
             }
         }
     }

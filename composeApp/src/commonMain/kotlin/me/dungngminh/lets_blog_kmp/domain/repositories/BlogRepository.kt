@@ -1,18 +1,17 @@
 package me.dungngminh.lets_blog_kmp.domain.repositories
 
-import kotlinx.coroutines.flow.Flow
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 
 interface BlogRepository {
-    fun getBlogs(
-        searchQuery: String?,
+    suspend fun getBlogs(
+        searchQuery: String? = null,
         limit: Int,
         offset: Int,
-        blogCategory: BlogCategory?,
-    ): Flow<Result<List<Blog>>>
+        blogCategory: BlogCategory? = null,
+    ): Result<List<Blog>>
 
-    fun getBlogById(id: String): Flow<Result<Blog>>
+    suspend fun getBlogById(id: String): Result<Blog>
 
     suspend fun createBlog(
         title: String,

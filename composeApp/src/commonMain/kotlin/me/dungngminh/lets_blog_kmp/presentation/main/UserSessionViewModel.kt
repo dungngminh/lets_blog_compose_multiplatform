@@ -6,6 +6,7 @@ import com.hoc081098.flowext.flatMapFirst
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.User
@@ -33,6 +34,8 @@ class UserSessionViewModel(
                                 UserSessionState.Error(it.message ?: "Unknown error")
                             },
                         )
+                    }.onStart {
+                        emit(UserSessionState.Initial)
                     }
             }.stateIn(
                 scope = screenModelScope,

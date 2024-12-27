@@ -104,11 +104,10 @@ class SignInViewModel(
                     }
                 },
                 onFailure = {
-                    Napier.e("SignInState", it)
                     _state.update { state ->
                         state.copy(
                             isLoading = false,
-                            error = it.stackTraceToString(),
+                            error = it.message
                         )
                     }
                 },
