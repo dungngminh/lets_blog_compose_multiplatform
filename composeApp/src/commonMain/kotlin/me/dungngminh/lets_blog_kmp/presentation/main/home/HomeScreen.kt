@@ -66,6 +66,8 @@ import me.dungngminh.lets_blog_kmp.commons.extensions.timeAgo
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
+import me.dungngminh.lets_blog_kmp.presentation.components.CreateBlogFabButton
+import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
@@ -98,6 +100,9 @@ object HomeTab : Tab {
             onBlogClick = {
                 parentNavigator.push(DetailBlogScreen(it))
             },
+            onCreateBlogClick = {
+                parentNavigator.push(CreateBlogScreen)
+            },
         )
     }
 
@@ -121,11 +126,17 @@ private fun HomeScreenContent(
     onSearchBarClick: () -> Unit,
     onBlogRefresh: () -> Unit,
     onBlogClick: (Blog) -> Unit = {},
+    onCreateBlogClick: () -> Unit,
 ) {
     val refreshState = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
     Scaffold(
         modifier = modifier,
+        floatingActionButton = {
+            CreateBlogFabButton {
+                onCreateBlogClick()
+            }
+        },
     ) { innerPadding ->
         PullToRefreshBox(
             state = refreshState,
@@ -411,6 +422,8 @@ fun PreviewHomeScreenContent() {
         onSearchBarClick = {
         },
         onBlogRefresh = {},
+        onBlogClick = {},
+        onCreateBlogClick = {},
         homeUiState =
             HomeScreenUiState(
                 blogs =

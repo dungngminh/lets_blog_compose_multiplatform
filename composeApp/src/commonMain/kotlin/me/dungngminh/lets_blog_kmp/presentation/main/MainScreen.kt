@@ -1,18 +1,13 @@
 package me.dungngminh.lets_blog_kmp.presentation.main
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,16 +16,13 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.CurrentTab
-import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import letsblogkmp.composeapp.generated.resources.Res
-import letsblogkmp.composeapp.generated.resources.fab_create_blog_label
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
 import letsblogkmp.composeapp.generated.resources.ic_home
 import letsblogkmp.composeapp.generated.resources.ic_home_filled
-import letsblogkmp.composeapp.generated.resources.ic_pencil
 import letsblogkmp.composeapp.generated.resources.ic_search
 import letsblogkmp.composeapp.generated.resources.ic_search_filled
 import letsblogkmp.composeapp.generated.resources.ic_user
@@ -110,74 +102,36 @@ fun MainScreenContent(
     modifier: Modifier = Modifier,
     onFabClick: () -> Unit,
 ) {
-    TabNavigator(HomeTab) {
-        Scaffold(
+    TabNavigator(HomeTab) { tabNavigator ->
+        NavigationSuiteScaffold(
             modifier = modifier,
             content = {
                 CurrentTab()
             },
-            floatingActionButton = {
-                CreateBlogFabButton(onFabClick = onFabClick)
-            },
-            bottomBar = {
-                MainNavigationBar()
+            navigationSuiteItems = {
+                MainScreenDestination.entries
+                    .forEach { destination ->
+                        val tab = destination.tab
+                        val selected = tabNavigator.current == tab
+                        item(
+                            modifier = modifier,
+                            selected = selected,
+                            label = {
+                                Text(stringResource(destination.title))
+                            },
+                            onClick = { tabNavigator.current = tab },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(tab.icon(selected)),
+                                    contentDescription = stringResource(destination.title),
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            },
+                        )
+                    }
             },
         )
     }
-}
-
-@Composable
-private fun CreateBlogFabButton(
-    modifier: Modifier = Modifier,
-    onFabClick: () -> Unit,
-) {
-    ExtendedFloatingActionButton(
-        modifier = modifier,
-        onClick = onFabClick,
-    ) {
-        Icon(
-            painterResource(Res.drawable.ic_pencil),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(stringResource(Res.string.fab_create_blog_label))
-    }
-}
-
-@Composable
-private fun MainNavigationBar(modifier: Modifier = Modifier) {
-    NavigationBar(modifier = modifier) {
-        MainScreenDestination.entries
-            .forEach {
-                TabNavigationItem(tab = it.tab)
-            }
-    }
-}
-
-@Composable
-private fun RowScope.TabNavigationItem(
-    modifier: Modifier = Modifier,
-    tab: Tab,
-) {
-    val tabNavigator = LocalTabNavigator.current
-    val selected = tabNavigator.current == tab
-    val tabOptions = tab.options
-    NavigationBarItem(
-        modifier = modifier,
-        selected = selected,
-        label = {
-            Text(tabOptions.title)
-        },
-        onClick = { tabNavigator.current = tab },
-        icon = {
-            Icon(
-                painter = painterResource(tab.icon(selected)),
-                contentDescription = tabOptions.title,
-                modifier = Modifier.size(24.dp),
-            )
-        },
-    )
 }
 
 @Composable

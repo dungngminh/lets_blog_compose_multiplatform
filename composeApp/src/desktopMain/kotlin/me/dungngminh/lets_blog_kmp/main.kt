@@ -13,7 +13,7 @@ fun main() {
             onCloseRequest = ::exitApplication,
             title = "LetsBlogKMP",
         ) {
-            window.minimumSize = Dimension(1000, 800)
+            window.minimumSize = Dimension(500, 800)
             App()
         }
     }
