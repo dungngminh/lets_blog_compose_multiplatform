@@ -57,7 +57,7 @@ fun createHttpClient(block: HttpClientConfig<*>.() -> Unit = {}) =
                         Napier.v(message, null, "HTTP Client")
                     }
                 }
-            level = LogLevel.BODY
+            level = LogLevel.ALL
         }
         block()
     }

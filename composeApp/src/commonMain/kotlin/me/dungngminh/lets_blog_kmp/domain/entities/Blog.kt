@@ -12,4 +12,5 @@ data class Blog(
     val createdAt: Long,
     val updatedAt: Long,
     val creator: User,
+    val isFavoriteByUser: Boolean? = null,
 )

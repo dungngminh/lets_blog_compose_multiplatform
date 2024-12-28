@@ -11,6 +11,8 @@ interface BlogRepository {
         blogCategory: BlogCategory? = null,
     ): Result<List<Blog>>
 
+    suspend fun getTopBlogs(limit: Int): Result<List<Blog>>
+
     suspend fun getBlogById(id: String): Result<Blog>
 
     suspend fun createBlog(
@@ -23,4 +25,8 @@ interface BlogRepository {
     suspend fun deleteBlog(id: String): Result<Unit>
 
     suspend fun updateBlog(updatedBlog: Blog): Result<Unit>
+
+    suspend fun favoriteBlog(blogId: String): Result<Unit>
+
+    suspend fun unFavoriteBlog(blogId: String): Result<Unit>
 }

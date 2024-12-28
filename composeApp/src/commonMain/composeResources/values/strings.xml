@@ -70,4 +70,6 @@
         <item quantity="one">%1$d year ago</item>
         <item quantity="other">%1$d years ago</item>
     </plurals>
+    <string name="home_screen_popular_blogs_label">Popular blogs</string>
+    <string name="home_screen_other_blogs_label">Other blogs</string>
 </resources>

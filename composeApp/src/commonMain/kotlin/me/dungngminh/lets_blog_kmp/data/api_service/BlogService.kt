@@ -9,6 +9,7 @@ import de.jensklingenberg.ktorfit.http.Path
 import de.jensklingenberg.ktorfit.http.Query
 import me.dungngminh.lets_blog_kmp.data.models.request.blog.CreateBlogRequest
 import me.dungngminh.lets_blog_kmp.data.models.request.blog.EditBlogRequest
+import me.dungngminh.lets_blog_kmp.data.models.request.blog.FavoriteBlogRequest
 import me.dungngminh.lets_blog_kmp.data.models.response.BaseResponse
 import me.dungngminh.lets_blog_kmp.data.models.response.blog.GetBlogResponse
 
@@ -17,6 +18,11 @@ interface BlogService {
     suspend fun getBlogs(
         @Query("limit") limit: Int,
         @Query("page") offset: Int,
+    ): BaseResponse<List<GetBlogResponse>>
+
+    @GET("api/top-blogs")
+    suspend fun getTopBlogs(
+        @Query("limit") limit: Int,
     ): BaseResponse<List<GetBlogResponse>>
 
     @GET("api/blogs/{id}")
@@ -38,5 +44,10 @@ interface BlogService {
     @DELETE("api/blogs/{id}")
     suspend fun deleteBlog(
         @Path("id") id: String,
+    )
+
+    @POST("/api/favorites")
+    suspend fun favoriteBlog(
+        @Body body: FavoriteBlogRequest,
     )
 }

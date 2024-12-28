@@ -16,6 +16,7 @@ fun GetBlogResponse.toBlog() =
         category = BlogCategory.fromString(category),
         createdAt = createdAt.mapISODateTimeStringToLong(),
         updatedAt = updatedAt.mapISODateTimeStringToLong(),
+        isFavoriteByUser = isFavoritedByUser,
     )
 
 fun Blog.toEditBlogRequest() =
