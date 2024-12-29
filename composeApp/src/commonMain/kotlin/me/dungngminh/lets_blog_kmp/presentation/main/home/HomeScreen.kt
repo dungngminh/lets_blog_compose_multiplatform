@@ -85,6 +85,7 @@ object HomeTab : Tab {
             },
             onFavoriteBlogClick = homeViewModel::favoritePopularBlog,
             onUnFavoriteBlogClick = homeViewModel::unFavoritePopularBlog,
+            fetchNewBlogs = homeViewModel::loadMoreBlogs,
         )
     }
 
@@ -111,6 +112,7 @@ fun HomeScreenContent(
     onFavoriteBlogClick: (Blog) -> Unit,
     onCreateBlogClick: () -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
+    fetchNewBlogs: () -> Unit,
 ) {
     val refreshState = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
@@ -170,6 +172,7 @@ fun HomeScreenContent(
                     onBlogClick = onBlogClick,
                     onFavoriteBlogClick = onFavoriteBlogClick,
                     onUnFavoriteBlogClick = onUnFavoriteBlogClick,
+                    fetchNewBlogs = fetchNewBlogs,
                 )
             }
         }
@@ -181,6 +184,7 @@ fun LazyListScope.blogContentView(
     onBlogClick: (Blog) -> Unit,
     onFavoriteBlogClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
+    fetchNewBlogs: () -> Unit,
 ) {
     when {
         homeUiState.errorMessage != null -> {
@@ -209,6 +213,8 @@ fun LazyListScope.blogContentView(
                 onBlogClick = onBlogClick,
                 onFavoriteBlogClick = onFavoriteBlogClick,
                 onUnFavoriteBlogClick = onUnFavoriteBlogClick,
+                isLoadingMore = homeUiState.isLoadingMore,
+                fetchNewBlogs = fetchNewBlogs,
             )
     }
 }
@@ -216,9 +222,11 @@ fun LazyListScope.blogContentView(
 fun LazyListScope.blogsView(
     popularBlogs: ImmutableList<Blog>,
     blogs: ImmutableList<Blog>,
+    isLoadingMore: Boolean = false,
     onBlogClick: (Blog) -> Unit,
     onFavoriteBlogClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
+    fetchNewBlogs: () -> Unit,
 ) {
     val isBlogListEmpty = blogs.isEmpty() && popularBlogs.isEmpty()
     if (isBlogListEmpty) {
@@ -250,18 +258,26 @@ fun LazyListScope.blogsView(
         otherBlogsContentView(
             blogs = blogs,
             onBlogClick = onBlogClick,
+            isLoadingMore = isLoadingMore,
+            fetchNewBlogs = fetchNewBlogs,
         )
     }
 }
 
 fun LazyListScope.otherBlogsContentView(
     blogs: ImmutableList<Blog>,
+    isLoadingMore: Boolean,
     onBlogClick: (Blog) -> Unit,
+    fetchNewBlogs: () -> Unit,
 ) {
+    val threadHold = 5
     itemsIndexed(
         blogs,
         key = { _, blog -> blog.id },
     ) { index, blog ->
+        if ((index + threadHold) >= blogs.size && !isLoadingMore) {
+            fetchNewBlogs()
+        }
         BlogCard(
             blog = blog,
             modifier =
@@ -409,5 +425,6 @@ fun PreviewHomeScreenContent() {
                         ),
                     ),
             ),
+        fetchNewBlogs = {},
     )
 }

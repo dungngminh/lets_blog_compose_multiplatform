@@ -19,6 +19,7 @@ data class HomeScreenUiState(
     val blogs: List<Blog> = emptyList(),
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
+    val isLoadingMore: Boolean = false,
 )
 
 class HomeScreenViewModel(
@@ -27,11 +28,10 @@ class HomeScreenViewModel(
     private val _uiState = MutableStateFlow(HomeScreenUiState())
     val uiState =
         _uiState
-            .onStart {
-                fetchBlogs()
-            }.stateIn(
+            .onStart { fetchBlogs() }
+            .stateIn(
                 scope = screenModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.Lazily,
                 initialValue = HomeScreenUiState(),
             )
 
@@ -39,6 +39,8 @@ class HomeScreenViewModel(
         get() = uiState.value
 
     private var currentPage = 1
+
+    private var canLoadMore = true
 
     fun fetchBlogs() {
         currentPage = 1
@@ -88,16 +90,25 @@ class HomeScreenViewModel(
     }
 
     fun loadMoreBlogs() {
+        if (!canLoadMore || currentState.isLoadingMore) return
         currentPage++
+        _uiState.update {
+            it.copy(isLoadingMore = true)
+        }
         screenModelScope.launch {
             blogRepository
                 .getBlogs(
                     limit = 10,
                     offset = currentPage,
                     blogCategory = null,
-                ).onSuccess { fetchedBlogs ->
+                ).recover { emptyList() }
+                .onSuccess { fetchedBlogs ->
+                    canLoadMore = fetchedBlogs.isNotEmpty()
                     _uiState.update { state ->
-                        state.copy(blogs = state.blogs + fetchedBlogs)
+                        state.copy(
+                            blogs = state.blogs + fetchedBlogs,
+                            isLoadingMore = false,
+                        )
                     }
                 }
         }
