@@ -61,6 +61,5 @@ Future<Response> _onTopBlogsGetRequest(RequestContext context) async {
       .then<Response>(
         (topBlogs) => OkResponse(topBlogs.map((e) => e.toJson()).toList()),
       )
-      .onError((e, _) => InternalServerErrorResponse(e.toString()))
-      .whenComplete(db.close);
+      .onError((e, _) => InternalServerErrorResponse(e.toString()));
 }

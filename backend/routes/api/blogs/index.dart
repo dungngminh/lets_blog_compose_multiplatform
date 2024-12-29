@@ -40,7 +40,8 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
   }
 
   try {
-    final results = await db.blogs.queryBlogs(
+    final results = await db.blogs
+        .queryBlogs(
       QueryParams(
         limit: limit,
         offset: (currentPage - 1) * limit,
@@ -49,13 +50,19 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
             : 'title LIKE @search OR content LIKE @search',
         values: search == null ? null : {'search': '%$search%'},
       ),
-    );
+    )
+        .whenComplete(() {
+      if (user == null) {
+        db.close();
+      }
+    });
     var favoriteBlogIds = <String>[];
     if (user != null) {
-      final favoriteBlogs =
-          await db.favoriteBlogsUserses.queryFavoriteBlogsUserses(
-        QueryParams(where: 'user_id=@id', values: {'id': user.id}),
-      );
+      final favoriteBlogs = await db.favoriteBlogsUserses
+          .queryFavoriteBlogsUserses(
+            QueryParams(where: 'user_id=@id', values: {'id': user.id}),
+          )
+          .whenComplete(db.close);
       favoriteBlogIds = favoriteBlogs.map((e) => e.blog.id).toList();
     }
 
@@ -72,8 +79,6 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
     return OkResponse(blogs.map((e) => e.toJson()).toList());
   } catch (e) {
     return InternalServerErrorResponse(e.toString());
-  } finally {
-    await db.close();
   }
 }
 
@@ -87,25 +92,25 @@ Future<Response> _onBlogsPostRequest(RequestContext context) async {
   try {
     final request = CreateBlogRequest.fromJson(body.asJson());
 
-    await db.blogs.insertOne(
-      BlogInsertRequest(
-        id: const Uuid().v4(),
-        title: request.title,
-        category: request.category,
-        content: request.content,
-        imageUrl: request.imageUrl,
-        createdAt: DateTime.now(),
-        creatorId: user.id,
-        updatedAt: DateTime.now(),
-        isDeleted: false,
-      ),
-    );
+    await db.blogs
+        .insertOne(
+          BlogInsertRequest(
+            id: const Uuid().v4(),
+            title: request.title,
+            category: request.category,
+            content: request.content,
+            imageUrl: request.imageUrl,
+            createdAt: DateTime.now().toUtc(),
+            creatorId: user.id,
+            updatedAt: DateTime.now().toUtc(),
+            isDeleted: false,
+          ),
+        )
+        .whenComplete(db.close);
     return CreatedResponse('New blog is created');
   } on CheckedFromJsonException catch (e) {
     return BadRequestResponse(e.message);
   } catch (e) {
     return InternalServerErrorResponse(e.toString());
-  } finally {
-    await db.close();
   }
 }

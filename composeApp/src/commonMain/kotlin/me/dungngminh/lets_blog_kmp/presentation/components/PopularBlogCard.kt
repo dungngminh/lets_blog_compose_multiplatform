@@ -99,6 +99,7 @@ private fun PopularBlogCardContent(
                     },
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp),
                 )
             }
         }

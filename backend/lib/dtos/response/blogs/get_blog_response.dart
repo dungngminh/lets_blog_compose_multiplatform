@@ -30,8 +30,8 @@ class GetBlogResponse {
       imageUrl: view.imageUrl,
       category: view.category,
       isFavoritedByUser: isFavoritedByUser,
-      createdAt: view.createdAt,
-      updatedAt: view.updatedAt,
+      createdAt: view.createdAt.toUtc(),
+      updatedAt: view.updatedAt.toUtc(),
       creator: UserOfGetBlogResponse.fromView(view.creator),
     );
   }

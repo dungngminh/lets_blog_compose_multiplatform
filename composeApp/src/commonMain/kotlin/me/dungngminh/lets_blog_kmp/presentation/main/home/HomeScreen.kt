@@ -76,9 +76,7 @@ object HomeTab : Tab {
             onSearchBarClick = {
                 tabNavigator.current = MainScreenDestination.Search.tab
             },
-            onBlogRefresh = {
-                homeViewModel.refreshBlogs()
-            },
+            onBlogRefresh = homeViewModel::fetchBlogs,
             onBlogClick = {
                 parentNavigator.push(DetailBlogScreen(it))
             },
@@ -163,9 +161,7 @@ fun HomeScreenContent(
                     Spacer(modifier = Modifier.height(12.dp))
                     HomeSearchBar(
                         modifier = modifier.padding(horizontal = 16.dp),
-                        onClick = {
-                            onSearchBarClick()
-                        },
+                        onClick = onSearchBarClick,
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                 }

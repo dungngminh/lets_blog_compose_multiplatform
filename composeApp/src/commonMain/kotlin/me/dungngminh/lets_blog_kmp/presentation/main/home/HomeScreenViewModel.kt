@@ -2,7 +2,7 @@ package me.dungngminh.lets_blog_kmp.presentation.main.home
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.collections.immutable.persistentListOf
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,12 +40,14 @@ class HomeScreenViewModel(
 
     private var currentPage = 1
 
-    private fun fetchBlogs() {
+    fun fetchBlogs() {
+        currentPage = 1
         _uiState.update {
             it.copy(
                 isLoading = true,
                 errorMessage = null,
-                blogs = persistentListOf(),
+                blogs = emptyList(),
+                popularBlogs = emptyList(),
             )
         }
         screenModelScope.launch {
@@ -57,7 +59,12 @@ class HomeScreenViewModel(
                         offset = currentPage,
                     )
                 }
-            val popularBlogs = popularBlogsRequest.await().getOrNull() ?: emptyList()
+            val popularBlogs =
+                popularBlogsRequest
+                    .await()
+                    .onFailure {
+                        Napier.e("Error: $it")
+                    }.getOrNull() ?: emptyList()
             val blogsRequestResult = blogsRequest.await()
 
             blogsRequestResult
@@ -96,11 +103,6 @@ class HomeScreenViewModel(
         }
     }
 
-    fun refreshBlogs() {
-        currentPage = 1
-        fetchBlogs()
-    }
-
     fun favoritePopularBlog(blog: Blog) {
         val updatedBlogs =
             currentState.popularBlogs.replaceFirst(
@@ -111,7 +113,7 @@ class HomeScreenViewModel(
             state.copy(popularBlogs = updatedBlogs)
         }
         screenModelScope.launch {
-            // Call API
+            blogRepository.favoriteBlog(blog.id)
         }
     }
 
@@ -125,7 +127,7 @@ class HomeScreenViewModel(
             state.copy(popularBlogs = updatedBlogs)
         }
         screenModelScope.launch {
-            // Call API
+            blogRepository.unFavoriteBlog(blog.id)
         }
     }
 }

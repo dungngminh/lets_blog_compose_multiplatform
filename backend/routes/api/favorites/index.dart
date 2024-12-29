@@ -41,7 +41,9 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
   try {
     final request = FavoriteBlogRequest.fromJson(body.asJson());
 
-    final requestedBlog = await db.blogs.queryBlog(request.blogId);
+    final requestedBlog = await db.blogs.queryBlog(request.blogId).onError(
+          (e, _) => null,
+        );
     if (requestedBlog == null) {
       return BadRequestResponse('Blog not found');
     }
@@ -49,14 +51,15 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
       return BadRequestResponse('You cannot favorite your own blog');
     }
 
-    final isFavoritedOrNot =
-        (await db.favoriteBlogsUserses.queryFavoriteBlogsUserses(
-      QueryParams(
-        where: 'blog_id=@blogId AND user_id=@userId',
-        values: {'blogId': request.blogId, 'userId': userView.id},
-      ),
-    ))
-            .firstOrNull;
+    final isFavoritedOrNot = (await db.favoriteBlogsUserses
+            .queryFavoriteBlogsUserses(
+              QueryParams(
+                where: 'blog_id=@blogId AND user_id=@userId',
+                values: {'blogId': request.blogId, 'userId': userView.id},
+              ),
+            )
+            .onError((e, _) => []))
+        .firstOrNull;
 
     if (isFavoritedOrNot != null && request.isFavorite) {
       return BadRequestResponse('You already favorited this blog');
@@ -76,9 +79,16 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
     }
     return db
         .execute(
-          'DELETE FROM favorite_blogs_userses '
-          'WHERE blog_id=@blogId AND user_id=@userId',
-          parameters: {'blogId': request.blogId, 'userId': userView.id},
+          Sql.indexed(
+            'DELETE FROM favorite_blogs_userses '
+            'WHERE blog_id= ? '
+            'AND user_id= ?',
+            substitution: '?',
+          ),
+          parameters: [
+            TypedValue(Type.text, request.blogId),
+            TypedValue(Type.text, userView.id),
+          ],
         )
         .then<Response>((_) => OkResponse())
         .onError((e, _) => InternalServerErrorResponse(e.toString()))

@@ -37,6 +37,9 @@ object ProfileTab : Tab {
             onLoginClick = {
                 parent.push(SignInScreen)
             },
+            onRefreshClick = userSessionViewModel::refresh,
+            onRetryClick = {
+            },
         )
     }
 
@@ -58,6 +61,8 @@ private fun ProfileScreenContent(
     userSessionState: UserSessionState,
     onLoginClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onRefreshClick: () -> Unit,
+    onRetryClick: () -> Unit,
 ) {
     Scaffold(modifier = modifier) {
         Box(
@@ -66,12 +71,16 @@ private fun ProfileScreenContent(
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 when (userSessionState) {
                     is UserSessionState.Authenticated -> {
                         Text("Welcome, ${userSessionState.user.name}")
                         Button(onClick = onLogoutClick) {
                             Text("Log out")
+                        }
+                        Button(onClick = onRefreshClick) {
+                            Text("Refresh")
                         }
                     }
 
@@ -81,6 +90,9 @@ private fun ProfileScreenContent(
 
                     is UserSessionState.Error -> {
                         Text("Error: ${userSessionState.message}")
+                        Button(onClick = onRetryClick) {
+                            Text("Retry")
+                        }
                     }
 
                     is UserSessionState.Unauthenticated -> {

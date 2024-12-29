@@ -46,7 +46,7 @@ interface BlogService {
         @Path("id") id: String,
     )
 
-    @POST("/api/favorites")
+    @POST("api/favorites")
     suspend fun favoriteBlog(
         @Body body: FavoriteBlogRequest,
     )

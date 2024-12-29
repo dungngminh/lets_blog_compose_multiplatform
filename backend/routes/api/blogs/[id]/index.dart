@@ -64,7 +64,7 @@ Future<Response> _onBlogsPatchRequest(RequestContext context, String id) async {
     final body = await context.request.body();
     if (body.isEmpty) return BadRequestResponse(ErrorMessageCode.bodyEmpty);
     final request = EditBlogRequest.fromJson(body.asJson());
-    final blog = await db.blogs.queryBlog(id);
+    final blog = await db.blogs.queryBlog(id).onError((e, _) => null);
     if (blog == null) return NotFoundResponse('Blog not found');
     if (blog.creator.id != user.id) {
       return ForbiddenResponse('You are not creator of this blog');
@@ -77,7 +77,7 @@ Future<Response> _onBlogsPatchRequest(RequestContext context, String id) async {
             content: request.content,
             imageUrl: request.imageUrl,
             category: request.category,
-            updatedAt: DateTime.now(),
+            updatedAt: DateTime.now().toUtc(),
           ),
         )
         .whenComplete(db.close);
@@ -86,8 +86,6 @@ Future<Response> _onBlogsPatchRequest(RequestContext context, String id) async {
     return BadRequestResponse(e.message);
   } catch (e) {
     return InternalServerErrorResponse(e.toString());
-  } finally {
-    await db.close();
   }
 }
 
@@ -98,16 +96,14 @@ Future<Response> _onBlogsDeleteRequest(
   final db = context.read<Database>();
   final user = context.read<UserView>();
   try {
-    final blog = await db.blogs.queryBlog(id);
+    final blog = await db.blogs.queryBlog(id).onError((e, _) => null);
     if (blog == null) return NotFoundResponse('Blog not found');
     if (blog.creator.id != user.id) {
       return ForbiddenResponse('You are not creator of this blog');
     }
-    await db.blogs.deleteOne(id);
+    await db.blogs.deleteOne(id).whenComplete(db.close);
     return OkResponse();
   } catch (e) {
     return InternalServerErrorResponse(e.toString());
-  } finally {
-    await db.close();
   }
 }

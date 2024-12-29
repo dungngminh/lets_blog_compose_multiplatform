@@ -25,33 +25,38 @@ Future<Response> _onUserByIdGetRequest(
   String id,
 ) async {
   final db = context.read<Database>();
-  final followings = await db.followingFollowers.queryFollowingFollowers(
-    QueryParams(where: 'following_id=@id', values: {'id': id}),
-  );
-  final followers = await db.followingFollowers.queryFollowingFollowers(
-    QueryParams(where: 'follower_id=@id', values: {'id': id}),
-  );
-  return db.users
-      .queryUser(id)
-      .then<Response>(
-        (user) => user == null
-            ? NotFoundResponse('User not found')
-            : OkResponse(
-                GetUserProfileResponse.fromDb(
-                  view: user,
-                  follower: followers.length,
-                  following: followings.length,
-                ).toJson(),
-              ),
-      )
-      .catchError((_) => InternalServerErrorResponse())
-      .whenComplete(db.close);
+  try {
+    final followings = await db.followingFollowers.queryFollowingFollowers(
+      QueryParams(where: 'following_id=@id', values: {'id': id}),
+    );
+    final followers = await db.followingFollowers.queryFollowingFollowers(
+      QueryParams(where: 'follower_id=@id', values: {'id': id}),
+    );
+    return db.users
+        .queryUser(id)
+        .then<Response>(
+          (user) => user == null
+              ? NotFoundResponse('User not found')
+              : OkResponse(
+                  GetUserProfileResponse.fromDb(
+                    view: user,
+                    follower: followers.length,
+                    following: followings.length,
+                  ).toJson(),
+                ),
+        )
+        .onError((e, st) => InternalServerErrorResponse(e.toString()))
+        .whenComplete(db.close);
+  } catch (e) {
+    return InternalServerErrorResponse(e.toString());
+  }
 }
 
 Future<Response> _onUserByIdPatchRequest(
   RequestContext context,
   String id,
 ) async {
+  final db = context.read<Database>();
   final userView = context.read<UserView>();
   if (userView.id != id) {
     return ForbiddenResponse();
@@ -60,7 +65,6 @@ Future<Response> _onUserByIdPatchRequest(
   if (body.isEmpty) {
     return BadRequestResponse();
   }
-  final db = context.read<Database>();
   try {
     final request = EditUserProfileRequest.fromJson(body.asJson());
     return db.users
@@ -78,7 +82,5 @@ Future<Response> _onUserByIdPatchRequest(
     return BadRequestResponse(e.message);
   } catch (e) {
     return InternalServerErrorResponse(e.toString());
-  } finally {
-    await db.close();
   }
 }

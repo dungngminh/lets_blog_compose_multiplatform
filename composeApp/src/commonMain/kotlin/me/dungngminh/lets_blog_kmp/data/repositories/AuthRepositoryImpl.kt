@@ -57,7 +57,7 @@ class AuthRepositoryImpl(
                     confirmationPassword = confirmPassword,
                     fullName = name,
                 )
-            val response = authService.register(registerRequest)
+            authService.register(registerRequest)
         }
     }
 

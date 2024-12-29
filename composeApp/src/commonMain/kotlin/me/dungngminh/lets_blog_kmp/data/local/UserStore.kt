@@ -1,5 +1,7 @@
 package me.dungngminh.lets_blog_kmp.data.local
 
+import com.hoc081098.flowext.FlowExtPreview
+import com.hoc081098.flowext.catchAndReturn
 import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.flow.Flow
@@ -19,10 +21,12 @@ data class UserStoreData(
 class UserStore(
     private val flowSettings: FlowSettings,
 ) {
+    @OptIn(FlowExtPreview::class)
     val userStoreDataFlow: Flow<UserStoreData?> =
         flowSettings
             .getStringOrNullFlow(TOKEN_KEY)
             .map { it?.let { Json.decodeFromString<UserStoreData>(it) } }
+            .catchAndReturn(null)
             .distinctUntilChanged()
 
     suspend fun updateUserData(userStoreData: UserStoreData) {
