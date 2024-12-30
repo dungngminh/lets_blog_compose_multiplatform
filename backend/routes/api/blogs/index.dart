@@ -51,9 +51,9 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
         values: search == null ? null : {'search': '%$search%'},
       ),
     )
-        .whenComplete(() {
+        .whenComplete(() async {
       if (user == null) {
-        db.close();
+        await db.close();
       }
     });
     var favoriteBlogIds = <String>[];

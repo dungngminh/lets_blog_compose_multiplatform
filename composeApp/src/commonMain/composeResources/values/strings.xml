@@ -72,4 +72,5 @@
     </plurals>
     <string name="home_screen_popular_blogs_label">Popular blogs</string>
     <string name="home_screen_other_blogs_label">Other blogs</string>
+    <string name="create_blog_screen_create_blog_title">Create new blog</string>
 </resources>

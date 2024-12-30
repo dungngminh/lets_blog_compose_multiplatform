@@ -149,6 +149,9 @@ kotlin {
 
             // Coil
             implementation(libs.landscapist.coil3)
+
+            // WYSIWYG
+            implementation(libs.richeditor.compose)
         }
 
         desktopMain.dependencies {

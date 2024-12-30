@@ -33,7 +33,7 @@ multiplatform-settings = "1.2.0"
 kotlinDatetime = "0.6.1"
 kotlinCollectionsImmutable = "0.3.8"
 landscapistCoil3 = "2.4.4"
-sandwich = "2.0.10"
+richeditor = "1.0.0-rc10"
 
 [libraries]
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -97,6 +97,9 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 
 # Coil
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "landscapistCoil3" }
+
+# WYSIWYG Editor
+richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richeditor"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
