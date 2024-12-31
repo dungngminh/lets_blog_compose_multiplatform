@@ -152,6 +152,9 @@ kotlin {
 
             // WYSIWYG
             implementation(libs.richeditor.compose)
+
+            // Filekit
+            implementation(libs.filekit.compose)
         }
 
         desktopMain.dependencies {
@@ -235,6 +238,9 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "me.dungngminh.lets_blog_kmp"
             packageVersion = "1.0.0"
+            linux {
+                modules("jdk.security.auth")
+            }
         }
     }
 }

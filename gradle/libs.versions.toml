@@ -34,6 +34,7 @@ kotlinDatetime = "0.6.1"
 kotlinCollectionsImmutable = "0.3.8"
 landscapistCoil3 = "2.4.4"
 richeditor = "1.0.0-rc10"
+filekit = "0.8.8"
 
 [libraries]
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -100,6 +101,9 @@ landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.
 
 # WYSIWYG Editor
 richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richeditor"}
+
+# File picker
+filekit-compose = {module = "io.github.vinceglb:filekit-compose", version.ref = "filekit"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

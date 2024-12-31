@@ -40,6 +40,7 @@ enum class EditorStyleButtonType {
     JUSTIFY_RIGHT,
     JUSTIFY_FULL,
     CODE_BLOCK,
+    LIST,
     ;
 
     val icon: DrawableResource
@@ -54,6 +55,7 @@ enum class EditorStyleButtonType {
                 JUSTIFY_RIGHT -> Res.drawable.ic_align_right
                 JUSTIFY_FULL -> Res.drawable.ic_align_justify
                 CODE_BLOCK -> Res.drawable.ic_code_simple
+                LIST -> Res.drawable.ic_code_simple
             }
 }
 
@@ -125,6 +127,10 @@ private fun isStyleButtonSelected(
 
         EditorStyleButtonType.CODE_BLOCK -> {
             richTextState.isCodeSpan
+        }
+
+        EditorStyleButtonType.LIST -> {
+            richTextState.isOrderedList
         }
     }
 
@@ -199,6 +205,10 @@ private fun onStyleButtonClick(
 
         EditorStyleButtonType.CODE_BLOCK -> {
             richTextState.toggleCodeSpan()
+        }
+
+        EditorStyleButtonType.LIST -> {
+            richTextState.toggleOrderedList()
         }
     }
 }

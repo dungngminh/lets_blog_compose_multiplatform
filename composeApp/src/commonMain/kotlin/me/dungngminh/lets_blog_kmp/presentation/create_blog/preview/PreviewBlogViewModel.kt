@@ -86,7 +86,7 @@ class PreviewBlogViewModel(
                     title = currentState.title,
                     content = content,
                     imageUrl = currentState.imagePath,
-                    blogCategory = currentState.category!!,
+                    blogCategory = currentState.category,
                 ).onSuccess {
                     _uiState.update {
                         it.copy(

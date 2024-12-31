@@ -43,6 +43,7 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.OutlinedRichTextEditor
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.create_blog_screen_create_blog_title
+import letsblogkmp.composeapp.generated.resources.create_blog_screen_put_your_content_here_label
 import letsblogkmp.composeapp.generated.resources.ic_check
 import me.dungngminh.lets_blog_kmp.presentation.create_blog.components.EditorStyleFormatBar
 import me.dungngminh.lets_blog_kmp.presentation.create_blog.preview.PreviewBlogScreen
@@ -74,7 +75,7 @@ object CreateBlogScreen : Screen, ScreenTransition {
                 navigator.pop()
             },
             onCheckClick = {
-                navigator.push(PreviewBlogScreen(richTextState.toText()))
+                navigator.push(PreviewBlogScreen(richTextState.toHtml()))
             },
             richTextState = richTextState,
             enableCheckButton = enableCheckButton,
@@ -137,6 +138,9 @@ fun CreateBlogScreen(
                         modifier =
                             Modifier
                                 .fillParentMaxSize(),
+                        placeholder = {
+                            Text(stringResource(Res.string.create_blog_screen_put_your_content_here_label))
+                        },
                     )
                 }
             }
