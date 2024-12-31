@@ -72,7 +72,7 @@ fun BlogCard(
 
 @Preview
 @Composable
-fun PreviewBlogCard() {
+fun Preview_BlogCard() {
     MaterialTheme {
         BlogCard(
             blog =

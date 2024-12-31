@@ -38,7 +38,7 @@ fun CreateBlogFabButton(
 
 @Preview
 @Composable
-fun PreviewCreateBlogFabButton() {
+fun Preview_CreateBlogFabButton() {
     MaterialTheme {
         CreateBlogFabButton { }
     }

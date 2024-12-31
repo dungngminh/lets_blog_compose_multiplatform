@@ -1,6 +1,7 @@
 package me.dungngminh.lets_blog_kmp.di
 
 import me.dungngminh.lets_blog_kmp.AppViewModel
+import me.dungngminh.lets_blog_kmp.presentation.create_blog.preview.PreviewBlogViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeScreenViewModel
 import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInViewModel
@@ -21,6 +22,12 @@ private val ViewModelModule =
         }
         factory {
             HomeScreenViewModel(
+                blogRepository = get(),
+            )
+        }
+        factory { params ->
+            PreviewBlogViewModel(
+                content = params.get(),
                 blogRepository = get(),
             )
         }

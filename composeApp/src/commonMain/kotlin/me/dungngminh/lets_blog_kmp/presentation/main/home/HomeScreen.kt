@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.presentation.main.home
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -143,6 +144,7 @@ fun HomeScreenContent(
                     Modifier
                         .padding(innerPadding)
                         .fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 80.dp),
             ) {
                 item {
                     HomeGreeting(
@@ -336,7 +338,7 @@ fun LazyListScope.popularBlogContentView(
 
 @Preview
 @Composable
-fun PreviewHomeScreenContent() {
+fun Preview_HomeScreenContent() {
     HomeScreenContent(
         userSessionState = UserSessionState.Initial,
         onSearchBarClick = {

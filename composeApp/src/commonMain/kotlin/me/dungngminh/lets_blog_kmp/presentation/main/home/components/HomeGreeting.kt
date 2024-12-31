@@ -94,7 +94,7 @@ private fun greetingByTime(): String {
 
 @Preview
 @Composable
-fun PreviewHomeGreetings() {
+fun Preview_HomeGreetings() {
     HomeGreeting(
         modifier = Modifier.padding(16.dp),
         username = "dungngminh",

@@ -63,7 +63,7 @@ fun HomeSearchBar(
 
 @Preview
 @Composable
-fun PreviewHomeSearchBar() {
+fun Preview_HomeSearchBar() {
     MaterialTheme {
         HomeSearchBar { }
     }

@@ -160,7 +160,7 @@ private fun PopularBlogCardContent(
 
 @Preview
 @Composable
-fun PreviewPopularBlogCard() {
+fun Preview_PopularBlogCard() {
     MaterialTheme {
         PopularBlogCard(
             modifier = Modifier,

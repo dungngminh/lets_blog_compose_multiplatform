@@ -406,7 +406,7 @@ fun SignUpTopBar(onBackClick: () -> Unit) {
 
 @Preview
 @Composable
-fun PreviewSignInScreen() {
+fun Preview_SignInScreen() {
     SignUpScreenContent(
         state = SignUpState(),
         snackbarHostState = SnackbarHostState(),

@@ -6,9 +6,9 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -23,6 +23,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -40,8 +44,8 @@ import com.mohamedrejeb.richeditor.ui.material3.OutlinedRichTextEditor
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.create_blog_screen_create_blog_title
 import letsblogkmp.composeapp.generated.resources.ic_check
-import letsblogkmp.composeapp.generated.resources.ic_favorite
-import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
+import me.dungngminh.lets_blog_kmp.presentation.create_blog.components.EditorStyleFormatBar
+import me.dungngminh.lets_blog_kmp.presentation.create_blog.preview.PreviewBlogScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -53,11 +57,27 @@ object CreateBlogScreen : Screen, ScreenTransition {
 
         val richTextState = rememberRichTextState()
 
+        LaunchedEffect(Unit) {
+            richTextState.addParagraphStyle(
+                ParagraphStyle(textAlign = TextAlign.Left),
+            )
+        }
+
+        val enableCheckButton by remember(richTextState.annotatedString) {
+            derivedStateOf {
+                richTextState.annotatedString.isNotEmpty()
+            }
+        }
+
         CreateBlogScreen(
             onBackClick = {
                 navigator.pop()
             },
+            onCheckClick = {
+                navigator.push(PreviewBlogScreen(richTextState.toText()))
+            },
             richTextState = richTextState,
+            enableCheckButton = enableCheckButton,
         )
     }
 
@@ -81,6 +101,7 @@ fun CreateBlogScreen(
     richTextState: RichTextState,
     onBackClick: () -> Unit = {},
     onCheckClick: () -> Unit = {},
+    enableCheckButton: Boolean = false,
 ) {
     Scaffold(
         modifier = modifier,
@@ -88,6 +109,7 @@ fun CreateBlogScreen(
             CreateBlogAppBar(
                 onBackClick = onBackClick,
                 onCheckClick = onCheckClick,
+                enableCheckButton = enableCheckButton,
             )
         },
     ) { innerPadding ->
@@ -97,26 +119,12 @@ fun CreateBlogScreen(
                     .padding(innerPadding)
                     .windowInsetsPadding(WindowInsets.ime)
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
-            Row {
-                IconButton(onClick = {
-                    richTextState.addParagraphStyle(ParagraphStyle(textAlign = TextAlign.Center))
-                }) {
-                    Icon(
-                        if (richTextState.currentParagraphStyle.textAlign == TextAlign.Center) {
-                            painterResource(
-                                Res.drawable.ic_favorite_filled,
-                            )
-                        } else {
-                            painterResource(
-                                Res.drawable.ic_favorite,
-                            )
-                        },
-                        contentDescription = "create_post_done_button",
-                    )
-                }
-            }
+            EditorStyleFormatBar(
+                modifier = Modifier.fillMaxWidth(),
+                richTextState = richTextState,
+            )
             LazyColumn(
                 modifier =
                     Modifier
@@ -142,6 +150,7 @@ private fun CreateBlogAppBar(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
     onCheckClick: () -> Unit = {},
+    enableCheckButton: Boolean = true,
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
@@ -160,6 +169,7 @@ private fun CreateBlogAppBar(
         },
         actions = {
             IconButton(
+                enabled = enableCheckButton,
                 onClick = onCheckClick,
             ) {
                 Icon(
@@ -173,7 +183,7 @@ private fun CreateBlogAppBar(
 
 @Preview
 @Composable
-fun PreviewCreateBlogScreen() {
+fun Preview_CreateBlogScreen() {
     MaterialTheme {
         CreateBlogScreen(
             richTextState = rememberRichTextState(),

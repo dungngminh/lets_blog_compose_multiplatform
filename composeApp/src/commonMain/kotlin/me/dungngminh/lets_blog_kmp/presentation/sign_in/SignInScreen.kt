@@ -284,7 +284,7 @@ fun SignInTopBar(onBackClick: () -> Unit) {
 
 @Preview
 @Composable
-fun PreviewSignInScreen() {
+fun Preview_SignInScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     SignInScreenContent(
         onBackClick = {

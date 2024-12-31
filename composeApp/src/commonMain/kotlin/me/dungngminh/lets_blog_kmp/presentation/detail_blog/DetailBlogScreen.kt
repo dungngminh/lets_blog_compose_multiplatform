@@ -215,7 +215,7 @@ fun DetailScreenFavoriteButton(
 
 @Preview
 @Composable
-fun PreviewDetailBlogScreenContent() {
+fun Preview_DetailBlogScreenContent() {
     DetailBlogScreenContent(
         blog =
             Blog(
