@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
+import 'package:cloudinary/cloudinary.dart' hide Response;
 import 'package:dart_frog/dart_frog.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
+import 'package:very_good_blog_app_backend/dtos/response/document/upload_document_response.dart';
 
 /// @Allow(POST)
-/// HAPPY BIRTHDAY @dungngminh
 Future<Response> onRequest(RequestContext context) {
   return switch (context.request.method) {
     HttpMethod.post => _onUploadPostRequest(context),
@@ -11,12 +14,36 @@ Future<Response> onRequest(RequestContext context) {
 }
 
 Future<Response> _onUploadPostRequest(RequestContext context) async {
+  final cloudinary = context.read<Cloudinary>();
   final request = await context.request.formData();
   try {
     final folderName = request.fields['folderName'];
     final uploadedFile = request.files['file'];
-    return OkResponse(uploadedFile?.name);
+
+    if (uploadedFile == null) {
+      return BadRequestResponse('no-image-upload');
+    }
+
+    final imageByteData = await uploadedFile.readAsBytes();
+
+    return cloudinary
+        .upload(
+      file: uploadedFile.name,
+      fileBytes: Uint8List.fromList(imageByteData),
+      folder: folderName,
+      resourceType: CloudinaryResourceType.image,
+    )
+        .then<Response>((cloudinaryResponse) {
+      final url = cloudinaryResponse.url;
+      if (url != null) {
+        return OkResponse(UploadDocumentResponse(url: url));
+      } else {
+        return InternalServerErrorResponse('upload-failed');
+      }
+    }).onError((e, st) {
+      return InternalServerErrorResponse(e.toString());
+    });
   } catch (e) {
-    return BadRequestResponse();
+    return BadRequestResponse(e.toString());
   }
 }
