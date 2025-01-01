@@ -28,9 +28,11 @@ class BlogRepositoryImpl(
                     blogService.getBlogs(
                         limit = limit,
                         offset = offset,
+                        searchQuery = searchQuery,
                     )
-                val blogsResponse = response.unwrap()
-                blogsResponse.map { it.toBlog() }
+                response
+                    .unwrap()
+                    .map { it.toBlog() }
             }
         }
 
@@ -38,7 +40,9 @@ class BlogRepositoryImpl(
         withContext(ioDispatcher) {
             runCatching {
                 val response = blogService.getTopBlogs(limit = limit)
-                response.unwrap().map { it.toBlog() }
+                response
+                    .unwrap()
+                    .map { it.toBlog() }
             }
         }
 

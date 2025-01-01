@@ -5,6 +5,7 @@ import me.dungngminh.lets_blog_kmp.presentation.create_blog.preview.PreviewBlogV
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeScreenViewModel
+import me.dungngminh.lets_blog_kmp.presentation.main.search.SearchViewModel
 import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInViewModel
 import me.dungngminh.lets_blog_kmp.presentation.sign_up.SignUpViewModel
 import org.koin.dsl.module
@@ -36,6 +37,12 @@ private val ViewModelModule =
         factory { params ->
             DetailBlogViewModel(
                 blog = params.get(),
+                blogRepository = get(),
+            )
+        }
+
+        factory {
+            SearchViewModel(
                 blogRepository = get(),
             )
         }

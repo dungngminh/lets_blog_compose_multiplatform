@@ -18,6 +18,7 @@ interface BlogService {
     suspend fun getBlogs(
         @Query("limit") limit: Int,
         @Query("page") offset: Int,
+        @Query("search") searchQuery: String?,
     ): BaseResponse<List<GetBlogResponse>>
 
     @GET("api/top-blogs")
