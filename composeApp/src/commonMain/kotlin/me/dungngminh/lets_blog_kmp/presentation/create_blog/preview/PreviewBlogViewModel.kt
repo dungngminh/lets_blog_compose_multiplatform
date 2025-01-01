@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.presentation.create_blog.preview
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import io.github.vinceglb.filekit.core.PlatformFile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,7 +18,7 @@ enum class CreateBlogPreviewValidationError {
 data class CreateBlogPreviewUiState(
     val title: String = "",
     val titleError: CreateBlogPreviewValidationError? = null,
-    val imagePath: String = "",
+    val imageFile: PlatformFile? = null,
     val imagePathError: CreateBlogPreviewValidationError? = null,
     val category: BlogCategory = BlogCategory.entries.first(),
     val categoryError: CreateBlogPreviewValidationError? = null,
@@ -53,17 +54,17 @@ class PreviewBlogViewModel(
             )
     }
 
-    fun changeImagePath(imagePath: String) {
+    fun changeImageFile(imageFile: PlatformFile?) {
         val imagePathError =
-            when {
-                imagePath.isEmpty() -> CreateBlogPreviewValidationError.EMPTY
+            when (imageFile) {
+                null -> CreateBlogPreviewValidationError.EMPTY
                 else -> CreateBlogPreviewValidationError.NONE
             }
 
         val isFormValid = isFormValid(imagePathError = imagePathError)
         _uiState.value =
             currentState.copy(
-                imagePath = imagePath,
+                imageFile = imageFile,
                 imagePathError = imagePathError,
                 isFormValid = isFormValid,
             )
@@ -80,12 +81,19 @@ class PreviewBlogViewModel(
     }
 
     fun publishBlog() {
+        // upload image to server
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null,
+            )
+        }
         screenModelScope.launch {
             blogRepository
                 .createBlog(
                     title = currentState.title,
                     content = content,
-                    imageUrl = currentState.imagePath,
+                    imageUrl = currentState.imageFile?.path.orEmpty(),
                     blogCategory = currentState.category,
                 ).onSuccess {
                     _uiState.update {

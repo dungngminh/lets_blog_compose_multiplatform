@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOut
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,11 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -34,6 +35,7 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,19 +61,24 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
+import io.github.vinceglb.filekit.compose.PickerResultLauncher
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerType
+import io.github.vinceglb.filekit.core.PlatformFile
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_category_label
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_content_title
+import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_image
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_title
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_screen_preview_blog_title
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_screen_title_not_empty_label
+import letsblogkmp.composeapp.generated.resources.ic_image
 import letsblogkmp.composeapp.generated.resources.ic_rocket_launch
 import letsblogkmp.composeapp.generated.resources.ic_x
 import letsblogkmp.composeapp.generated.resources.platform_image_picker_title
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
+import me.dungngminh.lets_blog_kmp.commons.extensions.toByteArray
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
-import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
@@ -91,27 +98,53 @@ class PreviewBlogScreen(
 
         val richTextState = rememberRichTextState()
 
+        val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
+        var isCategoryDropDownExpanded by remember { mutableStateOf(false) }
+
+        val imagePickerLauncher =
+            rememberFilePickerLauncher(
+                type = PickerType.Image,
+                title = stringResource(Res.string.platform_image_picker_title),
+            ) { file ->
+                viewModel.changeImageFile(file)
+            }
+
         LaunchedEffect(Unit) {
             richTextState.setHtml(content)
         }
 
-        if (!createBlogPreviewUiState.isLoading) {
-            Center {
-                CircularProgressIndicator()
-            }
+        if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
+            PreviewBlogExpandedContent(
+                createBlogPreviewUiState = createBlogPreviewUiState,
+                richTextState = richTextState,
+                onBackClick = {
+                    navigator.pop()
+                },
+                onCreateBlockClick = viewModel::publishBlog,
+                onCategoryClick = viewModel::changeCategory,
+                onTitleChange = viewModel::changeTitle,
+                onImageChange = viewModel::changeImageFile,
+                isCategoryDropDownExpanded = isCategoryDropDownExpanded,
+                imagePickerLauncher = imagePickerLauncher,
+                onCategoryDropDownExpandedChange = { isCategoryDropDownExpanded = it },
+            )
+        } else {
+            PreviewBlogCompactContent(
+                createBlogPreviewUiState = createBlogPreviewUiState,
+                richTextState = richTextState,
+                onBackClick = {
+                    navigator.pop()
+                },
+                onCreateBlockClick = viewModel::publishBlog,
+                onCategoryClick = viewModel::changeCategory,
+                onTitleChange = viewModel::changeTitle,
+                onImageChange = viewModel::changeImageFile,
+                isCategoryDropDownExpanded = isCategoryDropDownExpanded,
+                imagePickerLauncher = imagePickerLauncher,
+                onCategoryDropDownExpandedChange = { isCategoryDropDownExpanded = it },
+            )
         }
-
-        CreateBlogPreviewContent(
-            createBlogPreviewUiState = createBlogPreviewUiState,
-            richTextState = richTextState,
-            onBackClick = {
-                navigator.pop()
-            },
-            onCreateBlockClick = viewModel::publishBlog,
-            onCategoryClick = viewModel::changeCategory,
-            onTitleChange = viewModel::changeTitle,
-            onImageChange = viewModel::changeImagePath,
-        )
     }
 
     override fun enter(lastEvent: StackEvent): EnterTransition =
@@ -128,7 +161,7 @@ class PreviewBlogScreen(
 }
 
 @Composable
-fun CreateBlogPreviewContent(
+fun PreviewBlogExpandedContent(
     modifier: Modifier = Modifier,
     createBlogPreviewUiState: CreateBlogPreviewUiState,
     richTextState: RichTextState,
@@ -136,22 +169,33 @@ fun CreateBlogPreviewContent(
     onCreateBlockClick: () -> Unit = {},
     onCategoryClick: (BlogCategory) -> Unit = {},
     onTitleChange: (String) -> Unit = {},
-    onImageChange: (String) -> Unit = {},
+    onImageChange: (PlatformFile?) -> Unit = {},
+    isCategoryDropDownExpanded: Boolean = true,
+    imagePickerLauncher: PickerResultLauncher,
+    onCategoryDropDownExpandedChange: (Boolean) -> Unit = {},
 ) {
-    var isCategoryDropDownExpanded by remember { mutableStateOf(false) }
+    Scaffold {
+    }
+}
 
-    val imagePickerLauncher =
-        rememberFilePickerLauncher(
-            type = PickerType.Image,
-            title = stringResource(Res.string.platform_image_picker_title),
-        ) { file ->
-            onImageChange(file?.path.orEmpty())
-        }
-
+@Composable
+fun PreviewBlogCompactContent(
+    modifier: Modifier = Modifier,
+    createBlogPreviewUiState: CreateBlogPreviewUiState,
+    richTextState: RichTextState,
+    onBackClick: () -> Unit = {},
+    onCreateBlockClick: () -> Unit = {},
+    onCategoryClick: (BlogCategory) -> Unit = {},
+    onTitleChange: (String) -> Unit = {},
+    onImageChange: (PlatformFile?) -> Unit = {},
+    isCategoryDropDownExpanded: Boolean = true,
+    imagePickerLauncher: PickerResultLauncher,
+    onCategoryDropDownExpandedChange: (Boolean) -> Unit = {},
+) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            CreateBlogPreviewAppBar(
+            PreviewBlogAppBar(
                 onPublishBlogClick = onCreateBlockClick,
                 onBackClick = onBackClick,
                 enablePublishButton = createBlogPreviewUiState.isFormValid,
@@ -168,19 +212,25 @@ fun CreateBlogPreviewContent(
                     .padding(bottom = 16.dp),
         ) {
             item {
+                Text(
+                    stringResource(Res.string.create_blog_preview_blog_image),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
                 ImageBox(
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .height(200.dp),
-                    imagePath = createBlogPreviewUiState.imagePath,
+                    imageFile = createBlogPreviewUiState.imageFile,
                     onPickImageClick = {
                         imagePickerLauncher.launch()
                     },
                     onDeleteImageClick = {
-                        onImageChange("")
+                        onImageChange(null)
                     },
                 )
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             item {
@@ -197,8 +247,8 @@ fun CreateBlogPreviewContent(
                     modifier = Modifier.fillMaxWidth(),
                     selectedCategory = createBlogPreviewUiState.category,
                     isCategoryDropDownExpanded = isCategoryDropDownExpanded,
-                    onExpandedChange = { isCategoryDropDownExpanded = it },
-                    onDismissRequest = { isCategoryDropDownExpanded = false },
+                    onExpandedChange = onCategoryDropDownExpandedChange,
+                    onDismissRequest = { onCategoryDropDownExpandedChange(false) },
                     onCategoryClick = onCategoryClick,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -222,32 +272,37 @@ fun CreateBlogPreviewContent(
 @Composable
 private fun ImageBox(
     modifier: Modifier = Modifier,
-    imagePath: String,
+    imageFile: PlatformFile? = null,
     onPickImageClick: () -> Unit = {},
     onDeleteImageClick: () -> Unit = {},
 ) {
+    var imageBytes by remember(imageFile) {
+        mutableStateOf<ByteArray?>(null)
+    }
+
+    LaunchedEffect(imageFile) {
+        imageBytes = imageFile?.toByteArray()
+    }
+
     Box(
         modifier =
             modifier
                 .clip(MaterialTheme.shapes.medium)
                 .border(
                     width = 1.dp,
-                    color =
-                        MaterialTheme
-                            .colorScheme.inversePrimary
-                            .copy(alpha = 0.12f),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    shape = MaterialTheme.shapes.medium,
                 ).clickable {
-                    if (imagePath.isEmpty()) {
+                    if (imageFile == null) {
                         onPickImageClick()
                     }
                 },
     ) {
-        if (imagePath.isNotEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-            ) {
+        if (imageFile != null) {
+            Box {
                 CoilImage(
-                    imageModel = { imagePath },
+                    modifier = Modifier.fillMaxSize(),
+                    imageModel = { imageBytes },
                     imageOptions =
                         ImageOptions(
                             contentScale = ContentScale.Crop,
@@ -259,7 +314,7 @@ private fun ImageBox(
                     modifier =
                         Modifier
                             .align(Alignment.TopEnd)
-                            .padding(2.dp),
+                            .padding(4.dp),
                 ) {
                     Icon(
                         painterResource(Res.drawable.ic_x),
@@ -270,7 +325,20 @@ private fun ImageBox(
         } else {
             Column(
                 modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
+                Icon(
+                    painterResource(Res.drawable.ic_image),
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(Res.string.platform_image_picker_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         }
     }
@@ -280,9 +348,7 @@ private fun ImageBox(
 @Composable
 fun Preview_ImageBox() {
     MaterialTheme {
-        ImageBox(
-            imagePath = "hehehehehehehhe",
-        )
+        ImageBox()
     }
 }
 
@@ -368,7 +434,7 @@ private fun BlogCategoryDropdownMenu(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CreateBlogPreviewAppBar(
+private fun PreviewBlogAppBar(
     modifier: Modifier = Modifier,
     onPublishBlogClick: () -> Unit,
     onBackClick: () -> Unit,
