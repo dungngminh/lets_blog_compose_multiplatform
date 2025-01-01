@@ -342,6 +342,7 @@ private fun ImageBox(
                     Icon(
                         painterResource(Res.drawable.ic_x),
                         contentDescription = null,
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }

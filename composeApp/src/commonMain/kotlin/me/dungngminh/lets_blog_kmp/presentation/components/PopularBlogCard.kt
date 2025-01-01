@@ -63,7 +63,7 @@ fun PopularBlogCard(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(12.dp),
+                    .padding(6.dp),
             blog = blog,
             onFavoriteClick = onFavoriteClick,
             onUnFavoriteBlogClick = onUnFavoriteBlogClick,
@@ -107,7 +107,7 @@ private fun PopularBlogCardContent(
         Box(
             modifier =
                 Modifier
-                    .padding(8.dp)
+                    .padding(12.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.surface)
@@ -118,7 +118,7 @@ private fun PopularBlogCardContent(
             ) {
                 Row {
                     CoilImage(
-                        imageModel = {},
+                        imageModel = { blog.creator.avatarUrl },
                         modifier = Modifier.size(36.dp),
                         imageOptions = ImageOptions(contentScale = ContentScale.Crop),
                     )

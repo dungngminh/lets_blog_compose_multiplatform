@@ -5,13 +5,16 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,26 +26,34 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
+import me.dungngminh.lets_blog_kmp.commons.extensions.timeAgo
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
@@ -50,6 +61,7 @@ import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.painterResource
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalVoyagerApi::class)
 data class DetailBlogScreen(
@@ -63,20 +75,32 @@ data class DetailBlogScreen(
 
         val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
 
-        val viewModel = rememberScreenModel { DetailBlogViewModel(blog = blog) }
+        val viewModel = koinScreenModel<DetailBlogViewModel> { parametersOf(blog) }
+
+        val detailBlogState by viewModel.uiState.collectAsStateWithLifecycle()
+
+        val blogContentRichTextState = rememberRichTextState()
+
+        LaunchedEffect(blog.content) {
+            blogContentRichTextState.setHtml(blog.content)
+        }
 
         DetailBlogScreenContent(
-            blog = blog,
+            blog = detailBlogState.blog,
             userSessionState = userSessionState,
             onBackClick = {
                 navigator.pop()
             },
             onFavoriteClick = {
+                viewModel.favoriteBlog()
             },
-            onUnFavoriteClick = {},
+            onUnFavoriteClick = {
+                viewModel.unFavoriteBlog()
+            },
             onUnAuthenticatedFavoriteClick = {
                 navigator.push(SignInScreen)
             },
+            blogContentRichTextState = blogContentRichTextState,
         )
     }
 
@@ -98,6 +122,7 @@ data class DetailBlogScreen(
 fun DetailBlogScreenContent(
     blog: Blog,
     userSessionState: UserSessionState,
+    blogContentRichTextState: RichTextState,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onFavoriteClick: (Blog) -> Unit,
@@ -107,51 +132,130 @@ fun DetailBlogScreenContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBackClick,
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = "create_post_back_button",
-                        )
-                    }
-                },
-                title = {
-                },
-                actions = {
-                    DetailScreenFavoriteButton(
-                        blog = blog,
-                        userSessionState = userSessionState,
-                        onFavoriteClick = onFavoriteClick,
-                        onUnFavoriteClick = onUnFavoriteClick,
-                        onUnAuthenticatedFavoriteClick = onUnAuthenticatedFavoriteClick,
-                    )
-                },
+            DetailBlogAppBar(
+                blog = blog,
+                userSessionState = userSessionState,
+                onBackClick = onBackClick,
+                onFavoriteClick = onFavoriteClick,
+                onUnFavoriteClick = onUnFavoriteClick,
+                onUnAuthenticatedFavoriteClick = onUnAuthenticatedFavoriteClick,
             )
         },
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier =
                 Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
         ) {
-            CoilImage(
-                imageModel = { blog.imageUrl },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                imageOptions = ImageOptions(contentScale = ContentScale.Crop),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = blog.title, style = MaterialTheme.typography.headlineLarge)
+            item(contentType = "blog_image") {
+                CoilImage(
+                    imageModel = { blog.imageUrl },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item(contentType = "blog_title") {
+                Text(text = blog.title, style = MaterialTheme.typography.headlineLarge)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            item(contentType = "creator_info") {
+                DetailBlogCreatorInfo(blog = blog)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item(contentType = "blog_content") {
+                RichText(blogContentRichTextState)
+            }
         }
     }
+}
+
+@Composable
+fun DetailBlogCreatorInfo(
+    modifier: Modifier = Modifier,
+    blog: Blog,
+) {
+    Row(modifier = modifier) {
+        CoilImage(
+            imageModel = { blog.creator.avatarUrl },
+            modifier = Modifier.size(36.dp),
+            imageOptions = ImageOptions(contentScale = ContentScale.Crop),
+        )
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                blog.creator.name,
+                style =
+                    MaterialTheme
+                        .typography.titleSmall
+                        .copy(fontWeight = FontWeight.SemiBold),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                blog.createdAt.timeAgo(),
+                style =
+                    MaterialTheme
+                        .typography.bodySmall,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailBlogAppBar(
+    modifier: Modifier = Modifier,
+    blog: Blog,
+    userSessionState: UserSessionState,
+    onBackClick: () -> Unit = {},
+    onFavoriteClick: (Blog) -> Unit,
+    onUnFavoriteClick: (Blog) -> Unit,
+    onUnAuthenticatedFavoriteClick: () -> Unit = {},
+) {
+    TopAppBar(
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(
+                onClick = onBackClick,
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "create_post_back_button",
+                )
+            }
+        },
+        title = {
+        },
+        actions = {
+            DetailScreenFavoriteButton(
+                blog = blog,
+                userSessionState = userSessionState,
+                onFavoriteClick = onFavoriteClick,
+                onUnFavoriteClick = onUnFavoriteClick,
+                onUnAuthenticatedFavoriteClick = onUnAuthenticatedFavoriteClick,
+            )
+        },
+    )
 }
 
 @Composable
@@ -191,16 +295,19 @@ fun DetailScreenFavoriteButton(
                 },
                 contentDescription = "favorite_button",
                 modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary,
             )
         }
     }
     when (userSessionState) {
         is UserSessionState.Authenticated -> {
-            FavoriteButton(
-                modifier = modifier,
-                onFavoriteClick = onFavoriteClick,
-                onUnFavoriteClick = onUnFavoriteClick,
-            )
+            if (userSessionState.user.id != blog.creator.id) {
+                FavoriteButton(
+                    modifier = modifier,
+                    onFavoriteClick = onFavoriteClick,
+                    onUnFavoriteClick = onUnFavoriteClick,
+                )
+            }
         }
 
         else ->
@@ -252,5 +359,6 @@ fun Preview_DetailBlogScreenContent() {
         onFavoriteClick = {},
         onUnAuthenticatedFavoriteClick = {},
         onUnFavoriteClick = {},
+        blogContentRichTextState = rememberRichTextState(),
     )
 }
