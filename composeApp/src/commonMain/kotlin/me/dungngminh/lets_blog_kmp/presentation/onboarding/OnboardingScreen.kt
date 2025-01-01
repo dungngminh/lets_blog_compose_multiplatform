@@ -34,16 +34,23 @@ import letsblogkmp.composeapp.generated.resources.onboarding2
 import letsblogkmp.composeapp.generated.resources.onboarding3
 import letsblogkmp.composeapp.generated.resources.onboarding_page_done_button_label
 import letsblogkmp.composeapp.generated.resources.onboarding_page_next_button_label
+import letsblogkmp.composeapp.generated.resources.onboarding_screen_description_1
+import letsblogkmp.composeapp.generated.resources.onboarding_screen_description_2
+import letsblogkmp.composeapp.generated.resources.onboarding_screen_description_3
+import letsblogkmp.composeapp.generated.resources.onboarding_screen_title_1
+import letsblogkmp.composeapp.generated.resources.onboarding_screen_title_2
+import letsblogkmp.composeapp.generated.resources.onboarding_screen_title_3
 import me.dungngminh.lets_blog_kmp.AppViewModel
 import me.dungngminh.lets_blog_kmp.commons.theme.LetsBlogAppTheme
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 data class OnboardingContent(
-    val title: String,
-    val description: String,
+    val title: StringResource,
+    val description: StringResource,
     val image: DrawableResource,
 )
 
@@ -68,27 +75,18 @@ class OnboardingScreen : Screen {
         val onboardingContent =
             listOf(
                 OnboardingContent(
-                    title = "What should I know about Blogie?",
-                    description =
-                        "Blogie is an open platform where 170 million" +
-                            " readers come to find insightful and dynamic" +
-                            " thinking.",
+                    title = Res.string.onboarding_screen_title_1,
+                    description = Res.string.onboarding_screen_description_1,
                     image = Res.drawable.onboarding1,
                 ),
                 OnboardingContent(
-                    title =
-                        "Write your ideas on" +
-                            " the blog",
-                    description = "You can write your idea here and share it with other people.",
+                    title = Res.string.onboarding_screen_title_2,
+                    description = Res.string.onboarding_screen_description_2,
                     image = Res.drawable.onboarding2,
                 ),
                 OnboardingContent(
-                    title =
-                        "Read according to" +
-                            " your passion ",
-                    description =
-                        "You can read and explore your passion by" +
-                            " using this application.",
+                    title = Res.string.onboarding_screen_title_3,
+                    description = Res.string.onboarding_screen_description_3,
                     image = Res.drawable.onboarding3,
                 ),
             )
@@ -197,7 +195,7 @@ class OnboardingScreen : Screen {
             )
             Spacer(modifier = Modifier.height(40.dp))
             Text(
-                content.title,
+                stringResource(content.title),
                 style =
                     MaterialTheme.typography.headlineMedium
                         .copy(color = MaterialTheme.colorScheme.onSurface),
@@ -205,7 +203,7 @@ class OnboardingScreen : Screen {
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                content.description,
+                stringResource(content.description),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.fillMaxWidth(),
             )

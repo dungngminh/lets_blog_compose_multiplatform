@@ -24,7 +24,9 @@ import letsblogkmp.composeapp.generated.resources.ic_align_left
 import letsblogkmp.composeapp.generated.resources.ic_align_right
 import letsblogkmp.composeapp.generated.resources.ic_bold
 import letsblogkmp.composeapp.generated.resources.ic_code_simple
+import letsblogkmp.composeapp.generated.resources.ic_dash_list
 import letsblogkmp.composeapp.generated.resources.ic_italic
+import letsblogkmp.composeapp.generated.resources.ic_number_list
 import letsblogkmp.composeapp.generated.resources.ic_strikethrough
 import letsblogkmp.composeapp.generated.resources.ic_underline
 import org.jetbrains.compose.resources.DrawableResource
@@ -40,7 +42,8 @@ enum class EditorStyleButtonType {
     JUSTIFY_RIGHT,
     JUSTIFY_FULL,
     CODE_BLOCK,
-    LIST,
+    NUMBERED_LIST,
+    BULLET_LIST,
     ;
 
     val icon: DrawableResource
@@ -55,7 +58,8 @@ enum class EditorStyleButtonType {
                 JUSTIFY_RIGHT -> Res.drawable.ic_align_right
                 JUSTIFY_FULL -> Res.drawable.ic_align_justify
                 CODE_BLOCK -> Res.drawable.ic_code_simple
-                LIST -> Res.drawable.ic_code_simple
+                NUMBERED_LIST -> Res.drawable.ic_number_list
+                BULLET_LIST -> Res.drawable.ic_dash_list
             }
 }
 
@@ -129,8 +133,12 @@ private fun isStyleButtonSelected(
             richTextState.isCodeSpan
         }
 
-        EditorStyleButtonType.LIST -> {
+        EditorStyleButtonType.NUMBERED_LIST -> {
             richTextState.isOrderedList
+        }
+
+        EditorStyleButtonType.BULLET_LIST -> {
+            richTextState.isUnorderedList
         }
     }
 
@@ -207,8 +215,12 @@ private fun onStyleButtonClick(
             richTextState.toggleCodeSpan()
         }
 
-        EditorStyleButtonType.LIST -> {
+        EditorStyleButtonType.NUMBERED_LIST -> {
             richTextState.toggleOrderedList()
+        }
+
+        EditorStyleButtonType.BULLET_LIST -> {
+            richTextState.toggleUnorderedList()
         }
     }
 }

@@ -90,4 +90,10 @@
     <string name="blog_category_food">Food</string>
     <string name="blog_category_education">Education</string>
     <string name="platform_image_picker_title">Pick your blog image</string>
+    <string name="onboarding_screen_title_1">Write with dreams</string>
+    <string name="onboarding_screen_title_2">Receive valuable knowledge</string>
+    <string name="onboarding_screen_title_3">Connect with the blogging community</string>
+    <string name="onboarding_screen_description_1">Let's Blog is a platform for you to write your stories, read others and share thoughts and ideas.</string>
+    <string name="onboarding_screen_description_2">You can read and explore your passion with Let's Blog.</string>
+    <string name="onboarding_screen_description_3">Let's deep dive into the world of blogging and connect with the community.</string>
 </resources>
