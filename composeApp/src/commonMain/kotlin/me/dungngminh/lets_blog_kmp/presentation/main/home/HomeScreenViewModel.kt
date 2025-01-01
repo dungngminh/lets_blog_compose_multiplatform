@@ -2,7 +2,6 @@ package me.dungngminh.lets_blog_kmp.presentation.main.home
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,7 +30,7 @@ class HomeScreenViewModel(
             .onStart { fetchBlogs() }
             .stateIn(
                 scope = screenModelScope,
-                started = SharingStarted.Lazily,
+                started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = HomeScreenUiState(),
             )
 
@@ -64,9 +63,7 @@ class HomeScreenViewModel(
             val popularBlogs =
                 popularBlogsRequest
                     .await()
-                    .onFailure {
-                        Napier.e("Error: $it")
-                    }.getOrNull() ?: emptyList()
+                    .getOrNull() ?: emptyList()
             val blogsRequestResult = blogsRequest.await()
 
             blogsRequestResult
@@ -101,8 +98,7 @@ class HomeScreenViewModel(
                     limit = 10,
                     offset = currentPage,
                     blogCategory = null,
-                ).recover { emptyList() }
-                .onSuccess { fetchedBlogs ->
+                ).onSuccess { fetchedBlogs ->
                     canLoadMore = fetchedBlogs.isNotEmpty()
                     _uiState.update { state ->
                         state.copy(

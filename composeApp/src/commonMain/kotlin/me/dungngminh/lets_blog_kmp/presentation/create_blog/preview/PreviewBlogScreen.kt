@@ -79,6 +79,8 @@ import letsblogkmp.composeapp.generated.resources.platform_image_picker_title
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toByteArray
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
+import me.dungngminh.lets_blog_kmp.presentation.components.LoadingDialog
+import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
@@ -112,6 +114,18 @@ class PreviewBlogScreen(
 
         LaunchedEffect(Unit) {
             richTextState.setHtml(content)
+        }
+
+        LaunchedEffect(createBlogPreviewUiState) {
+            when {
+                createBlogPreviewUiState.isPublishSuccess -> {
+                    navigator.popUntil { it is MainScreen }
+                }
+            }
+        }
+
+        if (createBlogPreviewUiState.isLoading) {
+            LoadingDialog()
         }
 
         if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
@@ -174,7 +188,16 @@ fun PreviewBlogExpandedContent(
     imagePickerLauncher: PickerResultLauncher,
     onCategoryDropDownExpandedChange: (Boolean) -> Unit = {},
 ) {
-    Scaffold {
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            PreviewBlogAppBar(
+                onPublishBlogClick = onCreateBlockClick,
+                onBackClick = onBackClick,
+                enablePublishButton = createBlogPreviewUiState.isFormValid,
+            )
+        },
+    ) {
     }
 }
 

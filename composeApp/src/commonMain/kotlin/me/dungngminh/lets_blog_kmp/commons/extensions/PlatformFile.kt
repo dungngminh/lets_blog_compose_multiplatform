@@ -1,6 +1,9 @@
 package me.dungngminh.lets_blog_kmp.commons.extensions
 
+import coil3.annotation.InternalCoilApi
+import coil3.util.MimeTypeMap
 import io.github.vinceglb.filekit.core.PlatformFile
+import io.github.vinceglb.filekit.core.extension
 
 suspend fun PlatformFile.toByteArray(): ByteArray =
     if (this.supportsStreams()) {
@@ -27,3 +30,7 @@ suspend fun PlatformFile.toByteArray(): ByteArray =
     } else {
         this.readBytes()
     }
+
+@OptIn(InternalCoilApi::class)
+val PlatformFile.contentType: String?
+    get() = MimeTypeMap.getMimeTypeFromExtension(this.extension)

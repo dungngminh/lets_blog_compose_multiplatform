@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
+import me.dungngminh.lets_blog_kmp.domain.repositories.UploadDocumentRepository
 
 enum class CreateBlogPreviewValidationError {
     EMPTY,
@@ -21,8 +22,7 @@ data class CreateBlogPreviewUiState(
     val imageFile: PlatformFile? = null,
     val imagePathError: CreateBlogPreviewValidationError? = null,
     val category: BlogCategory = BlogCategory.entries.first(),
-    val categoryError: CreateBlogPreviewValidationError? = null,
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val isFormValid: Boolean = false,
     val errorMessage: String? = null,
     val isPublishSuccess: Boolean = false,
@@ -31,6 +31,7 @@ data class CreateBlogPreviewUiState(
 class PreviewBlogViewModel(
     private val content: String,
     private val blogRepository: BlogRepository,
+    private val uploadDocumentRepository: UploadDocumentRepository,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(CreateBlogPreviewUiState())
     val uiState = _uiState.asStateFlow()
@@ -71,13 +72,9 @@ class PreviewBlogViewModel(
     }
 
     fun changeCategory(category: BlogCategory) {
-        val isFormValid = isFormValid(categoryError = CreateBlogPreviewValidationError.NONE)
-        _uiState.value =
-            currentState.copy(
-                category = category,
-                categoryError = CreateBlogPreviewValidationError.NONE,
-                isFormValid = isFormValid,
-            )
+        _uiState.update {
+            it.copy(category = category)
+        }
     }
 
     fun publishBlog() {
@@ -89,11 +86,27 @@ class PreviewBlogViewModel(
             )
         }
         screenModelScope.launch {
+            uploadDocumentRepository
+                .uploadBlogImage(currentState.imageFile!!)
+                .onSuccess(::createBlog)
+                .onFailure {
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            errorMessage = it.message,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun createBlog(imageUrl: String) {
+        screenModelScope.launch {
             blogRepository
                 .createBlog(
                     title = currentState.title,
                     content = content,
-                    imageUrl = currentState.imageFile?.path.orEmpty(),
+                    imageUrl = imageUrl,
                     blogCategory = currentState.category,
                 ).onSuccess {
                     _uiState.update {
@@ -122,12 +135,10 @@ class PreviewBlogViewModel(
     private fun isFormValid(
         titleError: CreateBlogPreviewValidationError? = null,
         imagePathError: CreateBlogPreviewValidationError? = null,
-        categoryError: CreateBlogPreviewValidationError? = null,
     ): Boolean {
         val titleValidationError = titleError ?: currentState.titleError
         val imagePathValidationError = imagePathError ?: currentState.imagePathError
-        val categoryValidationError = categoryError ?: currentState.categoryError
-        return listOf(titleValidationError, imagePathValidationError, categoryValidationError)
+        return listOf(titleValidationError, imagePathValidationError)
             .all { it == CreateBlogPreviewValidationError.NONE }
     }
 }

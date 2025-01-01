@@ -26,9 +26,11 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
 import me.dungngminh.lets_blog_kmp.data.api_service.BlogService
+import me.dungngminh.lets_blog_kmp.data.api_service.UploadDocumentService
 import me.dungngminh.lets_blog_kmp.data.api_service.UserService
 import me.dungngminh.lets_blog_kmp.data.api_service.createAuthService
 import me.dungngminh.lets_blog_kmp.data.api_service.createBlogService
+import me.dungngminh.lets_blog_kmp.data.api_service.createUploadDocumentService
 import me.dungngminh.lets_blog_kmp.data.api_service.createUserService
 import me.dungngminh.lets_blog_kmp.data.local.AppSettingStore
 import me.dungngminh.lets_blog_kmp.data.local.UserStore
@@ -88,7 +90,7 @@ private val httpModule =
             Ktorfit
                 .Builder()
                 .httpClient(get<HttpClient>())
-                .baseUrl("https://letsblog.up.railway.app/")
+                .baseUrl("http://192.168.1.112:8080/")
                 .build()
         }
     }
@@ -106,6 +108,10 @@ private val ApiModule =
         single<BlogService> {
             get<Ktorfit>()
                 .createBlogService()
+        }
+        single<UploadDocumentService> {
+            get<Ktorfit>()
+                .createUploadDocumentService()
         }
     }
 

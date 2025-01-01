@@ -29,6 +29,7 @@ private val ViewModelModule =
             PreviewBlogViewModel(
                 content = params.get(),
                 blogRepository = get(),
+                uploadDocumentRepository = get(),
             )
         }
     }
