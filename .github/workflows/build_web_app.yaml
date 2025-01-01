@@ -1,8 +1,11 @@
 name: Publish Application on GitHub Pages
 on:
   push:
+    paths:
+      - '!backend/**'
     branches:
       - main
+
 
 jobs:
   # Build job
