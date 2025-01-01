@@ -17,6 +17,7 @@ import 'package:very_good_blog_app_backend/util/jwt_handler.dart';
 /// @Query(limit)
 /// @Query(page)
 /// @Query(search)
+/// @Query(descending)
 Future<Response> onRequest(RequestContext context) {
   return switch (context.request.method) {
     HttpMethod.get => _onBlogsGetRequest(context),
@@ -30,6 +31,11 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
   final queryParams = context.request.uri.queryParameters;
   final limit = int.tryParse(queryParams['limit'].orEmpty()) ?? 20;
   final currentPage = int.tryParse(queryParams['page'].orEmpty()) ?? 1;
+  final descending = bool.tryParse(
+        queryParams['descending'].orEmpty(),
+        caseSensitive: false,
+      ) ??
+      true;
   final search = queryParams['search'];
 
   UserView? user;
@@ -44,6 +50,7 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
         .queryBlogs(
       QueryParams(
         limit: limit,
+        orderBy: descending ? 'created_at DESC' : 'created_at ASC',
         offset: (currentPage - 1) * limit,
         where: search == null
             ? null

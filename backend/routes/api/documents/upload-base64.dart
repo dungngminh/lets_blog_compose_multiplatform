@@ -1,7 +1,10 @@
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:cloudinary/cloudinary.dart' hide Response;
 import 'package:dart_frog/dart_frog.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:very_good_blog_app_backend/common/extensions/json_ext.dart';
+import 'package:very_good_blog_app_backend/dtos/request/document/upload_document_request.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
 import 'package:very_good_blog_app_backend/dtos/response/document/upload_document_response.dart';
 
@@ -15,24 +18,18 @@ Future<Response> onRequest(RequestContext context) {
 
 Future<Response> _onUploadPostRequest(RequestContext context) async {
   final cloudinary = context.read<Cloudinary>();
+  final body = await context.request.body();
+  if (body.isEmpty) {
+    return BadRequestResponse();
+  }
   try {
-    final request = await context.request.formData();
-    print(request.fields);
-    print(request.files);
-    final folderName = request.fields[''];
-    final uploadedFile = request.files[''];
-
-    if (uploadedFile == null) {
-      return BadRequestResponse('no-image-upload');
-    }
-
-    final imageByteData = await uploadedFile.readAsBytes();
+    final request = UploadDocumentRequest.fromJson(body.asJson());
 
     return cloudinary
         .upload(
-      file: uploadedFile.name,
-      fileBytes: Uint8List.fromList(imageByteData),
-      folder: folderName,
+      file: request.fileName,
+      fileBytes: base64Decode(request.base64Source),
+      folder: request.fileName,
       resourceType: CloudinaryResourceType.image,
     )
         .then<Response>((cloudinaryResponse) {
@@ -43,8 +40,9 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
         return InternalServerErrorResponse('upload-failed');
       }
     });
+  } on CheckedFromJsonException catch (e) {
+    return BadRequestResponse(e.message);
   } catch (e, st) {
-    print(st);
     return InternalServerErrorResponse(st.toString());
   }
 }
