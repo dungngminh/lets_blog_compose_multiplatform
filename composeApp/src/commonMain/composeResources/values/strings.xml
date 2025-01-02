@@ -96,4 +96,7 @@
     <string name="onboarding_screen_description_1">Let's Blog is a platform for you to write your stories, read others and share thoughts and ideas.</string>
     <string name="onboarding_screen_description_2">You can read and explore your passion with Let's Blog.</string>
     <string name="onboarding_screen_description_3">Let's deep dive into the world of blogging and connect with the community.</string>
+    <string name="search_screen_search_hint_label">Type to search</string>
+    <string name="search_screen_empty_query_label">Let's type something to search</string>
+    <string name="search_screen_top_bar_title">Search</string>
 </resources>

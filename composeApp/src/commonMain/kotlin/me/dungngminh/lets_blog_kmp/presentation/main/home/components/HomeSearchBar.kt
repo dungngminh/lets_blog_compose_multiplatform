@@ -39,10 +39,7 @@ fun HomeSearchBar(
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .clickable {
                     onClick()
-                }.padding(
-                    horizontal = 16.dp,
-                    vertical = 12.dp,
-                ),
+                }.padding(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(

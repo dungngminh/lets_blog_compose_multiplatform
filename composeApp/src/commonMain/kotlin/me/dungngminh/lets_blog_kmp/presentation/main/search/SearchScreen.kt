@@ -1,5 +1,7 @@
 package me.dungngminh.lets_blog_kmp.presentation.main.search
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -8,22 +10,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -32,41 +38,32 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import letsblogkmp.composeapp.generated.resources.Res
+import letsblogkmp.composeapp.generated.resources.ic_search_filled
+import letsblogkmp.composeapp.generated.resources.search_screen_empty_query_label
+import letsblogkmp.composeapp.generated.resources.search_screen_search_hint_label
+import letsblogkmp.composeapp.generated.resources.search_screen_top_bar_title
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(FlowPreview::class)
 object SearchTab : Tab {
     @Composable
     override fun Content() {
         val rootNavigator = LocalNavigator.currentOrThrow.parent
+
         val viewModel = koinScreenModel<SearchViewModel>()
 
-        var searchFieldState by remember { mutableStateOf("") }
-
-        val searchUiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-        LaunchedEffect(Unit) {
-            snapshotFlow { searchFieldState }
-                .debounce(350)
-                .filter { it.isNotBlank() }
-                .onEach { viewModel.search(it) }
-                .launchIn(this)
-        }
+        val searchUiState by viewModel.searchState.collectAsStateWithLifecycle()
 
         SearchScreenContent(
-            searchFieldState = searchFieldState,
+            searchFieldState = viewModel.searchFieldState,
             searchUiState = searchUiState,
-            onSearchFieldChange = { searchFieldState = it },
+            onSearchFieldChange = viewModel::onSearchChange,
             onBlogClick = {
                 rootNavigator?.push(DetailBlogScreen(it))
             },
@@ -85,6 +82,7 @@ object SearchTab : Tab {
             )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchScreenContent(
     modifier: Modifier = Modifier,
@@ -93,7 +91,18 @@ private fun SearchScreenContent(
     onBlogClick: (Blog) -> Unit = {},
     searchUiState: SearchUiState,
 ) {
-    Scaffold(modifier = modifier) { innerPadding ->
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        stringResource(Res.string.search_screen_top_bar_title),
+                    )
+                },
+            )
+        },
+    ) { innerPadding ->
         Column(
             modifier =
                 Modifier
@@ -101,9 +110,9 @@ private fun SearchScreenContent(
                     .windowInsetsPadding(WindowInsets.ime)
                     .fillMaxSize(),
         ) {
-            OutlinedTextField(
-                value = searchFieldState,
-                onValueChange = onSearchFieldChange,
+            SearchField(
+                searchFieldState = searchFieldState,
+                onSearchFieldChange = onSearchFieldChange,
                 modifier =
                     Modifier
                         .padding(horizontal = 16.dp)
@@ -111,8 +120,9 @@ private fun SearchScreenContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            when {
-                searchUiState.isLoading -> {
+            when (searchUiState) {
+                SearchUiState.Idle -> Unit
+                SearchUiState.Loading -> {
                     Center(
                         modifier = Modifier.weight(1f),
                     ) {
@@ -120,18 +130,19 @@ private fun SearchScreenContent(
                     }
                 }
 
-                searchUiState.errorMessage != null -> {
-                    Center(
+                is SearchUiState.EmptyQuery ->
+                    CenterMessage(
                         modifier = Modifier.weight(1f),
-                    ) {
-                        Text(
-                            searchUiState.errorMessage,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    }
-                }
+                        message = stringResource(Res.string.search_screen_empty_query_label),
+                    )
 
-                else -> {
+                is SearchUiState.Error ->
+                    CenterMessage(
+                        modifier = Modifier.weight(1f),
+                        message = searchUiState.errorMessage,
+                    )
+
+                is SearchUiState.Success -> {
                     LazyColumn(
                         modifier =
                             Modifier
@@ -155,5 +166,65 @@ private fun SearchScreenContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CenterMessage(
+    modifier: Modifier = Modifier,
+    message: String,
+) {
+    Center(modifier = modifier) {
+        Text(
+            message,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+    }
+}
+
+@Composable
+fun SearchField(
+    modifier: Modifier = Modifier,
+    searchFieldState: String,
+    onSearchFieldChange: (String) -> Unit,
+) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer),
+    ) {
+        TextField(
+            value = searchFieldState,
+            onValueChange = onSearchFieldChange,
+            leadingIcon = {
+                Icon(
+                    painterResource(Res.drawable.ic_search_filled),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(24.dp),
+                )
+            },
+            placeholder = {
+                Text(
+                    stringResource(Res.string.search_screen_search_hint_label),
+                )
+            },
+            colors =
+                TextFieldDefaults
+                    .colors()
+                    .copy(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                    ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+        )
     }
 }
