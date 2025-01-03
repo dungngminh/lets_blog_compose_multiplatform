@@ -18,6 +18,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +43,7 @@ import org.jetbrains.compose.resources.painterResource
 fun PopularBlogCard(
     modifier: Modifier = Modifier,
     blog: Blog,
+    user: User?,
     onClick: (Blog) -> Unit,
     onFavoriteClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
@@ -65,6 +69,7 @@ fun PopularBlogCard(
                     .fillMaxSize()
                     .padding(6.dp),
             blog = blog,
+            user = user,
             onFavoriteClick = onFavoriteClick,
             onUnFavoriteBlogClick = onUnFavoriteBlogClick,
         )
@@ -77,14 +82,21 @@ private fun PopularBlogCardContent(
     blog: Blog,
     onFavoriteClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
+    user: User?,
 ) {
     Column(modifier = modifier) {
         // Favorite Button
-        if (blog.isFavoriteByUser != null) {
+        val shouldShowFavoriteButton by
+            remember(blog, user) {
+                derivedStateOf {
+                    user != null && blog.creator.id != user.id && blog.isFavoriteByUser != null
+                }
+            }
+        if (shouldShowFavoriteButton) {
             IconButton(
                 modifier = Modifier.align(Alignment.End),
                 onClick = {
-                    if (blog.isFavoriteByUser) {
+                    if (blog.isFavoriteByUser == true) {
                         onUnFavoriteBlogClick(blog)
                     } else {
                         onFavoriteClick(blog)
@@ -92,7 +104,7 @@ private fun PopularBlogCardContent(
                 },
             ) {
                 Icon(
-                    if (blog.isFavoriteByUser) {
+                    if (blog.isFavoriteByUser == true) {
                         painterResource(Res.drawable.ic_favorite_filled)
                     } else {
                         painterResource(Res.drawable.ic_favorite)
@@ -186,6 +198,7 @@ fun Preview_PopularBlogCard() {
             onClick = {},
             onFavoriteClick = {},
             onUnFavoriteBlogClick = {},
+            user = null,
         )
     }
 }

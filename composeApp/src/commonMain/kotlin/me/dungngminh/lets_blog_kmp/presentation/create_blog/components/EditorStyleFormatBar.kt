@@ -8,6 +8,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -74,12 +77,16 @@ fun EditorStyleFormatBar(
     ) {
         EditorStyleButtonType.entries
             .forEach { styleButtonType ->
-                EditorStyleButton(
-                    isSelected =
+                val isSelected by remember {
+                    derivedStateOf {
                         isStyleButtonSelected(
                             richTextState = richTextState,
                             styleButtonType = styleButtonType,
-                        ),
+                        )
+                    }
+                }
+                EditorStyleButton(
+                    isSelected = isSelected,
                     onClick = {
                         onStyleButtonClick(
                             richTextState = richTextState,

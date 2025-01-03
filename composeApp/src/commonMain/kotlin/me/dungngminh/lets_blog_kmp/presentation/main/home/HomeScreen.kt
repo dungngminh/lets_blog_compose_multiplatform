@@ -175,6 +175,11 @@ fun HomeScreenContent(
                     onFavoriteBlogClick = onFavoriteBlogClick,
                     onUnFavoriteBlogClick = onUnFavoriteBlogClick,
                     fetchNewBlogs = fetchNewBlogs,
+                    user =
+                        when (userSessionState) {
+                            is UserSessionState.Authenticated -> userSessionState.user
+                            else -> null
+                        },
                 )
             }
         }
@@ -183,6 +188,7 @@ fun HomeScreenContent(
 
 fun LazyListScope.blogContentView(
     homeUiState: HomeScreenUiState,
+    user: User? = null,
     onBlogClick: (Blog) -> Unit,
     onFavoriteBlogClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
@@ -217,6 +223,7 @@ fun LazyListScope.blogContentView(
                 onUnFavoriteBlogClick = onUnFavoriteBlogClick,
                 isLoadingMore = homeUiState.isLoadingMore,
                 fetchNewBlogs = fetchNewBlogs,
+                user = user,
             )
     }
 }
@@ -224,6 +231,7 @@ fun LazyListScope.blogContentView(
 fun LazyListScope.blogsView(
     popularBlogs: ImmutableList<Blog>,
     blogs: ImmutableList<Blog>,
+    user: User? = null,
     isLoadingMore: Boolean = false,
     onBlogClick: (Blog) -> Unit,
     onFavoriteBlogClick: (Blog) -> Unit,
@@ -242,6 +250,7 @@ fun LazyListScope.blogsView(
             onBlogClick = onBlogClick,
             onUnFavoriteBlogClick = onUnFavoriteBlogClick,
             onFavoriteBlogClick = onFavoriteBlogClick,
+            user = user,
         )
         // Normal blogs
         if (popularBlogs.isNotEmpty()) {
@@ -299,6 +308,7 @@ fun LazyListScope.otherBlogsContentView(
 
 fun LazyListScope.popularBlogContentView(
     popularBlogs: ImmutableList<Blog>,
+    user: User? = null,
     onBlogClick: (Blog) -> Unit,
     onFavoriteBlogClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
@@ -325,6 +335,7 @@ fun LazyListScope.popularBlogContentView(
                         onClick = onBlogClick,
                         onFavoriteClick = onFavoriteBlogClick,
                         onUnFavoriteBlogClick = onUnFavoriteBlogClick,
+                        user = user,
                     )
                     val isLast = index == popularBlogs.size - 1
                     if (!isLast) {
