@@ -101,4 +101,6 @@
     <string name="search_screen_top_bar_title">Search</string>
     <string name="setting_screen_setting_app_bar_title">Setting</string>
     <string name="setting_screen_logout_label">Logout</string>
+    <string name="profile_screen_login_and_deep_dive_blog_world">Let's login and deep dive into\nthe world of blogging</string>
+    <string name="profile_screen_login_label">Login</string>
 </resources>

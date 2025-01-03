@@ -18,10 +18,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
@@ -30,6 +35,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.skydoves.landscapist.coil3.CoilImage
+import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_setting
 import me.dungngminh.lets_blog_kmp.domain.entities.User
@@ -37,6 +43,8 @@ import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
+import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.ErrorProfileContent
+import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.UnauthenticatedProfileContent
 import me.dungngminh.lets_blog_kmp.presentation.setting.SettingScreen
 import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.painterResource
@@ -46,16 +54,17 @@ object ProfileTab : Tab {
     @Composable
     override fun Content() {
         val parent = LocalNavigator.currentOrThrow.parent ?: return
+
         val userSessionViewModel = parent.koinNavigatorScreenModel<UserSessionViewModel>()
+
         val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
 
         ProfileScreenContent(
             userSessionState = userSessionState,
-            onLogoutClick = userSessionViewModel::logout,
             onLoginClick = {
                 parent.push(SignInScreen)
             },
-            onRefreshClick = userSessionViewModel::refresh,
+            onRefresh = userSessionViewModel::refresh,
             onRetryClick = {
             },
             onSettingClick = {
@@ -81,8 +90,7 @@ private fun ProfileScreenContent(
     modifier: Modifier = Modifier,
     userSessionState: UserSessionState,
     onLoginClick: () -> Unit,
-    onLogoutClick: () -> Unit,
-    onRefreshClick: () -> Unit,
+    onRefresh: () -> Unit,
     onRetryClick: () -> Unit,
     onSettingClick: () -> Unit,
 ) {
@@ -95,9 +103,23 @@ private fun ProfileScreenContent(
         },
     ) { innerPadding ->
         when (userSessionState) {
-            UserSessionState.Unauthenticated -> TODO()
-            is UserSessionState.Error -> TODO()
-            UserSessionState.Initial -> TODO()
+            UserSessionState.Initial ->
+                Center {
+                    CircularProgressIndicator()
+                }
+
+            is UserSessionState.Error ->
+                ErrorProfileContent(
+                    modifier = Modifier.padding(innerPadding),
+                    onRetryClick = onRetryClick,
+                )
+
+            UserSessionState.Unauthenticated ->
+                UnauthenticatedProfileContent(
+                    modifier = Modifier.padding(innerPadding),
+                    onLoginClick = onLoginClick,
+                )
+
             is UserSessionState.Authenticated -> {
                 if (userSessionState.user == null) {
                     Center {
@@ -107,9 +129,9 @@ private fun ProfileScreenContent(
                     AuthenticatedProfileScreen(
                         modifier =
                             Modifier
-                                .padding(innerPadding)
-                                .fillMaxSize(),
+                                .padding(innerPadding),
                         user = userSessionState.user,
+                        onRefresh = onRefresh,
                     )
                 }
             }
@@ -117,22 +139,41 @@ private fun ProfileScreenContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthenticatedProfileScreen(
     modifier: Modifier = Modifier,
     user: User,
+    onRefresh: () -> Unit,
 ) {
-    LazyColumn(
-        modifier = modifier,
+    val refreshState = rememberPullToRefreshState()
+
+    val coroutineScope = rememberCoroutineScope()
+
+    PullToRefreshBox(
+        state = refreshState,
+        isRefreshing = false,
+        onRefresh = {
+            coroutineScope.launch {
+                onRefresh()
+                refreshState.animateToHidden()
+            }
+        },
     ) {
-        item {
-            ProfileInfo(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                user = user,
-            )
+        LazyColumn(
+            modifier =
+                modifier
+                    .fillMaxSize(),
+        ) {
+            item {
+                ProfileInfo(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                    user = user,
+                )
+            }
         }
     }
 }
@@ -180,6 +221,12 @@ fun ProfileAppBar(
                 )
             }
         },
+        colors =
+            TopAppBarDefaults
+                .centerAlignedTopAppBarColors()
+                .copy(
+                    containerColor = Color.Transparent,
+                ),
     )
 }
 
@@ -197,6 +244,7 @@ fun Preview_AuthenticatedProfileScreen() {
                     follower = 3445,
                     following = 9635,
                 ),
+            onRefresh = {},
         )
     }
 }
