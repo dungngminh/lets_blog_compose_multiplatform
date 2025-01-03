@@ -99,4 +99,6 @@
     <string name="search_screen_search_hint_label">Type to search</string>
     <string name="search_screen_empty_query_label">Let's type something to search</string>
     <string name="search_screen_top_bar_title">Search</string>
+    <string name="setting_screen_setting_app_bar_title">Setting</string>
+    <string name="setting_screen_logout_label">Logout</string>
 </resources>

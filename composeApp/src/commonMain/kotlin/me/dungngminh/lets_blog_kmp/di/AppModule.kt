@@ -13,9 +13,9 @@ import kotlin.jvm.JvmField
 
 private val ViewModelModule =
     module {
+        factory { AppViewModel(get()) }
         factory { SignInViewModel(get()) }
         factory { SignUpViewModel(get()) }
-        factory { AppViewModel(get()) }
         factory {
             UserSessionViewModel(
                 authRepository = get(),

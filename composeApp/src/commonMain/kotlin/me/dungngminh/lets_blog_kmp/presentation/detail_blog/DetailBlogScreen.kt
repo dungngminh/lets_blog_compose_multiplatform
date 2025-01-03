@@ -308,7 +308,7 @@ fun DetailScreenFavoriteButton(
     }
     when (userSessionState) {
         is UserSessionState.Authenticated -> {
-            if (userSessionState.user.id != blog.creator.id) {
+            if (userSessionState.user != null && userSessionState.user.id != blog.creator.id) {
                 FavoriteButton(
                     modifier = modifier,
                     onFavoriteClick = onFavoriteClick,

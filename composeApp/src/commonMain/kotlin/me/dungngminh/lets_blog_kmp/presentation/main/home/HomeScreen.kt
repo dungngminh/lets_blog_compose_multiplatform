@@ -153,12 +153,12 @@ fun HomeScreenContent(
                                 .padding(16.dp),
                         username =
                             when (userSessionState) {
-                                is UserSessionState.Authenticated -> userSessionState.user.name
+                                is UserSessionState.Authenticated -> userSessionState.user?.name
                                 else -> null
                             },
                         userAvatarUrl =
                             when (userSessionState) {
-                                is UserSessionState.Authenticated -> userSessionState.user.avatarUrl
+                                is UserSessionState.Authenticated -> userSessionState.user?.avatarUrl
                                 else -> null
                             },
                     )

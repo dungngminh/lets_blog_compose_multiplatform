@@ -41,7 +41,7 @@ class UserSessionViewModel(
                             UserSessionState.Error(it.message ?: "Unknown error")
                         },
                     )
-                }.startWith(UserSessionState.Initial)
+                }.startWith(UserSessionState.Authenticated())
             }
 
     val userSessionState =
@@ -51,7 +51,7 @@ class UserSessionViewModel(
             .stateIn(
                 scope = screenModelScope,
                 started = SharingStarted.Eagerly,
-                initialValue = UserSessionState.Initial,
+                initialValue = UserSessionState.Unauthenticated,
             )
 
     fun refresh() {
@@ -75,8 +75,10 @@ sealed class UserSessionState {
     data object Unauthenticated : UserSessionState()
 
     data class Authenticated(
-        val user: User,
-    ) : UserSessionState()
+        val user: User? = null,
+    ) : UserSessionState() {
+        val isLoading get() = user == null
+    }
 
     data class Error(
         val message: String,
