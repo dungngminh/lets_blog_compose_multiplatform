@@ -73,7 +73,7 @@
     <string name="home_screen_popular_blogs_label">Popular blogs</string>
     <string name="home_screen_other_blogs_label">Other blogs</string>
     <string name="create_blog_screen_create_blog_title">Create new blog</string>
-    <string name="create_blog_screen_put_your_content_here_label">Put your new blog content here</string>
+    <string name="blog_editor_put_your_content_here_label">Put your new blog content here</string>
     <string name="create_blog_preview_screen_preview_blog_title">Preview blog</string>
     <string name="create_blog_preview_screen_publish_button_label">Publish</string>
     <string name="create_blog_preview_screen_title_not_empty_label">Title cannot be empty</string>
@@ -109,4 +109,5 @@
         <item quantity="other">%1$d blogs</item>
     </plurals>
     <string name="edit_profile_screen_edit_profile_title">Edit profile</string>
+    <string name="edit_blog_screen_edit_blog_title">Edit blog</string>
 </resources>

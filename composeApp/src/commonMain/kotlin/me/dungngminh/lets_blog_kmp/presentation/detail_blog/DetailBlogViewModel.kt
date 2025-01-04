@@ -11,6 +11,8 @@ import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
 
 data class DetailBlogState(
     val blog: Blog,
+    val isDeleteSuccess: Boolean = false,
+    val deleteError: String? = null,
 )
 
 class DetailBlogViewModel(
@@ -43,6 +45,23 @@ class DetailBlogViewModel(
         }
         screenModelScope.launch {
             blogRepository.unFavoriteBlog(currentBlog.id)
+        }
+    }
+
+    fun deleteBlog() {
+        val currentBlog = currentBlogState.blog
+        screenModelScope.launch {
+            blogRepository
+                .deleteBlog(currentBlog.id)
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(isDeleteSuccess = true)
+                    }
+                }.onFailure {
+                    _uiState.update { state ->
+                        state.copy(deleteError = it.message)
+                    }
+                }
         }
     }
 }

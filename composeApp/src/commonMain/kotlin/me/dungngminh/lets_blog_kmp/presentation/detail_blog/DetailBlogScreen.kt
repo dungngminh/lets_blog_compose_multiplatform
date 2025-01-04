@@ -29,8 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -55,10 +56,13 @@ import com.skydoves.landscapist.coil3.CoilImage
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
+import letsblogkmp.composeapp.generated.resources.ic_pencil
+import letsblogkmp.composeapp.generated.resources.ic_trash
 import me.dungngminh.lets_blog_kmp.commons.extensions.timeAgo
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
+import me.dungngminh.lets_blog_kmp.presentation.edit_blog.EditBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
@@ -90,9 +94,7 @@ data class DetailBlogScreen(
         DetailBlogScreenContent(
             blog = detailBlogState.blog,
             userSessionState = userSessionState,
-            onBackClick = {
-                navigator.pop()
-            },
+            onBackClick = navigator::pop,
             onFavoriteClick = {
                 viewModel.favoriteBlog()
             },
@@ -102,6 +104,10 @@ data class DetailBlogScreen(
             onUnAuthenticatedFavoriteClick = {
                 navigator.push(SignInScreen)
             },
+            onEditClick = {
+                navigator.push(EditBlogScreen(detailBlogState.blog))
+            },
+            onDeleteClick = viewModel::deleteBlog,
             blogContentRichTextState = blogContentRichTextState,
         )
     }
@@ -119,7 +125,6 @@ data class DetailBlogScreen(
         }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailBlogScreenContent(
     blog: Blog,
@@ -130,6 +135,8 @@ fun DetailBlogScreenContent(
     onFavoriteClick: (Blog) -> Unit,
     onUnFavoriteClick: (Blog) -> Unit,
     onUnAuthenticatedFavoriteClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
@@ -141,6 +148,8 @@ fun DetailBlogScreenContent(
                 onFavoriteClick = onFavoriteClick,
                 onUnFavoriteClick = onUnFavoriteClick,
                 onUnAuthenticatedFavoriteClick = onUnAuthenticatedFavoriteClick,
+                onEditClick = onEditClick,
+                onDeleteClick = onDeleteClick,
             )
         },
     ) { innerPadding ->
@@ -238,7 +247,15 @@ fun DetailBlogAppBar(
     onFavoriteClick: (Blog) -> Unit,
     onUnFavoriteClick: (Blog) -> Unit,
     onUnAuthenticatedFavoriteClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
 ) {
+    val isBlogCreatorSameAsUser by remember(userSessionState) {
+        derivedStateOf {
+            val user = (userSessionState as? UserSessionState.Authenticated)?.user
+            user != null && user.id == blog.creator.id
+        }
+    }
     TopAppBar(
         modifier = modifier,
         navigationIcon = {
@@ -254,6 +271,23 @@ fun DetailBlogAppBar(
         title = {
         },
         actions = {
+            if (isBlogCreatorSameAsUser) {
+                IconButton(onClick = onEditClick) {
+                    Icon(
+                        painterResource(Res.drawable.ic_pencil),
+                        contentDescription = "edit_button",
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        painterResource(Res.drawable.ic_trash),
+                        contentDescription = "delete_button",
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            }
             DetailScreenFavoriteButton(
                 blog = blog,
                 userSessionState = userSessionState,

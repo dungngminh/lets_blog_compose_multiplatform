@@ -1,12 +1,11 @@
-package me.dungngminh.lets_blog_kmp.presentation.create_blog
+package me.dungngminh.lets_blog_kmp.presentation.edit_blog
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -19,7 +18,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import letsblogkmp.composeapp.generated.resources.Res
-import letsblogkmp.composeapp.generated.resources.create_blog_screen_create_blog_title
+import letsblogkmp.composeapp.generated.resources.edit_blog_screen_edit_blog_title
+import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.blog_editor.BlogEditorAppBar
 import me.dungngminh.lets_blog_kmp.presentation.components.blog_editor.BlogEditorContent
 import me.dungngminh.lets_blog_kmp.presentation.preview_blog.PreviewBlogScreen
@@ -27,7 +27,10 @@ import me.dungngminh.lets_blog_kmp.presentation.preview_blog.PreviewPublishActio
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalVoyagerApi::class)
-object CreateBlogScreen : Screen, ScreenTransition {
+class EditBlogScreen(
+    private val blog: Blog,
+) : Screen,
+    ScreenTransition {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -38,6 +41,10 @@ object CreateBlogScreen : Screen, ScreenTransition {
             derivedStateOf {
                 richTextState.annotatedString.isNotEmpty()
             }
+        }
+
+        LaunchedEffect(blog) {
+            richTextState.setHtml(blog.content)
         }
 
         BlogEditorContent(
@@ -51,11 +58,12 @@ object CreateBlogScreen : Screen, ScreenTransition {
                         navigator.push(
                             PreviewBlogScreen(
                                 content = richTextState.toHtml(),
-                                publishAction = PreviewPublishAction.PUBLISH_NEW,
+                                blog = blog,
+                                publishAction = PreviewPublishAction.PUBLISH_EDIT,
                             ),
                         )
                     },
-                    title = stringResource(Res.string.create_blog_screen_create_blog_title),
+                    title = stringResource(Res.string.edit_blog_screen_edit_blog_title),
                     enableCheckButton = enableCheckButton,
                 )
             },
@@ -73,15 +81,4 @@ object CreateBlogScreen : Screen, ScreenTransition {
             val x = if (lastEvent == StackEvent.Pop) size.width else -size.width
             IntOffset(x = x, y = 0)
         }
-}
-
-@Preview
-@Composable
-fun Preview_CreateBlogScreen() {
-    MaterialTheme {
-        BlogEditorContent(
-            richTextState = rememberRichTextState(),
-            topAppBar = {},
-        )
-    }
 }

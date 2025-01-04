@@ -90,8 +90,7 @@ private val httpModule =
             Ktorfit
                 .Builder()
                 .httpClient(get<HttpClient>())
-                .baseUrl("http://192.168.1.46:8080/")
-//                .baseUrl("https://letsblog.up.railway.app/")
+                .baseUrl("https://letsblog.up.railway.app/")
                 .build()
         }
     }

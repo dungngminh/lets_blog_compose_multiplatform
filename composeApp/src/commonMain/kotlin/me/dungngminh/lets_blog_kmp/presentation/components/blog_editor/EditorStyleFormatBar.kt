@@ -1,4 +1,4 @@
-package me.dungngminh.lets_blog_kmp.presentation.create_blog.components
+package me.dungngminh.lets_blog_kmp.presentation.components.blog_editor
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.ExperimentalLayoutApi

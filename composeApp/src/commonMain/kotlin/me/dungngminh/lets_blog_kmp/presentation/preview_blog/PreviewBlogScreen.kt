@@ -1,10 +1,9 @@
-package me.dungngminh.lets_blog_kmp.presentation.create_blog.preview
+package me.dungngminh.lets_blog_kmp.presentation.preview_blog
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -65,6 +64,8 @@ import io.github.vinceglb.filekit.compose.PickerResultLauncher
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.PlatformFile
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_category_label
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_content_title
@@ -78,6 +79,7 @@ import letsblogkmp.composeapp.generated.resources.ic_x
 import letsblogkmp.composeapp.generated.resources.platform_image_picker_title
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toByteArray
+import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.presentation.components.LoadingDialog
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
@@ -85,18 +87,25 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 
+enum class PreviewPublishAction {
+    PUBLISH_NEW,
+    PUBLISH_EDIT,
+}
+
 @OptIn(ExperimentalVoyagerApi::class)
 class PreviewBlogScreen(
+    private val blog: Blog? = null,
     private val content: String,
+    private val publishAction: PreviewPublishAction,
 ) : Screen,
     ScreenTransition {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-        val viewModel = koinScreenModel<PreviewBlogViewModel> { parametersOf(content) }
+        val viewModel = koinScreenModel<PreviewBlogViewModel> { parametersOf(content, blog) }
 
-        val createBlogPreviewUiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val previewBlogUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
         val richTextState = rememberRichTextState()
 
@@ -114,28 +123,37 @@ class PreviewBlogScreen(
 
         LaunchedEffect(Unit) {
             richTextState.setHtml(content)
+            viewModel.uiState
+                .onEach { uiState ->
+                    when {
+                        uiState.isPublishSuccess -> {
+                            navigator.popUntil { it is MainScreen }
+                        }
+
+                        uiState.errorMessage != null -> {
+                            viewModel.onErrorMessageShown()
+                        }
+                    }
+                }.launchIn(this)
         }
 
-        LaunchedEffect(createBlogPreviewUiState) {
-            when {
-                createBlogPreviewUiState.isPublishSuccess -> {
-                    navigator.popUntil { it is MainScreen }
-                }
-            }
-        }
-
-        if (createBlogPreviewUiState.isLoading) {
+        if (previewBlogUiState.isLoading) {
             LoadingDialog()
         }
 
         if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
             PreviewBlogExpandedContent(
-                createBlogPreviewUiState = createBlogPreviewUiState,
+                createBlogPreviewUiState = previewBlogUiState,
                 richTextState = richTextState,
                 onBackClick = {
                     navigator.pop()
                 },
-                onCreateBlockClick = viewModel::publishBlog,
+                onCreateBlockClick = {
+                    when (publishAction) {
+                        PreviewPublishAction.PUBLISH_NEW -> viewModel.publishBlog()
+                        PreviewPublishAction.PUBLISH_EDIT -> blog?.let(viewModel::editBlog)
+                    }
+                },
                 onCategoryClick = viewModel::changeCategory,
                 onTitleChange = viewModel::changeTitle,
                 onImageChange = viewModel::changeImageFile,
@@ -145,18 +163,24 @@ class PreviewBlogScreen(
             )
         } else {
             PreviewBlogCompactContent(
-                createBlogPreviewUiState = createBlogPreviewUiState,
+                createBlogPreviewUiState = previewBlogUiState,
                 richTextState = richTextState,
                 onBackClick = {
                     navigator.pop()
                 },
-                onCreateBlockClick = viewModel::publishBlog,
+                onCreateBlockClick = {
+                    when (publishAction) {
+                        PreviewPublishAction.PUBLISH_NEW -> viewModel.publishBlog()
+                        PreviewPublishAction.PUBLISH_EDIT -> blog?.let(viewModel::editBlog)
+                    }
+                },
                 onCategoryClick = viewModel::changeCategory,
                 onTitleChange = viewModel::changeTitle,
                 onImageChange = viewModel::changeImageFile,
                 isCategoryDropDownExpanded = isCategoryDropDownExpanded,
                 imagePickerLauncher = imagePickerLauncher,
                 onCategoryDropDownExpandedChange = { isCategoryDropDownExpanded = it },
+                onDeleteImageClick = viewModel::deleteImage,
             )
         }
     }
@@ -177,7 +201,7 @@ class PreviewBlogScreen(
 @Composable
 fun PreviewBlogExpandedContent(
     modifier: Modifier = Modifier,
-    createBlogPreviewUiState: CreateBlogPreviewUiState,
+    createBlogPreviewUiState: PreviewBlogUiState,
     richTextState: RichTextState,
     onBackClick: () -> Unit = {},
     onCreateBlockClick: () -> Unit = {},
@@ -197,20 +221,20 @@ fun PreviewBlogExpandedContent(
                 enablePublishButton = createBlogPreviewUiState.isFormValid,
             )
         },
-    ) {
-    }
+    ) {}
 }
 
 @Composable
 fun PreviewBlogCompactContent(
     modifier: Modifier = Modifier,
-    createBlogPreviewUiState: CreateBlogPreviewUiState,
+    createBlogPreviewUiState: PreviewBlogUiState,
     richTextState: RichTextState,
     onBackClick: () -> Unit = {},
     onCreateBlockClick: () -> Unit = {},
     onCategoryClick: (BlogCategory) -> Unit = {},
     onTitleChange: (String) -> Unit = {},
     onImageChange: (PlatformFile?) -> Unit = {},
+    onDeleteImageClick: () -> Unit,
     isCategoryDropDownExpanded: Boolean = true,
     imagePickerLauncher: PickerResultLauncher,
     onCategoryDropDownExpandedChange: (Boolean) -> Unit = {},
@@ -240,18 +264,14 @@ fun PreviewBlogCompactContent(
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                ImageBox(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
+                PreviewImageBox(
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
                     imageFile = createBlogPreviewUiState.imageFile,
+                    networkImage = createBlogPreviewUiState.networkImageUrl,
                     onPickImageClick = {
                         imagePickerLauncher.launch()
                     },
-                    onDeleteImageClick = {
-                        onImageChange(null)
-                    },
+                    onDeleteImageClick = onDeleteImageClick,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -293,8 +313,37 @@ fun PreviewBlogCompactContent(
 }
 
 @Composable
-private fun ImageBox(
+private fun PreviewImageBox(
     modifier: Modifier = Modifier,
+    networkImage: String? = null,
+    onDeleteImageClick: () -> Unit = {},
+) {
+    Box {
+        CoilImage(
+            modifier = Modifier.fillMaxSize(),
+            imageModel = { networkImage },
+            imageOptions =
+                ImageOptions(
+                    contentScale = ContentScale.Crop,
+                ),
+        )
+        FilledTonalIconButton(
+            onClick = onDeleteImageClick,
+            modifier = Modifier.align(Alignment.TopEnd).padding(4.dp),
+        ) {
+            Icon(
+                painterResource(Res.drawable.ic_x),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun PreviewImageBox(
+    modifier: Modifier = Modifier,
+    networkImage: String? = null,
     imageFile: PlatformFile? = null,
     onPickImageClick: () -> Unit = {},
     onDeleteImageClick: () -> Unit = {},
@@ -321,23 +370,25 @@ private fun ImageBox(
                     }
                 },
     ) {
-        if (imageFile != null) {
+        if (imageFile != null || networkImage != null) {
             Box {
                 CoilImage(
                     modifier = Modifier.fillMaxSize(),
-                    imageModel = { imageBytes },
+                    imageModel = {
+                        when {
+                            networkImage != null -> networkImage
+                            imageFile != null -> imageBytes
+                            else -> null
+                        }
+                    },
                     imageOptions =
                         ImageOptions(
                             contentScale = ContentScale.Crop,
                         ),
                 )
-
                 FilledTonalIconButton(
                     onClick = onDeleteImageClick,
-                    modifier =
-                        Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(4.dp),
+                    modifier = Modifier.align(Alignment.TopEnd).padding(4.dp),
                 ) {
                     Icon(
                         painterResource(Res.drawable.ic_x),
@@ -368,18 +419,10 @@ private fun ImageBox(
     }
 }
 
-@Preview
-@Composable
-fun Preview_ImageBox() {
-    MaterialTheme {
-        ImageBox()
-    }
-}
-
 @Composable
 private fun BlogTitleTextField(
     modifier: Modifier = Modifier,
-    createBlogPreviewUiState: CreateBlogPreviewUiState,
+    createBlogPreviewUiState: PreviewBlogUiState,
     onTitleChange: (String) -> Unit,
 ) {
     OutlinedTextField(
@@ -421,10 +464,7 @@ private fun BlogCategoryDropdownMenu(
         OutlinedTextField(
             value = stringResource(selectedCategory.localizedStringRes()),
             onValueChange = {},
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
             readOnly = true,
             label = {
                 Text(

@@ -2,7 +2,6 @@ package me.dungngminh.lets_blog_kmp.presentation.main.profile.components
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,9 +32,9 @@ fun UnauthenticatedProfileContent(
             modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Spacer(modifier = Modifier.weight(0.4f))
         Image(
             painterResource(Res.drawable.img_blog_time),
             contentDescription = null,
@@ -53,6 +52,7 @@ fun UnauthenticatedProfileContent(
         Button(onClick = onLoginClick) {
             Text(stringResource(Res.string.profile_screen_login_label))
         }
+        Spacer(modifier = Modifier.weight(0.6f))
     }
 }
 

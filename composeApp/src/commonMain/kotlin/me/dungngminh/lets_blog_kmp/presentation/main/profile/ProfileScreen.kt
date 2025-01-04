@@ -34,6 +34,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -143,12 +144,14 @@ private fun ProfileScreenContent(
 
     val isLargeScreen by remember { derivedStateOf { windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact } }
 
+    val user by rememberUpdatedState((userSessionState as? UserSessionState.Authenticated)?.user)
+
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            if (!isLargeScreen) {
+            if (user != null) {
                 ProfileAppBar(
-                    user = (userSessionState as? UserSessionState.Authenticated)?.user,
+                    user = user!!,
                     onSettingClick = onSettingClick,
                     onEditProfileClick = onEditProfileClick,
                     scrollBehavior = scrollBehavior,
@@ -257,7 +260,7 @@ fun AuthenticatedProfileScreen(
 fun ProfileAppBar(
     modifier: Modifier = Modifier,
     onSettingClick: () -> Unit,
-    user: User? = null,
+    user: User,
     onEditProfileClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
@@ -272,63 +275,59 @@ fun ProfileAppBar(
         scrollBehavior = scrollBehavior,
         expandedHeight = 150.dp,
         title = {
-            if (user != null) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .size(avatarSize)
+                            .clip(CircleShape),
                 ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(avatarSize)
-                                .clip(CircleShape),
-                    ) {
-                        CoilImage(
-                            imageModel = { "https://avatars.githubusercontent.com/u/63831488?v=4" },
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                    Spacer(
-                        modifier = Modifier.width(16.dp),
+                    CoilImage(
+                        imageModel = { "https://avatars.githubusercontent.com/u/63831488?v=4" },
+                        modifier = Modifier.fillMaxSize(),
                     )
-                    Column(
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(
-                            user.name,
-                            style =
-                                MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = if (isExpanded) 24.sp else 22.sp,
-                                ),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            pluralStringResource(
-                                Res.plurals.general_blog_count,
-                                user.blogCount,
-                                user.blogCount,
+                }
+                Spacer(
+                    modifier = Modifier.width(16.dp),
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        user.name,
+                        style =
+                            MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = if (isExpanded) 24.sp else 22.sp,
                             ),
-                            style =
-                                MaterialTheme.typography.titleMedium.copy(
-                                    fontSize = if (isExpanded) 16.sp else 14.sp,
-                                ),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        pluralStringResource(
+                            Res.plurals.general_blog_count,
+                            user.blogCount,
+                            user.blogCount,
+                        ),
+                        style =
+                            MaterialTheme.typography.titleMedium.copy(
+                                fontSize = if (isExpanded) 16.sp else 14.sp,
+                            ),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
         },
         actions = {
-            if (user != null) {
-                IconButton(onClick = onEditProfileClick) {
-                    Icon(
-                        painterResource(Res.drawable.ic_pencil),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
+            IconButton(onClick = onEditProfileClick) {
+                Icon(
+                    painterResource(Res.drawable.ic_pencil),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                )
             }
             IconButton(
                 onClick = onSettingClick,
