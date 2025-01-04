@@ -56,8 +56,7 @@ Future<Response> _onUserByIdGetRequest(
                   ).toJson(),
                 ),
         )
-        .onError((e, st) => InternalServerErrorResponse(e.toString()))
-        .whenComplete(db.close);
+        .onError((e, st) => InternalServerErrorResponse(e.toString()));
   } catch (e) {
     return InternalServerErrorResponse(e.toString());
   }

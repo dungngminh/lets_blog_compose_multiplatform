@@ -16,9 +16,14 @@ Future<Response> _onUsersByIdBlogsGet(RequestContext context, String id) {
   return context
       .read<Database>()
       .blogs
-      .queryBlogs(QueryParams(where: 'creator_id=@id', values: {'id': id}))
+      .queryBlogs(
+        QueryParams(
+          where: 'creator_id=@id',
+          orderBy: 'created_at DESC',
+          values: {'id': id},
+        ),
+      )
       .then((views) => views.map(GetBlogResponse.fromView))
       .then<Response>((res) => OkResponse(res.map((e) => e.toJson()).toList()))
-      .onError((e, _) => InternalServerErrorResponse(e.toString()))
-      .whenComplete(() => context.read<Database>().close());
+      .onError((e, _) => InternalServerErrorResponse(e.toString()));
 }

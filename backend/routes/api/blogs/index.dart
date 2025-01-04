@@ -46,8 +46,7 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
   }
 
   try {
-    final results = await db.blogs
-        .queryBlogs(
+    final results = await db.blogs.queryBlogs(
       QueryParams(
         limit: limit,
         orderBy: descending ? 'created_at DESC' : 'created_at ASC',
@@ -57,19 +56,13 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
             : 'title LIKE @search OR content LIKE @search',
         values: search == null ? null : {'search': '%$search%'},
       ),
-    )
-        .whenComplete(() async {
-      if (user == null) {
-        await db.close();
-      }
-    });
+    );
     var favoriteBlogIds = <String>[];
     if (user != null) {
-      final favoriteBlogs = await db.favoriteBlogsUserses
-          .queryFavoriteBlogsUserses(
-            QueryParams(where: 'user_id=@id', values: {'id': user.id}),
-          )
-          .whenComplete(db.close);
+      final favoriteBlogs =
+          await db.favoriteBlogsUserses.queryFavoriteBlogsUserses(
+        QueryParams(where: 'user_id=@id', values: {'id': user.id}),
+      );
       favoriteBlogIds = favoriteBlogs.map((e) => e.blog.id).toList();
     }
 
