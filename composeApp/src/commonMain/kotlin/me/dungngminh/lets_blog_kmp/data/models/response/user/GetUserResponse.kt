@@ -11,4 +11,5 @@ data class GetUserResponse(
     @SerialName("avatar_url") val avatarUrl: String? = null,
     val follower: Int = 0,
     val following: Int = 0,
+    @SerialName("blog_count") val blogCount: Int = 0,
 )

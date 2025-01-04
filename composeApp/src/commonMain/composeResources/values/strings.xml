@@ -103,4 +103,10 @@
     <string name="setting_screen_logout_label">Logout</string>
     <string name="profile_screen_login_and_deep_dive_blog_world">Let's login and deep dive into\nthe world of blogging</string>
     <string name="profile_screen_login_label">Login</string>
+    <plurals name="general_blog_count">
+        <item quantity="zero">No blog</item>
+        <item quantity="one">%1$d blog</item>
+        <item quantity="other">%1$d blogs</item>
+    </plurals>
+    <string name="edit_profile_screen_edit_profile_title">Edit profile</string>
 </resources>

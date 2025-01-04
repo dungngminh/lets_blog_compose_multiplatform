@@ -18,8 +18,8 @@ class AppViewModel(
     val state =
         appSettingRepository
             .isOnboardingCompletedFlow
-            .map {
-                AppState(isOnboardingCompleted = it)
+            .map { isOnboardingCompleted ->
+                AppState(isOnboardingCompleted = isOnboardingCompleted)
             }.stateIn(
                 scope = screenModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),

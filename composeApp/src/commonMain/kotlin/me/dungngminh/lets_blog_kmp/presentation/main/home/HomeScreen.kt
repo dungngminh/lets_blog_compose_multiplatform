@@ -323,8 +323,8 @@ fun LazyListScope.popularBlogContentView(
             LazyRow(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
                 itemsIndexed(
                     popularBlogs,

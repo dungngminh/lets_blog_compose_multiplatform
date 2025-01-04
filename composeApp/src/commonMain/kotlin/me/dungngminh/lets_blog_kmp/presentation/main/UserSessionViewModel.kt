@@ -38,7 +38,9 @@ class UserSessionViewModel(
                             UserSessionState.Authenticated(user)
                         },
                         onFailure = {
-                            UserSessionState.Error(it.message ?: "Unknown error")
+                            UserSessionState.AuthenticatedFetchDataError(
+                                it.message ?: "Unknown error",
+                            )
                         },
                     )
                 }.startWith(UserSessionState.Authenticated())
@@ -77,10 +79,17 @@ sealed class UserSessionState {
     data class Authenticated(
         val user: User? = null,
     ) : UserSessionState() {
-        val isLoading get() = user == null
+        val hasUser get() = user != null
     }
 
-    data class Error(
+    data class AuthenticatedFetchDataError(
         val message: String,
     ) : UserSessionState()
+
+    val isAuthenticated
+        get() =
+            when (this) {
+                is Authenticated, is AuthenticatedFetchDataError -> true
+                else -> false
+            }
 }

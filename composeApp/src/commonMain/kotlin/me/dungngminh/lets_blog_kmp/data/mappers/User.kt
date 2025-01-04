@@ -12,6 +12,7 @@ fun GetUserResponse.toUser() =
         avatarUrl = avatarUrl,
         follower = follower,
         following = following,
+        blogCount = blogCount,
     )
 
 fun User.toEditUserRequest() =

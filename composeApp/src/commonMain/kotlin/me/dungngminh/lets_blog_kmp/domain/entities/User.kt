@@ -10,4 +10,5 @@ data class User(
     val avatarUrl: String? = null,
     val follower: Int = 0,
     val following: Int = 0,
+    val blogCount: Int = 0,
 )
