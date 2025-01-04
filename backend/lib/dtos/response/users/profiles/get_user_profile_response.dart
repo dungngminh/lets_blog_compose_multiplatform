@@ -11,6 +11,7 @@ class GetUserProfileResponse {
     required this.email,
     required this.following,
     required this.follower,
+    required this.blogCount,
     this.avatarUrl,
   });
 
@@ -21,6 +22,7 @@ class GetUserProfileResponse {
     required UserView view,
     required int following,
     required int follower,
+    required int blogCount,
   }) {
     return GetUserProfileResponse(
       id: view.id,
@@ -29,6 +31,7 @@ class GetUserProfileResponse {
       following: following,
       follower: follower,
       avatarUrl: view.avatarUrl,
+      blogCount: blogCount,
     );
   }
 
@@ -38,6 +41,7 @@ class GetUserProfileResponse {
   final String? avatarUrl;
   final int following;
   final int follower;
+  final int blogCount;
 
   Map<String, dynamic> toJson() => _$GetUserProfileResponseToJson(this);
 }

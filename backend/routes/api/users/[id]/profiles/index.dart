@@ -5,6 +5,7 @@ import 'package:very_good_blog_app_backend/common/extensions/json_ext.dart';
 import 'package:very_good_blog_app_backend/dtos/request/users/edit_user_profile_request.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
 import 'package:very_good_blog_app_backend/dtos/response/users/profiles/get_user_profile_response.dart';
+import 'package:very_good_blog_app_backend/models/blog.dart';
 import 'package:very_good_blog_app_backend/models/following_follower.dart';
 import 'package:very_good_blog_app_backend/models/user.dart';
 
@@ -26,12 +27,21 @@ Future<Response> _onUserByIdGetRequest(
 ) async {
   final db = context.read<Database>();
   try {
-    final followings = await db.followingFollowers.queryFollowingFollowers(
-      QueryParams(where: 'following_id=@id', values: {'id': id}),
-    );
-    final followers = await db.followingFollowers.queryFollowingFollowers(
-      QueryParams(where: 'follower_id=@id', values: {'id': id}),
-    );
+    final followings = await db.followingFollowers
+        .queryFollowingFollowers(
+          QueryParams(where: 'following_id=@id', values: {'id': id}),
+        )
+        .onError((_, __) => []);
+    final followers = await db.followingFollowers
+        .queryFollowingFollowers(
+          QueryParams(where: 'follower_id=@id', values: {'id': id}),
+        )
+        .onError((_, __) => []);
+    final blogsByUser = await db.blogs
+        .queryBlogs(
+          QueryParams(where: 'creator_id=@id', values: {'id': id}),
+        )
+        .onError((_, __) => []);
     return db.users
         .queryUser(id)
         .then<Response>(
@@ -42,6 +52,7 @@ Future<Response> _onUserByIdGetRequest(
                     view: user,
                     follower: followers.length,
                     following: followings.length,
+                    blogCount: blogsByUser.length,
                   ).toJson(),
                 ),
         )

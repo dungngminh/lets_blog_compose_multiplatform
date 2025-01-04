@@ -3,8 +3,8 @@ echo "*********************************************************"
 echo "Running git pre-commit hook. Running Spotless Check... "
 echo "*********************************************************"
 
-# Gather the staged files - to make sure changes are saved only for these files.
-stagedFiles=$(git diff --staged --name-only)
+# Gather the staged files - to make sure changes are saved only for these files, excluding the backend directory.
+stagedFiles=$(git diff --staged --name-only | grep -v '^backend/')
 
 # run spotless check
 ./gradlew spotlessCheck

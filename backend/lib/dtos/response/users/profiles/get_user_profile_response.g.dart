@@ -18,11 +18,16 @@ GetUserProfileResponse _$GetUserProfileResponseFromJson(
           email: $checkedConvert('email', (v) => v as String),
           following: $checkedConvert('following', (v) => (v as num).toInt()),
           follower: $checkedConvert('follower', (v) => (v as num).toInt()),
+          blogCount: $checkedConvert('blog_count', (v) => (v as num).toInt()),
           avatarUrl: $checkedConvert('avatar_url', (v) => v as String?),
         );
         return val;
       },
-      fieldKeyMap: const {'fullName': 'full_name', 'avatarUrl': 'avatar_url'},
+      fieldKeyMap: const {
+        'fullName': 'full_name',
+        'blogCount': 'blog_count',
+        'avatarUrl': 'avatar_url'
+      },
     );
 
 Map<String, dynamic> _$GetUserProfileResponseToJson(
@@ -34,4 +39,5 @@ Map<String, dynamic> _$GetUserProfileResponseToJson(
       'avatar_url': instance.avatarUrl,
       'following': instance.following,
       'follower': instance.follower,
+      'blog_count': instance.blogCount,
     };
