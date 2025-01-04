@@ -1,8 +1,8 @@
 name: Publish Application on GitHub Pages
 on:
   push:
-    paths:
-      - '!backend/**'
+    paths-ignore:
+      - 'backend/**'
     branches:
       - main
 
