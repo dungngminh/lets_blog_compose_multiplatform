@@ -89,28 +89,55 @@ object ProfileTab : Tab {
 
         val userBlogState by userProfileViewModel.userBlogState.collectAsStateWithLifecycle()
 
-        ProfileScreenContent(
-            userSessionState = userSessionState,
-            userBlogState = userBlogState,
-            onLoginClick = {
-                parent.push(SignInScreen)
-            },
-            onRefresh = {
-                userProfileViewModel.refresh()
-                userSessionViewModel.refresh()
-            },
-            onRetryClick = {
-            },
-            onSettingClick = {
-                parent.push(SettingScreen)
-            },
-            onEditProfileClick = {
-                parent.push(EditUserProfileScreen)
-            },
-            onBlogClick = { blog ->
-                parent.push(DetailBlogScreen(blog))
-            },
-        )
+        val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
+        if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact) {
+            ProfileScreenExpandedContent(
+                userSessionState = userSessionState,
+                onLoginClick = {
+                    parent.push(SignInScreen)
+                },
+                onRefresh = {
+                    userProfileViewModel.refresh()
+                    userSessionViewModel.refresh()
+                },
+                onRetryClick = {
+                },
+                onSettingClick = {
+                    parent.push(SettingScreen)
+                },
+                onEditProfileClick = {
+                    parent.push(EditUserProfileScreen)
+                },
+                userBlogState = userBlogState,
+                onBlogClick = { blog ->
+                    parent.push(DetailBlogScreen(blog))
+                },
+            )
+        } else {
+            ProfileScreenContent(
+                userSessionState = userSessionState,
+                userBlogState = userBlogState,
+                onLoginClick = {
+                    parent.push(SignInScreen)
+                },
+                onRefresh = {
+                    userProfileViewModel.refresh()
+                    userSessionViewModel.refresh()
+                },
+                onRetryClick = {
+                },
+                onSettingClick = {
+                    parent.push(SettingScreen)
+                },
+                onEditProfileClick = {
+                    parent.push(EditUserProfileScreen)
+                },
+                onBlogClick = { blog ->
+                    parent.push(DetailBlogScreen(blog))
+                },
+            )
+        }
     }
 
     override val options: TabOptions
@@ -127,6 +154,26 @@ object ProfileTab : Tab {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun ProfileScreenExpandedContent(
+    modifier: Modifier = Modifier,
+    userSessionState: UserSessionState,
+    onLoginClick: () -> Unit,
+    onRefresh: () -> Unit,
+    onRetryClick: () -> Unit,
+    onSettingClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
+    onBlogClick: (Blog) -> Unit,
+    userBlogState: UserBlogState,
+) {
+    Scaffold(
+        topBar = {
+        },
+    ) {
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun ProfileScreenContent(
     modifier: Modifier = Modifier,
     userSessionState: UserSessionState,
@@ -139,10 +186,6 @@ private fun ProfileScreenContent(
     userBlogState: UserBlogState,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-
-    val windowSizeClass = LocalWindowSizeClass.currentOrThrow
-
-    val isLargeScreen by remember { derivedStateOf { windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact } }
 
     val user by rememberUpdatedState((userSessionState as? UserSessionState.Authenticated)?.user)
 

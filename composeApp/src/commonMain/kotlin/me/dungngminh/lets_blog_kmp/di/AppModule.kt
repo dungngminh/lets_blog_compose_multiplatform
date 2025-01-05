@@ -31,7 +31,7 @@ private val ViewModelModule =
         factory { params ->
             PreviewBlogViewModel(
                 content = params.get(),
-                blog = params.get(),
+                blog = params.getOrNull(),
                 blogRepository = get(),
                 uploadDocumentRepository = get(),
             )

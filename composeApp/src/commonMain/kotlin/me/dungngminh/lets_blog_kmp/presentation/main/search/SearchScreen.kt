@@ -206,6 +206,7 @@ fun SearchField(
                     modifier = Modifier.size(24.dp),
                 )
             },
+            singleLine = true,
             placeholder = {
                 Text(
                     stringResource(Res.string.search_screen_search_hint_label),

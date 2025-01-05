@@ -48,13 +48,13 @@ fun HomeGreeting(
                     greetingByTime(),
                     username ?: stringResource(Res.string.general_my_friend),
                 ),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 stringResource(
                     Res.string.home_screen_welcome_to_lets_blog_label,
                 ),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
             )
         }
         Box(

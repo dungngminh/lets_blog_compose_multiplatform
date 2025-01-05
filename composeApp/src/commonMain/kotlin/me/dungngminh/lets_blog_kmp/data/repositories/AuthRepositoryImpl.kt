@@ -1,5 +1,8 @@
 package me.dungngminh.lets_blog_kmp.data.repositories
 
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -13,6 +16,7 @@ import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
 class AuthRepositoryImpl(
     private val authService: AuthService,
+    private val httpClient: HttpClient,
     private val userStore: UserStore,
     private val ioDispatcher: CoroutineDispatcher,
 ) : AuthRepository {
@@ -26,6 +30,7 @@ class AuthRepositoryImpl(
     ): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
+                httpClient.authProvider<BearerAuthProvider>()?.clearToken()
                 val response =
                     authService.login(
                         LoginRequest(
@@ -34,7 +39,7 @@ class AuthRepositoryImpl(
                         ),
                     )
                 val data = response.unwrap()
-                userStore.updateUserData(
+                userStore.updateUserStoreData(
                     UserStoreData(
                         token = data.token,
                         userId = data.id,
@@ -68,5 +73,6 @@ class AuthRepositoryImpl(
 
     override suspend fun logout() {
         userStore.clearUserData()
+        httpClient.authProvider<BearerAuthProvider>()?.clearToken()
     }
 }

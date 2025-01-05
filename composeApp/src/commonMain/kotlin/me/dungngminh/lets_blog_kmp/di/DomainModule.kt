@@ -18,6 +18,7 @@ internal val DomainModule =
             AuthRepositoryImpl(
                 authService = get(),
                 userStore = get(),
+                httpClient = get(),
                 ioDispatcher = ioDispatcher,
             )
         }

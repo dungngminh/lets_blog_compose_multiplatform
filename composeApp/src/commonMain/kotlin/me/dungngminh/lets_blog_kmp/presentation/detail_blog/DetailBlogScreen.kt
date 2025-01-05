@@ -53,6 +53,8 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
@@ -63,6 +65,7 @@ import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
 import me.dungngminh.lets_blog_kmp.presentation.edit_blog.EditBlogScreen
+import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
@@ -89,6 +92,18 @@ data class DetailBlogScreen(
 
         LaunchedEffect(blog.content) {
             blogContentRichTextState.setHtml(blog.content)
+        }
+
+        LaunchedEffect(Unit) {
+            viewModel
+                .uiState
+                .onEach { state ->
+                    when {
+                        state.isDeleteSuccess -> {
+                            navigator.popUntil { it is MainScreen }
+                        }
+                    }
+                }.launchIn(this)
         }
 
         DetailBlogScreenContent(

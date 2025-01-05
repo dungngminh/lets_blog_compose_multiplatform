@@ -21,7 +21,6 @@ import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
@@ -71,7 +70,7 @@ private val httpModule =
                 install(Auth) {
                     bearer {
                         loadTokens {
-                            val userStoreData = get<UserStore>().userStoreDataFlow.firstOrNull()
+                            val userStoreData = get<UserStore>().getUserStoreData()
                             if (userStoreData != null) {
                                 BearerTokens(
                                     accessToken = userStoreData.token,
@@ -90,7 +89,7 @@ private val httpModule =
             Ktorfit
                 .Builder()
                 .httpClient(get<HttpClient>())
-                .baseUrl("https://letsblog.up.railway.app/")
+                .baseUrl("http://192.168.1.113:8080/")
                 .build()
         }
     }

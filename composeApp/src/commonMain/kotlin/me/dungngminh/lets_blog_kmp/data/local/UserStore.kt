@@ -29,8 +29,13 @@ class UserStore(
             .catchAndReturn(null)
             .distinctUntilChanged()
 
-    suspend fun updateUserData(userStoreData: UserStoreData) {
+    suspend fun updateUserStoreData(userStoreData: UserStoreData) {
         flowSettings.putString(TOKEN_KEY, Json.encodeToString(userStoreData))
+    }
+
+    suspend fun getUserStoreData(): UserStoreData? {
+        val userStoreData = flowSettings.getStringOrNull(TOKEN_KEY)
+        return userStoreData?.let { Json.decodeFromString<UserStoreData>(it) }
     }
 
     suspend fun clearUserData() {
