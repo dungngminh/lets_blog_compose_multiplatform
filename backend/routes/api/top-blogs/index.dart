@@ -34,11 +34,17 @@ Future<Response> _onTopBlogsGetRequest(RequestContext context) async {
   if (user != null) {
     favoriteBlogIds = await db.favoriteBlogsUserses
         .queryFavoriteBlogsUserses(
-          QueryParams(where: 'user_id=@id', values: {'id': user.id}),
+          QueryParams(
+            where: 'user_id=@id',
+            values: {'id': user.id},
+          ),
         )
         .onError((error, stackTrace) => [])
         .then(
-          (favoriteBlogs) => favoriteBlogs.map((e) => e.blog.id).toList(),
+          (favoriteBlogs) => favoriteBlogs
+              .filter((e) => !e.blog.isDeleted)
+              .map((e) => e.blog.id)
+              .toList(),
         );
   }
   return db.favoriteBlogsUserses
@@ -49,6 +55,7 @@ Future<Response> _onTopBlogsGetRequest(RequestContext context) async {
         (entries) => entries
             .mapNotNull((e) => e.value.firstOrNull?.blog)
             .take(limit)
+            .filter((e) => !e.isDeleted)
             .map(
               (view) => GetBlogResponse.fromView(
                 view,

@@ -93,15 +93,22 @@ Future<Response> _onBlogsDeleteRequest(
   RequestContext context,
   String id,
 ) async {
-  final db = context.read<Database>();
-  final user = context.read<UserView>();
   try {
+    final db = context.read<Database>();
+    final user = context.read<UserView>();
     final blog = await db.blogs.queryBlog(id).onError((e, _) => null);
     if (blog == null) return NotFoundResponse('Blog not found');
     if (blog.creator.id != user.id) {
       return ForbiddenResponse('You are not creator of this blog');
     }
-    await db.blogs.deleteOne(id).whenComplete(db.close);
+    await db.blogs
+        .updateOne(
+          BlogUpdateRequest(
+            id: id,
+            isDeleted: true,
+          ),
+        )
+        .whenComplete(db.close);
     return OkResponse();
   } catch (e) {
     return InternalServerErrorResponse(e.toString());

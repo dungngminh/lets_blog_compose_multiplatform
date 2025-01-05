@@ -18,7 +18,7 @@ Future<Response> _onUsersByIdBlogsGet(RequestContext context, String id) {
       .blogs
       .queryBlogs(
         QueryParams(
-          where: 'creator_id=@id',
+          where: 'creator_id=@id and is_deleted=false',
           orderBy: 'created_at DESC',
           values: {'id': id},
         ),
