@@ -110,4 +110,5 @@
     </plurals>
     <string name="edit_profile_screen_edit_profile_title">Edit profile</string>
     <string name="edit_blog_screen_edit_blog_title">Edit blog</string>
+    <string name="favorite_screen_favorite_blogs_label">Favorite blog</string>
 </resources>

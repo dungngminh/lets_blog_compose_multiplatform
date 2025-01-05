@@ -152,7 +152,6 @@ object ProfileTab : Tab {
             )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProfileScreenExpandedContent(
     modifier: Modifier = Modifier,
@@ -165,10 +164,7 @@ private fun ProfileScreenExpandedContent(
     onBlogClick: (Blog) -> Unit,
     userBlogState: UserBlogState,
 ) {
-    Scaffold(
-        topBar = {
-        },
-    ) {
+    Scaffold {
     }
 }
 
