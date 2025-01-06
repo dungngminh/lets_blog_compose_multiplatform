@@ -26,8 +26,8 @@ class GetUserFavoriteBlogResponse {
       content: view.blog.content,
       imageUrl: view.blog.imageUrl,
       category: view.blog.category,
-      createdAt: view.blog.createdAt,
-      updatedAt: view.blog.updatedAt,
+      createdAt: view.blog.createdAt.toUtc(),
+      updatedAt: view.blog.updatedAt.toUtc(),
     );
   }
 
