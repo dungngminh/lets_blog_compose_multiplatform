@@ -299,8 +299,7 @@ fun LazyListScope.otherBlogsContentView(
                 onBlogClick(blog)
             },
         )
-        val isLast = index == blogs.size - 1
-        if (!isLast) {
+        if (index < blogs.size - 1) {
             Spacer(modifier = Modifier.height(8.dp))
         }
     }

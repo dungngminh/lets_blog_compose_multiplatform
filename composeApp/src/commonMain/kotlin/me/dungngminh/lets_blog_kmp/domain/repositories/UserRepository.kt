@@ -9,4 +9,6 @@ interface UserRepository {
     suspend fun editUserProfile(user: User): Result<Unit>
 
     suspend fun getUserBlogs(id: String): Result<List<Blog>>
+
+    suspend fun getUserFavoriteBlogs(id: String): Result<List<Blog>>
 }

@@ -30,7 +30,6 @@ class AuthRepositoryImpl(
     ): Result<Unit> =
         runCatching {
             withContext(ioDispatcher) {
-                httpClient.authProvider<BearerAuthProvider>()?.clearToken()
                 val response =
                     authService.login(
                         LoginRequest(
@@ -45,6 +44,7 @@ class AuthRepositoryImpl(
                         userId = data.id,
                     ),
                 )
+                httpClient.authProvider<BearerAuthProvider>()?.clearToken()
             }
         }
 

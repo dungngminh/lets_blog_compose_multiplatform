@@ -3,6 +3,7 @@ package me.dungngminh.lets_blog_kmp.di
 import me.dungngminh.lets_blog_kmp.AppViewModel
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
+import me.dungngminh.lets_blog_kmp.presentation.main.favorite.FavoriteViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeScreenViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.ProfileViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.search.SearchViewModel
@@ -26,6 +27,7 @@ private val ViewModelModule =
         factory {
             HomeScreenViewModel(
                 blogRepository = get(),
+                favoriteRepository = get(),
             )
         }
         factory { params ->
@@ -40,6 +42,7 @@ private val ViewModelModule =
             DetailBlogViewModel(
                 blog = params.get(),
                 blogRepository = get(),
+                favoriteRepository = get(),
             )
         }
 
@@ -48,12 +51,14 @@ private val ViewModelModule =
                 blogRepository = get(),
             )
         }
-
         factory {
             ProfileViewModel(
                 authRepository = get(),
                 userRepository = get(),
             )
+        }
+        factory {
+            FavoriteViewModel(get())
         }
     }
 

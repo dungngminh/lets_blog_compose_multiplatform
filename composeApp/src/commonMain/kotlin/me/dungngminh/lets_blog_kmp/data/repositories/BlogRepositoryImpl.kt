@@ -7,7 +7,6 @@ import me.dungngminh.lets_blog_kmp.data.mappers.toApiString
 import me.dungngminh.lets_blog_kmp.data.mappers.toBlog
 import me.dungngminh.lets_blog_kmp.data.mappers.toEditBlogRequest
 import me.dungngminh.lets_blog_kmp.data.models.request.blog.CreateBlogRequest
-import me.dungngminh.lets_blog_kmp.data.models.request.blog.FavoriteBlogRequest
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
@@ -88,30 +87,6 @@ class BlogRepositoryImpl(
                 blogService.updateBlog(
                     id = updatedBlog.id,
                     editBlogRequest = updatedBlog.toEditBlogRequest(),
-                )
-            }
-        }
-
-    override suspend fun favoriteBlog(blogId: String): Result<Unit> =
-        withContext(ioDispatcher) {
-            runCatching {
-                blogService.favoriteBlog(
-                    FavoriteBlogRequest(
-                        blogId = blogId,
-                        isFavorite = true,
-                    ),
-                )
-            }
-        }
-
-    override suspend fun unFavoriteBlog(blogId: String): Result<Unit> =
-        withContext(ioDispatcher) {
-            runCatching {
-                blogService.favoriteBlog(
-                    FavoriteBlogRequest(
-                        blogId = blogId,
-                        isFavorite = false,
-                    ),
                 )
             }
         }

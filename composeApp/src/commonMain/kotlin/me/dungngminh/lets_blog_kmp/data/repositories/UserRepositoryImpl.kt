@@ -42,4 +42,14 @@ class UserRepositoryImpl(
                     .map { it.toBlog() }
             }
         }
+
+    override suspend fun getUserFavoriteBlogs(id: String): Result<List<Blog>> =
+        withContext(ioDispatcher) {
+            runCatching {
+                val response = userService.getUserFavoriteBlogs(id)
+                response
+                    .unwrap()
+                    .map { it.toBlog() }
+            }
+        }
 }

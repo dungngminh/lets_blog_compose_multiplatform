@@ -89,7 +89,7 @@ private fun PopularBlogCardContent(
         val shouldShowFavoriteButton by
             remember(blog, user) {
                 derivedStateOf {
-                    user != null && blog.creator.id != user.id && blog.isFavoriteByUser != null
+                    user != null && blog.creator?.id != user.id && blog.isFavoriteByUser != null
                 }
             }
         if (shouldShowFavoriteButton) {
@@ -130,7 +130,7 @@ private fun PopularBlogCardContent(
             ) {
                 Row {
                     CoilImage(
-                        imageModel = { blog.creator.avatarUrl },
+                        imageModel = { blog.creator?.avatarUrl },
                         modifier = Modifier.size(36.dp),
                         imageOptions = ImageOptions(contentScale = ContentScale.Crop),
                     )
@@ -140,7 +140,7 @@ private fun PopularBlogCardContent(
                         verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         Text(
-                            blog.creator.name,
+                            blog.creator?.name.orEmpty(),
                             style =
                                 MaterialTheme
                                     .typography.titleSmall

@@ -25,4 +25,9 @@ interface UserService {
     suspend fun getUserBlogs(
         @Path("id") id: String,
     ): BaseResponse<List<GetBlogResponse>>
+
+    @GET("api/users/{id}/favorite-blogs")
+    suspend fun getUserFavoriteBlogs(
+        @Path("id") id: String,
+    ): BaseResponse<List<GetBlogResponse>>
 }

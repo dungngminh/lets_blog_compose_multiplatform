@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.commons.extensions.replaceFirst
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
+import me.dungngminh.lets_blog_kmp.domain.repositories.FavoriteRepository
 
 data class HomeScreenUiState(
     val popularBlogs: List<Blog> = emptyList(),
@@ -23,6 +24,7 @@ data class HomeScreenUiState(
 
 class HomeScreenViewModel(
     private val blogRepository: BlogRepository,
+    private val favoriteRepository: FavoriteRepository,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(HomeScreenUiState())
     val uiState =
@@ -120,7 +122,7 @@ class HomeScreenViewModel(
             state.copy(popularBlogs = updatedBlogs)
         }
         screenModelScope.launch {
-            blogRepository.favoriteBlog(blog.id)
+            favoriteRepository.favoriteBlog(blog.id)
         }
     }
 
@@ -134,7 +136,7 @@ class HomeScreenViewModel(
             state.copy(popularBlogs = updatedBlogs)
         }
         screenModelScope.launch {
-            blogRepository.unFavoriteBlog(blog.id)
+            favoriteRepository.unFavoriteBlog(blog.id)
         }
     }
 }

@@ -20,7 +20,7 @@ class ProfileViewModel(
     authRepository: AuthRepository,
     private val userRepository: UserRepository,
 ) : ScreenModel {
-    val refreshFlow = MutableSharedFlow<Unit>()
+    private val refreshFlow = MutableSharedFlow<Unit>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val userBlogFlow =

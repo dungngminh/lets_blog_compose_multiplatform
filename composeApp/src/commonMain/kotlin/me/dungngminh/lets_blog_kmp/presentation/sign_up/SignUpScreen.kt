@@ -68,6 +68,8 @@ import letsblogkmp.composeapp.generated.resources.sign_up_page_sign_up_button_la
 import letsblogkmp.composeapp.generated.resources.sign_up_page_sign_up_title
 import letsblogkmp.composeapp.generated.resources.sign_up_page_username_hint_label
 import letsblogkmp.composeapp.generated.resources.sign_up_page_username_label
+import letsblogkmp.composeapp.generated.resources.validation_error_confirm_password_empty
+import letsblogkmp.composeapp.generated.resources.validation_error_confirm_password_not_match
 import letsblogkmp.composeapp.generated.resources.validation_error_email_empty
 import letsblogkmp.composeapp.generated.resources.validation_error_email_invalid
 import letsblogkmp.composeapp.generated.resources.validation_error_password_empty
@@ -298,10 +300,10 @@ fun SignUpScreenContent(
                             when (state.confirmPasswordError) {
                                 SignUpValidationError.PASSWORDS_NOT_MATCH ->
                                     stringResource(
-                                        Res.string.validation_error_password_empty,
+                                        Res.string.validation_error_confirm_password_not_match,
                                     )
 
-                                SignUpValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_password_empty)
+                                SignUpValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_confirm_password_empty)
                                 else -> ""
                             },
                         )

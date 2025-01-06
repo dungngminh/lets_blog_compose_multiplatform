@@ -62,7 +62,7 @@ fun BlogCard(
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Text(
-                    blog.creator.name,
+                    blog.creator?.name.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }

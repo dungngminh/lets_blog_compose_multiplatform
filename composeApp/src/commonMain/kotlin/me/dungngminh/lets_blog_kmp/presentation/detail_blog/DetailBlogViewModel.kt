@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
+import me.dungngminh.lets_blog_kmp.domain.repositories.FavoriteRepository
 
 data class DetailBlogState(
     val blog: Blog,
@@ -17,6 +18,7 @@ data class DetailBlogState(
 
 class DetailBlogViewModel(
     blog: Blog,
+    private val favoriteRepository: FavoriteRepository,
     private val blogRepository: BlogRepository,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(DetailBlogState(blog = blog))
@@ -33,7 +35,7 @@ class DetailBlogViewModel(
             it.copy(blog = updatedBlog)
         }
         screenModelScope.launch {
-            blogRepository.favoriteBlog(currentBlog.id)
+            favoriteRepository.favoriteBlog(currentBlog.id)
         }
     }
 
@@ -44,7 +46,7 @@ class DetailBlogViewModel(
             it.copy(blog = updatedBlog)
         }
         screenModelScope.launch {
-            blogRepository.unFavoriteBlog(currentBlog.id)
+            favoriteRepository.unFavoriteBlog(currentBlog.id)
         }
     }
 

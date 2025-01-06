@@ -219,7 +219,7 @@ fun DetailBlogCreatorInfo(
 ) {
     Row(modifier = modifier) {
         CoilImage(
-            imageModel = { blog.creator.avatarUrl },
+            imageModel = { blog.creator?.avatarUrl },
             modifier =
                 Modifier
                     .size(36.dp)
@@ -234,7 +234,7 @@ fun DetailBlogCreatorInfo(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
-                blog.creator.name,
+                blog.creator?.name.orEmpty(),
                 style =
                     MaterialTheme
                         .typography.titleSmall
@@ -268,7 +268,7 @@ fun DetailBlogAppBar(
     val isBlogCreatorSameAsUser by remember(userSessionState) {
         derivedStateOf {
             val user = (userSessionState as? UserSessionState.Authenticated)?.user
-            user != null && user.id == blog.creator.id
+            user != null && user.id == blog.creator?.id
         }
     }
     TopAppBar(
@@ -357,7 +357,7 @@ fun DetailScreenFavoriteButton(
     }
     when (userSessionState) {
         is UserSessionState.Authenticated -> {
-            if (userSessionState.user != null && userSessionState.user.id != blog.creator.id) {
+            if (userSessionState.user != null && userSessionState.user.id != blog.creator?.id) {
                 FavoriteButton(
                     modifier = modifier,
                     onFavoriteClick = onFavoriteClick,
