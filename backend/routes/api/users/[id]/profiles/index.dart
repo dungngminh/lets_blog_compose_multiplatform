@@ -39,7 +39,10 @@ Future<Response> _onUserByIdGetRequest(
         .onError((_, __) => []);
     final blogsByUser = await db.blogs
         .queryBlogs(
-          QueryParams(where: 'creator_id=@id', values: {'id': id}),
+          QueryParams(
+            where: 'creator_id=@id and is_deleted=false',
+            values: {'id': id},
+          ),
         )
         .onError((_, __) => []);
     return db.users
