@@ -23,6 +23,8 @@ GetUserFavoriteBlogResponse _$GetUserFavoriteBlogResponseFromJson(
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
           updatedAt:
               $checkedConvert('updated_at', (v) => DateTime.parse(v as String)),
+          creator: $checkedConvert('creator',
+              (v) => UserOfGetBlogResponse.fromJson(v as Map<String, dynamic>)),
         );
         return val;
       },
@@ -43,6 +45,7 @@ Map<String, dynamic> _$GetUserFavoriteBlogResponseToJson(
       'category': _$BlogCategoryEnumMap[instance.category]!,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
+      'creator': instance.creator.toJson(),
     };
 
 const _$BlogCategoryEnumMap = {

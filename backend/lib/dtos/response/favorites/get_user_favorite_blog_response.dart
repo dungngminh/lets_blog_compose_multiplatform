@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:very_good_blog_app_backend/dtos/response/users/blogs/user_of_get_blog_response.dart';
 import 'package:very_good_blog_app_backend/models/blog_category.dart';
 import 'package:very_good_blog_app_backend/models/favorite_blogs_users.dart';
 
@@ -14,6 +15,7 @@ class GetUserFavoriteBlogResponse {
     required this.category,
     required this.createdAt,
     required this.updatedAt,
+    required this.creator,
   });
 
   factory GetUserFavoriteBlogResponse.fromJson(Map<String, dynamic> json) =>
@@ -28,6 +30,7 @@ class GetUserFavoriteBlogResponse {
       category: view.blog.category,
       createdAt: view.blog.createdAt.toUtc(),
       updatedAt: view.blog.updatedAt.toUtc(),
+      creator: UserOfGetBlogResponse.fromView(view.blog.creator),
     );
   }
 
@@ -38,6 +41,7 @@ class GetUserFavoriteBlogResponse {
   final BlogCategory category;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final UserOfGetBlogResponse creator;
 
   Map<String, dynamic> toJson() => _$GetUserFavoriteBlogResponseToJson(this);
 }
