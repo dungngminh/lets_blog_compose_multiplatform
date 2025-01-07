@@ -181,7 +181,7 @@ fun DetailBlogScreenContent(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
+                            .height(350.dp)
                             .clip(RoundedCornerShape(16.dp)),
                 )
             }
@@ -191,7 +191,13 @@ fun DetailBlogScreenContent(
             }
 
             item(contentType = "blog_title") {
-                Text(text = blog.title, style = MaterialTheme.typography.headlineLarge)
+                Text(
+                    text = blog.title,
+                    style =
+                        MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                )
             }
 
             item {

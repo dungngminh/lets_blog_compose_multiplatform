@@ -263,7 +263,7 @@ fun PreviewBlogCompactContent(
                     style =
                         MaterialTheme
                             .typography.titleMedium
-                            .copy(fontWeight = FontWeight.Medium),
+                            .copy(fontWeight = FontWeight.SemiBold),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 PreviewImageBox(
@@ -308,7 +308,7 @@ fun PreviewBlogCompactContent(
                     style =
                         MaterialTheme
                             .typography.titleMedium
-                            .copy(fontWeight = FontWeight.Medium),
+                            .copy(fontWeight = FontWeight.SemiBold),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 RichText(
@@ -316,34 +316,6 @@ fun PreviewBlogCompactContent(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun PreviewImageBox(
-    modifier: Modifier = Modifier,
-    networkImage: String? = null,
-    onDeleteImageClick: () -> Unit = {},
-) {
-    Box {
-        CoilImage(
-            modifier = Modifier.fillMaxSize(),
-            imageModel = { networkImage },
-            imageOptions =
-                ImageOptions(
-                    contentScale = ContentScale.Crop,
-                ),
-        )
-        FilledTonalIconButton(
-            onClick = onDeleteImageClick,
-            modifier = Modifier.align(Alignment.TopEnd).padding(4.dp),
-        ) {
-            Icon(
-                painterResource(Res.drawable.ic_x),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-            )
         }
     }
 }

@@ -66,7 +66,11 @@ class SearchViewModel(
                     }.map { result ->
                         result.fold(
                             onSuccess = { blogs ->
-                                SearchUiState.Success(searchedBlogs = blogs)
+                                if (blogs.isEmpty()) {
+                                    SearchUiState.EmptyResult
+                                } else {
+                                    SearchUiState.Success(searchedBlogs = blogs)
+                                }
                             },
                             onFailure = { error ->
                                 SearchUiState.Error(

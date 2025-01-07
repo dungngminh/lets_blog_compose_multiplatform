@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.presentation.detail_blog
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.mohamedrejeb.richeditor.model.RichTextState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,6 +17,20 @@ data class DetailBlogState(
     val deleteError: String? = null,
 )
 
+sealed class SummaryBlogContentState {
+    data object Initial : SummaryBlogContentState()
+
+    data object Loading : SummaryBlogContentState()
+
+    data class Error(
+        val message: String,
+    ) : SummaryBlogContentState()
+
+    data class Success(
+        val summaryContent: String,
+    ) : SummaryBlogContentState()
+}
+
 class DetailBlogViewModel(
     blog: Blog,
     private val favoriteRepository: FavoriteRepository,
@@ -24,6 +39,13 @@ class DetailBlogViewModel(
     private val _uiState = MutableStateFlow(DetailBlogState(blog = blog))
     val uiState =
         _uiState.asStateFlow()
+
+    private val textBlogContent =
+        RichTextState()
+            .setHtml(blog.content)
+            .toText()
+
+//    private val summaryContentFlow =
 
     val currentBlogState: DetailBlogState
         get() = _uiState.value

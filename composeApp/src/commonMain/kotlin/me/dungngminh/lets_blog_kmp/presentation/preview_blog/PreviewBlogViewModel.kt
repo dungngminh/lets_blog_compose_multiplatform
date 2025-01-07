@@ -144,7 +144,7 @@ class PreviewBlogViewModel(
                 updateBlog(
                     blog =
                         blog.copy(
-                            title = currentState.title,
+                            title = currentState.title.trim(),
                             content = content,
                             imageUrl = imageUrl,
                             category = currentState.category,

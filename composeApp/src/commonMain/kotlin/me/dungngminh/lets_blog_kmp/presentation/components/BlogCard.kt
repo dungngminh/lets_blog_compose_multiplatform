@@ -57,6 +57,7 @@ fun BlogCard(
                         MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
+                    minLines = 1,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
