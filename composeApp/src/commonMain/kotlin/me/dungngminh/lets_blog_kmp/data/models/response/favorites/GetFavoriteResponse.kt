@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.data.models.response.favorites
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.dungngminh.lets_blog_kmp.data.models.response.user.GetUserResponse
 
 @Serializable
 data class GetFavoriteResponse(
@@ -12,4 +13,5 @@ data class GetFavoriteResponse(
     val category: String,
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String,
+    val creator: GetUserResponse,
 )

@@ -38,4 +38,5 @@ fun GetFavoriteResponse.toBlog() =
         createdAt = createdAt.mapISODateTimeStringToLong(),
         updatedAt = updatedAt.mapISODateTimeStringToLong(),
         isFavoriteByUser = true,
+        creator = creator.toUser(),
     )

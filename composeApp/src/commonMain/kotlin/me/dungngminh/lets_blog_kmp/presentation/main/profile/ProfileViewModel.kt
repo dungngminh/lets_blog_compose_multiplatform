@@ -20,7 +20,7 @@ class ProfileViewModel(
     authRepository: AuthRepository,
     private val userRepository: UserRepository,
 ) : ScreenModel {
-    private val refreshFlow = MutableSharedFlow<Unit>()
+    private val refreshFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val userBlogFlow =
@@ -35,7 +35,11 @@ class ProfileViewModel(
                     }.map { result ->
                         result.fold(
                             onSuccess = { blogs ->
-                                UserBlogState.Success(blogs)
+                                if (blogs.isEmpty()) {
+                                    UserBlogState.EmptyBlog
+                                } else {
+                                    UserBlogState.Success(blogs)
+                                }
                             },
                             onFailure = { error ->
                                 UserBlogState.Error(error.message ?: "Unknown error")
@@ -71,6 +75,8 @@ sealed class UserBlogState {
     data class Success(
         val blogs: List<Blog>,
     ) : UserBlogState()
+
+    data object EmptyBlog : UserBlogState()
 
     data class Error(
         val message: String,

@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.repositories.FavoriteRepository
 
@@ -30,7 +32,8 @@ sealed class FavoriteUiState {
 class FavoriteViewModel(
     private val favoriteRepository: FavoriteRepository,
 ) : ScreenModel {
-    private val refreshFlow = MutableSharedFlow<Unit>()
+    private val refreshFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val retryFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     private val favoriteBlogFlow =
         flowFromSuspend { favoriteRepository.getFavoriteBlogs() }
@@ -45,16 +48,39 @@ class FavoriteViewModel(
                     },
                     onFailure = { FavoriteUiState.Error(it.message ?: "Unknown error") },
                 )
-            }.startWith(FavoriteUiState.Loading)
+            }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState =
-        refreshFlow
-            .startWith(Unit)
-            .flatMapLatest { favoriteBlogFlow }
-            .stateIn(
-                scope = screenModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = FavoriteUiState.Loading,
-            )
+        merge(
+            refreshFlow
+                .flatMapLatest { favoriteBlogFlow },
+            // init and retry
+            retryFlow
+                .startWith(Unit)
+                .flatMapLatest {
+                    favoriteBlogFlow
+                        .startWith(FavoriteUiState.Loading)
+                },
+        ).stateIn(
+            scope = screenModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = FavoriteUiState.Loading,
+        )
+
+    fun refresh() {
+        if (uiState.value is FavoriteUiState.Success || uiState.value is FavoriteUiState.NoFavoriteBlogs) {
+            screenModelScope.launch {
+                refreshFlow.emit(Unit)
+            }
+        }
+    }
+
+    fun retry() {
+        screenModelScope.launch {
+            if (uiState.value is FavoriteUiState.Error) {
+                retryFlow.emit(Unit)
+            }
+        }
+    }
 }

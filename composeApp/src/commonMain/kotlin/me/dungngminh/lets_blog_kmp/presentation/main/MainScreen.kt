@@ -31,7 +31,6 @@ import letsblogkmp.composeapp.generated.resources.nav_bar_home_label
 import letsblogkmp.composeapp.generated.resources.nav_bar_profile_label
 import letsblogkmp.composeapp.generated.resources.nav_bar_search_label
 import me.dungngminh.lets_blog_kmp.commons.theme.LetsBlogAppTheme
-import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination.Favorite
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination.Home
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination.Profile
@@ -40,7 +39,6 @@ import me.dungngminh.lets_blog_kmp.presentation.main.favorite.FavoriteTab
 import me.dungngminh.lets_blog_kmp.presentation.main.home.HomeTab
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.ProfileTab
 import me.dungngminh.lets_blog_kmp.presentation.main.search.SearchTab
-import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -85,13 +83,7 @@ class MainScreen : Screen {
         val userSessionViewModel = navigator.koinNavigatorScreenModel<UserSessionViewModel>()
         val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
         MainScreenContent(
-            onFabClick = {
-                if (userSessionState is UserSessionState.Authenticated) {
-                    navigator.push(CreateBlogScreen)
-                } else {
-                    navigator.push(SignInScreen)
-                }
-            },
+            userSessionState = userSessionState,
         )
     }
 }
@@ -99,7 +91,7 @@ class MainScreen : Screen {
 @Composable
 fun MainScreenContent(
     modifier: Modifier = Modifier,
-    onFabClick: () -> Unit,
+    userSessionState: UserSessionState,
 ) {
     TabNavigator(HomeTab) { tabNavigator ->
         NavigationSuiteScaffold(
@@ -157,8 +149,6 @@ private fun Tab.icon(isSelected: Boolean): DrawableResource =
 @Composable
 fun MainScreenPreview() {
     LetsBlogAppTheme {
-        MainScreenContent(
-            onFabClick = {},
-        )
+        MainScreenContent(userSessionState = UserSessionState.Unauthenticated)
     }
 }

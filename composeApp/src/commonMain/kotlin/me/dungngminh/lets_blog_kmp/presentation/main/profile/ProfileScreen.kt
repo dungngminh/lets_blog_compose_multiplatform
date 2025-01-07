@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,14 +27,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +52,6 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.general_blog_count
 import letsblogkmp.composeapp.generated.resources.ic_pencil
@@ -63,12 +61,13 @@ import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.User
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
+import me.dungngminh.lets_blog_kmp.presentation.components.ErrorView
+import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.edit_user_profile.EditUserProfileScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
-import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.ErrorProfileContent
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.UnauthenticatedProfileContent
 import me.dungngminh.lets_blog_kmp.presentation.setting.SettingScreen
 import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
@@ -126,6 +125,7 @@ object ProfileTab : Tab {
                     userSessionViewModel.refresh()
                 },
                 onRetryClick = {
+                    userSessionViewModel.refresh()
                 },
                 onSettingClick = {
                     parent.push(SettingScreen)
@@ -205,9 +205,14 @@ private fun ProfileScreenContent(
                 }
 
             is UserSessionState.AuthenticatedFetchDataError ->
-                ErrorProfileContent(
-                    modifier = Modifier.padding(innerPadding),
-                    onRetryClick = onRetryClick,
+                ErrorView(
+                    modifier =
+                        Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                    type = ErrorViewType.GENERAL_ERROR,
+                    onRetryActionClick = onRetryClick,
                 )
 
             UserSessionState.Unauthenticated ->
@@ -244,36 +249,35 @@ fun AuthenticatedProfileScreen(
     userBlogState: UserBlogState,
     onBlogClick: (Blog) -> Unit = {},
 ) {
-    val refreshState = rememberPullToRefreshState()
-
-    val coroutineScope = rememberCoroutineScope()
-
-    PullToRefreshBox(
-        modifier = modifier,
-        state = refreshState,
-        isRefreshing = false,
-        onRefresh = {
-            coroutineScope.launch {
-                onRefresh()
-                refreshState.animateToHidden()
+    when (userBlogState) {
+        UserBlogState.Loading, UserBlogState.Uninitialized ->
+            Center(modifier = modifier) {
+                CircularProgressIndicator()
             }
-        },
-    ) {
-        when (userBlogState) {
-            UserBlogState.Uninitialized -> Unit
-            UserBlogState.Loading ->
-                Center {
-                    CircularProgressIndicator()
-                }
 
-            is UserBlogState.Error ->
-                Center {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.error)
-                }
+        is UserBlogState.Error ->
+            ErrorView(
+                modifier = modifier.fillMaxWidth(),
+                type = ErrorViewType.GENERAL_ERROR,
+                onRetryActionClick = onRefresh,
+            )
 
-            is UserBlogState.Success -> {
+        UserBlogState.EmptyBlog -> {
+            ErrorView(
+                modifier = modifier.fillMaxWidth(),
+                type = ErrorViewType.EMPTY_USER_BLOG,
+                onRetryActionClick = onRefresh,
+            )
+        }
+
+        is UserBlogState.Success -> {
+            PullToRefreshBox(
+                modifier = modifier,
+                isRefreshing = false,
+                onRefresh = onRefresh,
+            ) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                 ) {
                     itemsIndexed(
@@ -303,9 +307,8 @@ fun ProfileAppBar(
     onEditProfileClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
-    val collapsedValue by remember(scrollBehavior) { derivedStateOf { scrollBehavior.state.collapsedFraction } }
-    val isExpanded by remember(collapsedValue) { derivedStateOf { collapsedValue == 0f } }
-    val transition = updateTransition(collapsedValue)
+    val isExpanded by remember { derivedStateOf { scrollBehavior.state.collapsedFraction == 0f } }
+    val transition = updateTransition(scrollBehavior.state.collapsedFraction)
     val avatarSize by transition.animateDp {
         60.dp + (42.dp - 60.dp) * it
     }

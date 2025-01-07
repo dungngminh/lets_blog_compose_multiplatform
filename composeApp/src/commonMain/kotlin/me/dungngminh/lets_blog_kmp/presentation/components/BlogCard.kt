@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
@@ -35,15 +36,15 @@ fun BlogCard(
         onClick = onClick,
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             CoilImage(
                 imageModel = { blog.imageUrl },
                 modifier =
                     Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(12.dp)),
                 imageOptions = ImageOptions(contentScale = ContentScale.Crop),
             )
             Column(
@@ -54,15 +55,17 @@ fun BlogCard(
                     blog.title,
                     style =
                         MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                         ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     blog.createdAt.timeAgo(),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Text(
-                    blog.creator?.name.orEmpty(),
+                    blog.creator.name,
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }

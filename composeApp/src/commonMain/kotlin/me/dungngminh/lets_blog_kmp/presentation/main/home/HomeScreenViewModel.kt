@@ -49,8 +49,6 @@ class HomeScreenViewModel(
             it.copy(
                 isLoading = true,
                 errorMessage = null,
-                blogs = emptyList(),
-                popularBlogs = emptyList(),
             )
         }
         screenModelScope.launch {
@@ -80,6 +78,8 @@ class HomeScreenViewModel(
                 }.onFailure { error ->
                     _uiState.update {
                         it.copy(
+                            popularBlogs = emptyList(),
+                            blogs = emptyList(),
                             isLoading = false,
                             errorMessage = error.message,
                         )

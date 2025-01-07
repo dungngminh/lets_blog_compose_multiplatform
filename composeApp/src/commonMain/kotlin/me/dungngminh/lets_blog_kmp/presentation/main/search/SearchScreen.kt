@@ -46,6 +46,8 @@ import letsblogkmp.composeapp.generated.resources.search_screen_top_bar_title
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
+import me.dungngminh.lets_blog_kmp.presentation.components.CreateBlogFabButton
+import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import org.jetbrains.compose.resources.painterResource
@@ -66,6 +68,9 @@ object SearchTab : Tab {
             onSearchFieldChange = viewModel::onSearchChange,
             onBlogClick = {
                 rootNavigator?.push(DetailBlogScreen(it))
+            },
+            onCreateBlogClick = {
+                rootNavigator?.push(CreateBlogScreen)
             },
         )
     }
@@ -89,6 +94,7 @@ private fun SearchScreenContent(
     searchFieldState: String,
     onSearchFieldChange: (String) -> Unit,
     onBlogClick: (Blog) -> Unit = {},
+    onCreateBlogClick: () -> Unit = {},
     searchUiState: SearchUiState,
 ) {
     Scaffold(
@@ -101,6 +107,10 @@ private fun SearchScreenContent(
                     )
                 },
             )
+        },
+        floatingActionButton = {
+            CreateBlogFabButton {
+            }
         },
     ) { innerPadding ->
         Column(
@@ -121,7 +131,6 @@ private fun SearchScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             when (searchUiState) {
-                SearchUiState.Idle -> Unit
                 SearchUiState.Loading -> {
                     Center(
                         modifier = Modifier.weight(1f),
@@ -130,7 +139,7 @@ private fun SearchScreenContent(
                     }
                 }
 
-                is SearchUiState.EmptyQuery ->
+                is SearchUiState.EmptyQuery, SearchUiState.Idle ->
                     CenterMessage(
                         modifier = Modifier.weight(1f),
                         message = stringResource(Res.string.search_screen_empty_query_label),
