@@ -103,8 +103,8 @@
     <string name="setting_screen_logout_label">Logout</string>
     <string name="profile_screen_login_and_deep_dive_blog_world">Let's login and deep dive into\nthe world of blogging</string>
     <string name="profile_screen_login_label">Login</string>
+    <string name="profile_screen_no_blog">No blog</string>
     <plurals name="general_blog_count">
-        <item quantity="zero">No blog</item>
         <item quantity="one">%1$d blog</item>
         <item quantity="other">%1$d blogs</item>
     </plurals>
@@ -116,5 +116,6 @@
     <string name="general_something_went_wrong_please_try_again">Something went wrong, please try again</string>
     <string name="general_retry">Retry</string>
     <string name="home_screen_no_blog_label"> Please come back later</string>
-    <string name="profile_screen_you_dont_have_any_blog_label">You don't have any blog\nLet's create</string>
+    <string name="profile_screen_you_dont_have_any_blog_label">You don't have any blog\nLet's create new one</string>
+    <string name="search_screen_empty_result_blog_label">No blog found</string>
 </resources>

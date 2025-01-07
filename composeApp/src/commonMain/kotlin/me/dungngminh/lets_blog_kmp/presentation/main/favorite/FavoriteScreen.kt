@@ -104,7 +104,7 @@ fun FavoriteScreenContent(
                             .fillMaxSize()
                             .padding(horizontal = 16.dp),
                     type = ErrorViewType.GENERAL_ERROR,
-                    onRetryActionClick = onUserSessionRetry,
+                    onActionClick = onUserSessionRetry,
                 )
 
             UserSessionState.Unauthenticated ->

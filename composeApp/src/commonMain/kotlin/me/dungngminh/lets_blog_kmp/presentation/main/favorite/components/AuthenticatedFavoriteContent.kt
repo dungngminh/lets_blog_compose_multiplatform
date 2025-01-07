@@ -40,7 +40,7 @@ fun AuthenticatedFavoriteContent(
             ErrorView(
                 modifier = modifier,
                 type = ErrorViewType.GENERAL_ERROR,
-                onRetryActionClick = onRetryClick,
+                onActionClick = onRetryClick,
             )
         }
 

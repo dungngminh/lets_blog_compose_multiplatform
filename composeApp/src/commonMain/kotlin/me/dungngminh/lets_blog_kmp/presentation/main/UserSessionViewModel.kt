@@ -58,9 +58,7 @@ class UserSessionViewModel(
 
     fun refresh() {
         screenModelScope.launch {
-            if (userSessionState.value is UserSessionState.Authenticated) {
-                refreshFlow.emit(Unit)
-            }
+            refreshFlow.emit(Unit)
         }
     }
 

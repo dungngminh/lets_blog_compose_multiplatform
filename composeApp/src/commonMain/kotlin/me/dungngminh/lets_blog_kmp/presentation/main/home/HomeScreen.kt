@@ -12,11 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -39,6 +39,7 @@ import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
+import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.components.CreateBlogFabButton
 import me.dungngminh.lets_blog_kmp.presentation.components.ErrorView
 import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
@@ -110,7 +111,6 @@ fun HomeScreenContent(
     onUnFavoriteBlogClick: (Blog) -> Unit,
     fetchNewBlogs: () -> Unit,
 ) {
-    val refreshState = rememberPullToRefreshState()
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
@@ -120,11 +120,10 @@ fun HomeScreenContent(
         },
     ) { innerPadding ->
         PullToRefreshBox(
-            state = refreshState,
             modifier =
                 Modifier
                     .fillMaxSize(),
-            isRefreshing = homeUiState.isLoading,
+            isRefreshing = false,
             onRefresh = onBlogRefresh,
         ) {
             LazyColumn(
@@ -188,10 +187,23 @@ fun LazyListScope.blogContentView(
         homeUiState.errorMessage != null -> {
             item {
                 ErrorView(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth(),
                     type = ErrorViewType.GENERAL_ERROR,
-                    onRetryActionClick = onRetry,
+                    onActionClick = onRetry,
                 )
+            }
+        }
+
+        homeUiState.isLoading -> {
+            item {
+                Center(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .fillParentMaxSize(0.5f),
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
 
@@ -223,7 +235,7 @@ fun LazyListScope.blogsView(
     if (isBlogListEmpty) {
         item {
             ErrorView(
-                modifier = Modifier.fillParentMaxSize(),
+                modifier = Modifier.fillMaxWidth(),
                 type = ErrorViewType.EMPTY_HOME_BLOG,
             )
         }

@@ -26,10 +26,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -47,6 +47,8 @@ import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.components.CreateBlogFabButton
+import me.dungngminh.lets_blog_kmp.presentation.components.ErrorView
+import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
 import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
@@ -72,6 +74,7 @@ object SearchTab : Tab {
             onCreateBlogClick = {
                 rootNavigator?.push(CreateBlogScreen)
             },
+            onRetryClick = viewModel::retry,
         )
     }
 
@@ -95,6 +98,7 @@ private fun SearchScreenContent(
     onSearchFieldChange: (String) -> Unit,
     onBlogClick: (Blog) -> Unit = {},
     onCreateBlogClick: () -> Unit = {},
+    onRetryClick: () -> Unit = {},
     searchUiState: SearchUiState,
 ) {
     Scaffold(
@@ -110,6 +114,7 @@ private fun SearchScreenContent(
         },
         floatingActionButton = {
             CreateBlogFabButton {
+                onCreateBlogClick()
             }
         },
     ) { innerPadding ->
@@ -146,9 +151,22 @@ private fun SearchScreenContent(
                     )
 
                 is SearchUiState.Error ->
-                    CenterMessage(
-                        modifier = Modifier.weight(1f),
-                        message = searchUiState.errorMessage,
+                    ErrorView(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        type = ErrorViewType.GENERAL_ERROR,
+                        onActionClick = onRetryClick,
+                    )
+
+                is SearchUiState.EmptyResult ->
+                    ErrorView(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        type = ErrorViewType.EMPTY_RESULT_BLOG,
                     )
 
                 is SearchUiState.Success -> {
@@ -187,6 +205,7 @@ fun CenterMessage(
         Text(
             message,
             style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
         )
     }
 }

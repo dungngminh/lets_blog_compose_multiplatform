@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -176,7 +177,6 @@ class PreviewBlogScreen(
                 },
                 onCategoryClick = viewModel::changeCategory,
                 onTitleChange = viewModel::changeTitle,
-                onImageChange = viewModel::changeImageFile,
                 isCategoryDropDownExpanded = isCategoryDropDownExpanded,
                 imagePickerLauncher = imagePickerLauncher,
                 onCategoryDropDownExpandedChange = { isCategoryDropDownExpanded = it },
@@ -233,7 +233,6 @@ fun PreviewBlogCompactContent(
     onCreateBlockClick: () -> Unit = {},
     onCategoryClick: (BlogCategory) -> Unit = {},
     onTitleChange: (String) -> Unit = {},
-    onImageChange: (PlatformFile?) -> Unit = {},
     onDeleteImageClick: () -> Unit,
     isCategoryDropDownExpanded: Boolean = true,
     imagePickerLauncher: PickerResultLauncher,
@@ -261,11 +260,17 @@ fun PreviewBlogCompactContent(
             item {
                 Text(
                     stringResource(Res.string.create_blog_preview_blog_image),
-                    style = MaterialTheme.typography.titleMedium,
+                    style =
+                        MaterialTheme
+                            .typography.titleMedium
+                            .copy(fontWeight = FontWeight.Medium),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 PreviewImageBox(
-                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(350.dp),
                     imageFile = createBlogPreviewUiState.imageFile,
                     networkImage = createBlogPreviewUiState.networkImageUrl,
                     onPickImageClick = {
@@ -300,9 +305,12 @@ fun PreviewBlogCompactContent(
             item {
                 Text(
                     stringResource(Res.string.create_blog_preview_blog_content_title),
-                    style = MaterialTheme.typography.titleMedium,
+                    style =
+                        MaterialTheme
+                            .typography.titleMedium
+                            .copy(fontWeight = FontWeight.Medium),
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 RichText(
                     state = richTextState,
                     modifier = Modifier.fillMaxWidth(),

@@ -10,12 +10,14 @@ import com.hoc081098.flowext.flowFromSuspend
 import com.hoc081098.flowext.startWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
 
@@ -30,6 +32,8 @@ sealed class SearchUiState {
         val searchedBlogs: List<Blog> = emptyList(),
     ) : SearchUiState()
 
+    data object EmptyResult : SearchUiState()
+
     data class Error(
         val errorMessage: String,
     ) : SearchUiState()
@@ -41,10 +45,12 @@ class SearchViewModel(
     var searchFieldState by mutableStateOf("")
         private set
 
+    private val retryFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    val searchState =
+    private val searchFlow =
         snapshotFlow { searchFieldState }
-            .debounce(350)
+            .debounce(SEARCH_DEBOUNCE_TIME)
             .flatMapLatest { query ->
                 if (query.trim().length < SEARCH_MIN_QUERY_LENGTH) {
                     flowOf(SearchUiState.EmptyQuery)
@@ -70,7 +76,14 @@ class SearchViewModel(
                         )
                     }.startWith(SearchUiState.Loading)
                 }
-            }.stateIn(
+            }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val searchState =
+        retryFlow
+            .startWith(Unit)
+            .flatMapLatest { searchFlow }
+            .stateIn(
                 scope = screenModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = SearchUiState.Idle,
@@ -79,6 +92,17 @@ class SearchViewModel(
     fun onSearchChange(searchQuery: String) {
         searchFieldState = searchQuery
     }
-}
 
-const val SEARCH_MIN_QUERY_LENGTH = 3
+    fun retry() {
+        if (searchState.value is SearchUiState.Error) {
+            screenModelScope.launch {
+                retryFlow.emit(Unit)
+            }
+        }
+    }
+
+    companion object {
+        private const val SEARCH_MIN_QUERY_LENGTH = 3
+        private const val SEARCH_DEBOUNCE_TIME = 350L
+    }
+}

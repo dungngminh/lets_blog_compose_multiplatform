@@ -56,6 +56,7 @@ import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.general_blog_count
 import letsblogkmp.composeapp.generated.resources.ic_pencil
 import letsblogkmp.composeapp.generated.resources.ic_setting
+import letsblogkmp.composeapp.generated.resources.profile_screen_no_blog
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.User
@@ -63,6 +64,7 @@ import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.components.ErrorView
 import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
+import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.edit_user_profile.EditUserProfileScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
@@ -78,9 +80,9 @@ import org.jetbrains.compose.resources.stringResource
 object ProfileTab : Tab {
     @Composable
     override fun Content() {
-        val parent = LocalNavigator.currentOrThrow.parent ?: return
+        val rootNavigator = LocalNavigator.currentOrThrow.parent ?: return
 
-        val userSessionViewModel = parent.koinNavigatorScreenModel<UserSessionViewModel>()
+        val userSessionViewModel = rootNavigator.koinNavigatorScreenModel<UserSessionViewModel>()
 
         val userProfileViewModel = koinScreenModel<ProfileViewModel>()
 
@@ -94,7 +96,7 @@ object ProfileTab : Tab {
             ProfileScreenExpandedContent(
                 userSessionState = userSessionState,
                 onLoginClick = {
-                    parent.push(SignInScreen)
+                    rootNavigator.push(SignInScreen)
                 },
                 onRefresh = {
                     userProfileViewModel.refresh()
@@ -103,14 +105,14 @@ object ProfileTab : Tab {
                 onRetryClick = {
                 },
                 onSettingClick = {
-                    parent.push(SettingScreen)
+                    rootNavigator.push(SettingScreen)
                 },
                 onEditProfileClick = {
-                    parent.push(EditUserProfileScreen)
+                    rootNavigator.push(EditUserProfileScreen)
                 },
                 userBlogState = userBlogState,
                 onBlogClick = { blog ->
-                    parent.push(DetailBlogScreen(blog))
+                    rootNavigator.push(DetailBlogScreen(blog))
                 },
             )
         } else {
@@ -118,7 +120,7 @@ object ProfileTab : Tab {
                 userSessionState = userSessionState,
                 userBlogState = userBlogState,
                 onLoginClick = {
-                    parent.push(SignInScreen)
+                    rootNavigator.push(SignInScreen)
                 },
                 onRefresh = {
                     userProfileViewModel.refresh()
@@ -128,13 +130,16 @@ object ProfileTab : Tab {
                     userSessionViewModel.refresh()
                 },
                 onSettingClick = {
-                    parent.push(SettingScreen)
+                    rootNavigator.push(SettingScreen)
                 },
                 onEditProfileClick = {
-                    parent.push(EditUserProfileScreen)
+                    rootNavigator.push(EditUserProfileScreen)
                 },
                 onBlogClick = { blog ->
-                    parent.push(DetailBlogScreen(blog))
+                    rootNavigator.push(DetailBlogScreen(blog))
+                },
+                onCreateBlogClick = {
+                    rootNavigator.push(CreateBlogScreen)
                 },
             )
         }
@@ -173,13 +178,14 @@ private fun ProfileScreenExpandedContent(
 private fun ProfileScreenContent(
     modifier: Modifier = Modifier,
     userSessionState: UserSessionState,
-    onLoginClick: () -> Unit,
-    onRefresh: () -> Unit,
-    onRetryClick: () -> Unit,
-    onSettingClick: () -> Unit,
-    onEditProfileClick: () -> Unit,
-    onBlogClick: (Blog) -> Unit,
     userBlogState: UserBlogState,
+    onLoginClick: () -> Unit = {},
+    onRefresh: () -> Unit = {},
+    onRetryClick: () -> Unit = {},
+    onSettingClick: () -> Unit = {},
+    onEditProfileClick: () -> Unit = {},
+    onBlogClick: (Blog) -> Unit = {},
+    onCreateBlogClick: () -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -212,7 +218,7 @@ private fun ProfileScreenContent(
                             .fillMaxSize()
                             .padding(horizontal = 16.dp),
                     type = ErrorViewType.GENERAL_ERROR,
-                    onRetryActionClick = onRetryClick,
+                    onActionClick = onRetryClick,
                 )
 
             UserSessionState.Unauthenticated ->
@@ -234,6 +240,7 @@ private fun ProfileScreenContent(
                         onRefresh = onRefresh,
                         userBlogState = userBlogState,
                         onBlogClick = onBlogClick,
+                        onCreateBlogClick = onCreateBlogClick,
                     )
                 }
             }
@@ -245,9 +252,10 @@ private fun ProfileScreenContent(
 @Composable
 fun AuthenticatedProfileScreen(
     modifier: Modifier = Modifier,
-    onRefresh: () -> Unit,
     userBlogState: UserBlogState,
+    onRefresh: () -> Unit = {},
     onBlogClick: (Blog) -> Unit = {},
+    onCreateBlogClick: () -> Unit = {},
 ) {
     when (userBlogState) {
         UserBlogState.Loading, UserBlogState.Uninitialized ->
@@ -259,14 +267,14 @@ fun AuthenticatedProfileScreen(
             ErrorView(
                 modifier = modifier.fillMaxWidth(),
                 type = ErrorViewType.GENERAL_ERROR,
-                onRetryActionClick = onRefresh,
+                onActionClick = onRefresh,
             )
 
         UserBlogState.EmptyBlog -> {
             ErrorView(
                 modifier = modifier.fillMaxWidth(),
                 type = ErrorViewType.EMPTY_USER_BLOG,
-                onRetryActionClick = onRefresh,
+                onActionClick = onCreateBlogClick,
             )
         }
 
@@ -277,7 +285,7 @@ fun AuthenticatedProfileScreen(
                 onRefresh = onRefresh,
             ) {
                 LazyColumn(
-                    modifier = modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                 ) {
                     itemsIndexed(
@@ -348,11 +356,16 @@ fun ProfileAppBar(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        pluralStringResource(
-                            Res.plurals.general_blog_count,
-                            user.blogCount,
-                            user.blogCount,
-                        ),
+                        if (user.blogCount == 0) {
+                            // Idk plural zero is not working
+                            stringResource(Res.string.profile_screen_no_blog)
+                        } else {
+                            pluralStringResource(
+                                Res.plurals.general_blog_count,
+                                user.blogCount,
+                                user.blogCount,
+                            )
+                        },
                         style =
                             MaterialTheme.typography.titleMedium.copy(
                                 fontSize = if (isExpanded) 16.sp else 14.sp,

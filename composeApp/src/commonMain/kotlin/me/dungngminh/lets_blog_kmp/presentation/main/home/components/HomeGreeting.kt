@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
@@ -48,13 +49,16 @@ fun HomeGreeting(
                     greetingByTime(),
                     username ?: stringResource(Res.string.general_my_friend),
                 ),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
             )
             Text(
                 stringResource(
                     Res.string.home_screen_welcome_to_lets_blog_label,
                 ),
-                style = MaterialTheme.typography.titleLarge,
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                    ),
             )
         }
         Box(
