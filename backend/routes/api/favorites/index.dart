@@ -25,6 +25,7 @@ Future<Response> _onFavoritesGetRequest(RequestContext context) {
       .queryFavoriteBlogsUserses(
         QueryParams(where: 'user_id=@id', values: {'id': userView.id}),
       )
+      .then((r) => r.where((e) => !e.blog.isDeleted).toList())
       .then((r) => r.map(GetUserFavoriteBlogResponse.fromView).toList())
       .then<Response>((res) => OkResponse(res.map((e) => e.toJson()).toList()))
       .onError((e, _) => InternalServerErrorResponse(e.toString()))

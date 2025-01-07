@@ -53,9 +53,11 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
         offset: (currentPage - 1) * limit,
         where: search.isNullOrEmpty
             ? 'is_deleted=false'
-            : '(title LIKE @search OR content LIKE @search) '
+            : '(LOWER(title) LIKE @search OR LOWER(content) LIKE @search) '
                 'AND is_deleted=false',
-        values: search.isNullOrEmpty ? null : {'search': '%$search%'},
+        values: search.isNullOrEmpty
+            ? null
+            : {'search': '%${search?.toLowerCase()}%'},
       ),
     );
     var favoriteBlogIds = <String>[];
