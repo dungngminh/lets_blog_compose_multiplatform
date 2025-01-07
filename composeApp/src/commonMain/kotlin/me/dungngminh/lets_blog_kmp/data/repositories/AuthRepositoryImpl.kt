@@ -37,6 +37,7 @@ class AuthRepositoryImpl(
                             password = password,
                         ),
                     )
+                clearToken()
                 val data = response.unwrap()
                 userStore.updateUserStoreData(
                     UserStoreData(
@@ -44,7 +45,6 @@ class AuthRepositoryImpl(
                         userId = data.id,
                     ),
                 )
-                httpClient.authProvider<BearerAuthProvider>()?.clearToken()
             }
         }
 
@@ -72,7 +72,11 @@ class AuthRepositoryImpl(
         }
 
     override suspend fun logout() {
+        clearToken()
         userStore.clearUserData()
+    }
+
+    private fun clearToken() {
         httpClient.authProvider<BearerAuthProvider>()?.clearToken()
     }
 }
