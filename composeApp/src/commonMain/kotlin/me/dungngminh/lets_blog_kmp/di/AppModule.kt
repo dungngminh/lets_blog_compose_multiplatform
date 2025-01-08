@@ -44,6 +44,7 @@ private val ViewModelModule =
                 blog = params.get(),
                 blogRepository = get(),
                 favoriteRepository = get(),
+                summaryContentRepository = get(),
             )
         }
 

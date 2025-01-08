@@ -43,7 +43,7 @@ fun BlogCard(
                 imageModel = { blog.imageUrl },
                 modifier =
                     Modifier
-                        .size(120.dp)
+                        .size(100.dp)
                         .clip(RoundedCornerShape(12.dp)),
                 imageOptions = ImageOptions(contentScale = ContentScale.Crop),
             )

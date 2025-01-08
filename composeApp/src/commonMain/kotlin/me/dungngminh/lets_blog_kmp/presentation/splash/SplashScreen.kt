@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -66,8 +65,6 @@ private fun SplashScreenContent(
     modifier: Modifier = Modifier,
     onSplashDone: () -> Unit,
 ) {
-    val currentOnSplashDone by rememberUpdatedState(onSplashDone)
-
     val lottieComposition by rememberLottieComposition {
         LottieCompositionSpec.DotLottie(
             Res.readBytes("files/splash.lottie"),
@@ -80,7 +77,7 @@ private fun SplashScreenContent(
 
     LaunchedEffect(isSplashDone) {
         if (isSplashDone) {
-            currentOnSplashDone()
+            onSplashDone()
         }
     }
 

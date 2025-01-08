@@ -118,4 +118,7 @@
     <string name="home_screen_no_blog_label"> Please come back later</string>
     <string name="profile_screen_you_dont_have_any_blog_label">You don't have any blog\nLet's create new one</string>
     <string name="search_screen_empty_result_blog_label">No blog found</string>
+    <string name="summary_screen_summary_title">Summary</string>
+    <string name="summary_screen_ai_is_summarizing">AI is summarizing</string>
+    <string name="summary_screen_fab_label">Summarize content</string>
 </resources>

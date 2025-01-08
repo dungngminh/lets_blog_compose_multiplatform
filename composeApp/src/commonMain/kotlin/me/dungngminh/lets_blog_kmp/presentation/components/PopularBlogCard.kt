@@ -55,8 +55,8 @@ fun PopularBlogCard(
             modifier
                 .size(
                     when {
-                        isExtendedScreen -> 400.dp
-                        isMediumScreen -> 320.dp
+                        isExtendedScreen -> 350.dp
+                        isMediumScreen -> 290.dp
                         else -> 260.dp
                     },
                 ).clip(RoundedCornerShape(24.dp))

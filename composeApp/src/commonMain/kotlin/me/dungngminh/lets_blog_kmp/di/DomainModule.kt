@@ -4,12 +4,14 @@ import me.dungngminh.lets_blog_kmp.data.repositories.AppSettingRepositoryImpl
 import me.dungngminh.lets_blog_kmp.data.repositories.AuthRepositoryImpl
 import me.dungngminh.lets_blog_kmp.data.repositories.BlogRepositoryImpl
 import me.dungngminh.lets_blog_kmp.data.repositories.FavoriteRepositoryImpl
+import me.dungngminh.lets_blog_kmp.data.repositories.SummaryContentRepositoryImpl
 import me.dungngminh.lets_blog_kmp.data.repositories.UploadDocumentRepositoryImpl
 import me.dungngminh.lets_blog_kmp.data.repositories.UserRepositoryImpl
 import me.dungngminh.lets_blog_kmp.domain.repositories.AppSettingRepository
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
 import me.dungngminh.lets_blog_kmp.domain.repositories.FavoriteRepository
+import me.dungngminh.lets_blog_kmp.domain.repositories.SummaryContentRepository
 import me.dungngminh.lets_blog_kmp.domain.repositories.UploadDocumentRepository
 import me.dungngminh.lets_blog_kmp.domain.repositories.UserRepository
 import org.koin.dsl.module
@@ -50,6 +52,12 @@ internal val DomainModule =
         single<FavoriteRepository> {
             FavoriteRepositoryImpl(
                 favoriteService = get(),
+                ioDispatcher = ioDispatcher,
+            )
+        }
+        single<SummaryContentRepository> {
+            SummaryContentRepositoryImpl(
+                generativeModel = get(),
                 ioDispatcher = ioDispatcher,
             )
         }

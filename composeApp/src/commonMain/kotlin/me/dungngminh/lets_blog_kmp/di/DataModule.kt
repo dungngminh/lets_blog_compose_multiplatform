@@ -6,6 +6,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.russhwolf.settings.observable.makeObservable
 import de.jensklingenberg.ktorfit.Ktorfit
+import dev.shreyaspatil.ai.client.generativeai.GenerativeModel
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -91,8 +92,8 @@ private val httpModule =
             Ktorfit
                 .Builder()
                 .httpClient(get<HttpClient>())
-                .baseUrl("http://192.168.1.33:8080/")
-//                .baseUrl("https://letsblog.up.railway.app/")
+//                .baseUrl("http://192.168.1.113:8080/")
+                .baseUrl("https://letsblog.up.railway.app/")
                 .build()
         }
     }
@@ -134,9 +135,20 @@ private val LocalModule =
         single<AppSettingStore> { AppSettingStore(get()) }
     }
 
+private val GenerativeAIModule =
+    module {
+        single {
+            GenerativeModel(
+                modelName = "gemini-1.5-flash-8b",
+                apiKey = "PASTE-YOUR-GEMINI-KEY-HERE",
+            )
+        }
+    }
+
 internal val DataModule =
     module {
         includes(LocalModule)
         includes(httpModule)
         includes(ApiModule)
+        includes(GenerativeAIModule)
     }

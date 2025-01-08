@@ -2,14 +2,20 @@ package me.dungngminh.lets_blog_kmp.presentation.detail_blog
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.hoc081098.flowext.flowFromSuspend
+import com.hoc081098.flowext.startWith
 import com.mohamedrejeb.richeditor.model.RichTextState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.repositories.BlogRepository
 import me.dungngminh.lets_blog_kmp.domain.repositories.FavoriteRepository
+import me.dungngminh.lets_blog_kmp.domain.repositories.SummaryContentRepository
 
 data class DetailBlogState(
     val blog: Blog,
@@ -27,7 +33,7 @@ sealed class SummaryBlogContentState {
     ) : SummaryBlogContentState()
 
     data class Success(
-        val summaryContent: String,
+        val summarizedContent: String,
     ) : SummaryBlogContentState()
 }
 
@@ -35,6 +41,7 @@ class DetailBlogViewModel(
     blog: Blog,
     private val favoriteRepository: FavoriteRepository,
     private val blogRepository: BlogRepository,
+    private val summaryContentRepository: SummaryContentRepository,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(DetailBlogState(blog = blog))
     val uiState =
@@ -45,7 +52,24 @@ class DetailBlogViewModel(
             .setHtml(blog.content)
             .toText()
 
-//    private val summaryContentFlow =
+    val summaryContentState =
+        flowFromSuspend {
+            summaryContentRepository.summaryContent(textBlogContent)
+        }.map { summaryResult ->
+            summaryResult.fold(
+                onSuccess = {
+                    SummaryBlogContentState.Success(it.orEmpty())
+                },
+                onFailure = {
+                    SummaryBlogContentState.Error(it.message ?: "Unknown Error")
+                },
+            )
+        }.startWith(SummaryBlogContentState.Loading)
+            .stateIn(
+                scope = screenModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = SummaryBlogContentState.Initial,
+            )
 
     val currentBlogState: DetailBlogState
         get() = _uiState.value

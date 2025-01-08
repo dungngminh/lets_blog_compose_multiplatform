@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOut
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,17 +20,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -58,20 +67,25 @@ import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
+import letsblogkmp.composeapp.generated.resources.ic_gemini
 import letsblogkmp.composeapp.generated.resources.ic_pencil
 import letsblogkmp.composeapp.generated.resources.ic_trash
+import letsblogkmp.composeapp.generated.resources.summary_screen_fab_label
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.fromJsonStr
 import me.dungngminh.lets_blog_kmp.commons.extensions.timeAgo
 import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
+import me.dungngminh.lets_blog_kmp.presentation.detail_blog.summary.SummaryBlogContentBottomSheet
 import me.dungngminh.lets_blog_kmp.presentation.edit_blog.EditBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.login.LoginScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalVoyagerApi::class)
@@ -97,7 +111,17 @@ data class DetailBlogScreen(
 
         val detailBlogState by viewModel.uiState.collectAsStateWithLifecycle()
 
+        val summaryContentState by viewModel.summaryContentState.collectAsStateWithLifecycle()
+
         val blogContentRichTextState = rememberRichTextState()
+
+        val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        val coroutineScope = rememberCoroutineScope()
+
+        var isSummaryBlogBottomSheetShown by remember { mutableStateOf(false) }
 
         LaunchedEffect(blogId) {
             blogContentRichTextState.setHtml(blog?.content.orEmpty())
@@ -118,6 +142,10 @@ data class DetailBlogScreen(
         DetailBlogScreenContent(
             blog = detailBlogState.blog,
             userSessionState = userSessionState,
+            summaryBlogContentState = summaryContentState,
+            snackbarHostState = snackbarHostState,
+            blogContentRichTextState = blogContentRichTextState,
+            isLargeScreen = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact,
             onBackClick = navigator::pop,
             onFavoriteClick = {
                 viewModel.favoriteBlog()
@@ -132,7 +160,13 @@ data class DetailBlogScreen(
                 navigator.push(EditBlogScreen(detailBlogState.blog.toJsonStr()))
             },
             onDeleteClick = viewModel::deleteBlog,
-            blogContentRichTextState = blogContentRichTextState,
+            onSummaryBlogClick = {
+                isSummaryBlogBottomSheetShown = true
+            },
+            isSummaryBottomSheetShown = isSummaryBlogBottomSheetShown,
+            onSummaryBottomSheetDismiss = {
+                isSummaryBlogBottomSheetShown = false
+            },
         )
     }
 
@@ -149,11 +183,14 @@ data class DetailBlogScreen(
         }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailBlogScreenContent(
     blog: Blog,
+    snackbarHostState: SnackbarHostState,
     userSessionState: UserSessionState,
     blogContentRichTextState: RichTextState,
+    summaryBlogContentState: SummaryBlogContentState,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onFavoriteClick: (Blog) -> Unit,
@@ -161,9 +198,14 @@ fun DetailBlogScreenContent(
     onUnAuthenticatedFavoriteClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
+    isLargeScreen: Boolean = false,
+    isSummaryBottomSheetShown: Boolean = false,
+    onSummaryBottomSheetDismiss: () -> Unit = {},
+    onSummaryBlogClick: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             DetailBlogAppBar(
                 blog = blog,
@@ -176,13 +218,33 @@ fun DetailBlogScreenContent(
                 onDeleteClick = onDeleteClick,
             )
         },
+        floatingActionButton = {
+            SummaryBlogFabButton(onFabClick = onSummaryBlogClick)
+        },
     ) { innerPadding ->
+
+        if (isSummaryBottomSheetShown) {
+            ModalBottomSheet(
+                modifier = Modifier,
+                onDismissRequest = onSummaryBottomSheetDismiss,
+            ) {
+                SummaryBlogContentBottomSheet(
+                    summaryBlogContentState = summaryBlogContentState,
+                )
+            }
+        }
+
         LazyColumn(
             modifier =
                 Modifier
                     .padding(innerPadding)
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .fillMaxSize(),
+            contentPadding =
+                PaddingValues(
+                    bottom = 42.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                ),
         ) {
             item(contentType = "blog_image") {
                 CoilImage(
@@ -221,7 +283,18 @@ fun DetailBlogScreenContent(
                 Spacer(modifier = Modifier.height(16.dp))
             }
             item(contentType = "blog_content") {
-                RichText(blogContentRichTextState)
+                if (isLargeScreen) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Spacer(modifier = Modifier.weight(0.3f))
+                        RichText(
+                            blogContentRichTextState,
+                            modifier = Modifier.weight(0.6f),
+                        )
+                        Spacer(modifier = Modifier.weight(0.3f))
+                    }
+                } else {
+                    RichText(blogContentRichTextState)
+                }
             }
         }
     }
@@ -249,10 +322,10 @@ fun DetailBlogCreatorInfo(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
-                blog.creator.name.orEmpty(),
+                blog.creator.name,
                 style =
                     MaterialTheme
-                        .typography.titleSmall
+                        .typography.titleMedium
                         .copy(fontWeight = FontWeight.SemiBold),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -261,7 +334,7 @@ fun DetailBlogCreatorInfo(
                 blog.createdAt.timeAgo(),
                 style =
                     MaterialTheme
-                        .typography.bodySmall,
+                        .typography.bodyMedium,
             )
         }
     }
@@ -298,8 +371,7 @@ fun DetailBlogAppBar(
                 )
             }
         },
-        title = {
-        },
+        title = {},
         actions = {
             if (isBlogCreatorSameAsUser) {
                 IconButton(onClick = onEditClick) {
@@ -330,6 +402,25 @@ fun DetailBlogAppBar(
 }
 
 @Composable
+fun SummaryBlogFabButton(
+    modifier: Modifier = Modifier,
+    onFabClick: () -> Unit,
+) {
+    ExtendedFloatingActionButton(
+        modifier = modifier,
+        onClick = onFabClick,
+    ) {
+        Icon(
+            painterResource(Res.drawable.ic_gemini),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(stringResource(Res.string.summary_screen_fab_label))
+    }
+}
+
+@Composable
 fun DetailScreenFavoriteButton(
     modifier: Modifier = Modifier,
     blog: Blog,
@@ -356,13 +447,9 @@ fun DetailScreenFavoriteButton(
         ) {
             Icon(
                 if (blog.isFavoriteByUser == true) {
-                    painterResource(
-                        Res.drawable.ic_favorite_filled,
-                    )
+                    painterResource(Res.drawable.ic_favorite_filled)
                 } else {
-                    painterResource(
-                        Res.drawable.ic_favorite,
-                    )
+                    painterResource(Res.drawable.ic_favorite)
                 },
                 contentDescription = "favorite_button",
                 modifier = Modifier.size(24.dp),
@@ -391,6 +478,7 @@ fun DetailScreenFavoriteButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun Preview_DetailBlogScreenContent() {
@@ -431,5 +519,8 @@ fun Preview_DetailBlogScreenContent() {
         onUnAuthenticatedFavoriteClick = {},
         onUnFavoriteClick = {},
         blogContentRichTextState = rememberRichTextState(),
+        summaryBlogContentState = SummaryBlogContentState.Initial,
+        onSummaryBlogClick = {},
+        snackbarHostState = remember { SnackbarHostState() },
     )
 }

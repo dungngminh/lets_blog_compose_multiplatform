@@ -155,6 +155,9 @@ kotlin {
 
             // Filekit
             implementation(libs.filekit.compose)
+
+            // Gemini
+            implementation(libs.generativeAi)
         }
 
         desktopMain.dependencies {
