@@ -255,25 +255,24 @@ buildkonfig {
     packageName = "me.dungngminh.lets_blog_kmp"
 
     defaultConfigs {
-        val envProperties = readProperty("env.properties")
+        val envProperties = readProperty("env.properties") ?: return@defaultConfigs
         buildConfigField(STRING, "BASE_URL", envProperties.getProperty("BASE_URL"))
         buildConfigField(STRING, "GEMINI_KEY", envProperties.getProperty("GEMINI_KEY"))
     }
-    // flavor is passed as a first argument of defaultConfigs
     defaultConfigs("dev") {
-        val envProperties = readProperty("env.dev.properties")
+        val envProperties = readProperty("env.dev.properties") ?: return@defaultConfigs
         buildConfigField(STRING, "BASE_URL", envProperties.getProperty("BASE_URL"))
         buildConfigField(STRING, "GEMINI_KEY", envProperties.getProperty("GEMINI_KEY"))
     }
 }
 
-fun readProperty(fileName: String): Properties {
+fun readProperty(fileName: String): Properties? {
     val localProperties = Properties()
     val file = project.rootProject.file(fileName)
     if (file.exists()) {
         localProperties.load(file.inputStream())
         return localProperties
     } else {
-        error("File $fileName is not found")
+        return null
     }
 }
