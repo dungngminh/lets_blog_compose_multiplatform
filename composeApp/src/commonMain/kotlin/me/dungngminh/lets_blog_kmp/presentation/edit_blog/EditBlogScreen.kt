@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.IntOffset
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
-import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -32,11 +31,12 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalVoyagerApi::class)
 class EditBlogScreen(
+    private val blogId: String,
     private val blogData: String,
 ) : Screen,
     ScreenTransition {
     override val key: ScreenKey
-        get() = uniqueScreenKey
+        get() = "EditBlogScreen($blogId)"
 
     @Composable
     override fun Content() {

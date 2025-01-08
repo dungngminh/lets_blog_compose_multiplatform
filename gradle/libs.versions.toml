@@ -36,6 +36,7 @@ landscapistCoil3 = "2.4.4"
 richeditor = "1.0.0-rc10"
 filekit = "0.8.8"
 generativeai = "0.9.0-1.0.1-wasm"
+buildKonfig = "0.15.2"
 
 [libraries]
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -121,3 +122,4 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 spotless = { id = "com.diffplug.spotless", version.ref = "spotlessPlugin" }
 googleKsp = { id = "com.google.devtools.ksp", version.ref = "kspPlugin" }
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
+buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }

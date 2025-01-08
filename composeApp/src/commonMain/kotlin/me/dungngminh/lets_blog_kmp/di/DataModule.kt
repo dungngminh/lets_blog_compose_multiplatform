@@ -24,6 +24,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import me.dungngminh.lets_blog_kmp.BuildKonfig
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
 import me.dungngminh.lets_blog_kmp.data.api_service.BlogService
 import me.dungngminh.lets_blog_kmp.data.api_service.FavoriteService
@@ -92,8 +93,7 @@ private val httpModule =
             Ktorfit
                 .Builder()
                 .httpClient(get<HttpClient>())
-//                .baseUrl("http://192.168.1.113:8080/")
-                .baseUrl("https://letsblog.up.railway.app/")
+                .baseUrl(BuildKonfig.BASE_URL)
                 .build()
         }
     }
@@ -140,7 +140,7 @@ private val GenerativeAIModule =
         single {
             GenerativeModel(
                 modelName = "gemini-1.5-flash-8b",
-                apiKey = "PASTE-YOUR-GEMINI-KEY-HERE",
+                apiKey = BuildKonfig.GEMINI_KEY,
             )
         }
     }

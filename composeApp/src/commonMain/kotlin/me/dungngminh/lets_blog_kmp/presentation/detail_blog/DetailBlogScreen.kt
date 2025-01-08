@@ -158,7 +158,12 @@ data class DetailBlogScreen(
                 navigator.push(LoginScreen)
             },
             onEditClick = {
-                navigator.push(EditBlogScreen(detailBlogState.blog.toJsonStr()))
+                navigator.push(
+                    EditBlogScreen(
+                        blogId = detailBlogState.blog.id,
+                        blogData = detailBlogState.blog.toJsonStr(),
+                    ),
+                )
             },
             onDeleteClick = viewModel::deleteBlog,
             onSummaryBlogClick = {

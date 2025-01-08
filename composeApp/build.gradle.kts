@@ -1,9 +1,11 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -13,6 +15,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.googleKsp)
     alias(libs.plugins.ktorfit)
+    alias(libs.plugins.buildKonfig)
 }
 
 kotlin {
@@ -245,5 +248,32 @@ compose.desktop {
                 modules("jdk.security.auth")
             }
         }
+    }
+}
+
+buildkonfig {
+    packageName = "me.dungngminh.lets_blog_kmp"
+
+    defaultConfigs {
+        val envProperties = readProperty("env.properties")
+        buildConfigField(STRING, "BASE_URL", envProperties.getProperty("BASE_URL"))
+        buildConfigField(STRING, "GEMINI_KEY", envProperties.getProperty("GEMINI_KEY"))
+    }
+    // flavor is passed as a first argument of defaultConfigs
+    defaultConfigs("dev") {
+        val envProperties = readProperty("env.dev.properties")
+        buildConfigField(STRING, "BASE_URL", envProperties.getProperty("BASE_URL"))
+        buildConfigField(STRING, "GEMINI_KEY", envProperties.getProperty("GEMINI_KEY"))
+    }
+}
+
+fun readProperty(fileName: String): Properties {
+    val localProperties = Properties()
+    val file = project.rootProject.file(fileName)
+    if (file.exists()) {
+        localProperties.load(file.inputStream())
+        return localProperties
+    } else {
+        error("File $fileName is not found")
     }
 }

@@ -16,3 +16,5 @@ captures
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
+env.dev.properties
+env.properties
