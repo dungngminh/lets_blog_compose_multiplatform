@@ -42,6 +42,7 @@ import org.jetbrains.compose.resources.stringResource
 fun SummaryBlogContentBottomSheet(
     modifier: Modifier = Modifier,
     summaryBlogContentState: SummaryBlogContentState,
+    onRetryClick: () -> Unit,
 ) {
     Column(
         modifier =
@@ -58,7 +59,10 @@ fun SummaryBlogContentBottomSheet(
 
             is SummaryBlogContentState.Error ->
                 ErrorView(
+                    modifier = Modifier.fillMaxWidth(),
                     type = ErrorViewType.GENERAL_ERROR,
+                    skipSpacing = true,
+                    onActionClick = onRetryClick,
                 )
 
             is SummaryBlogContentState.Success ->

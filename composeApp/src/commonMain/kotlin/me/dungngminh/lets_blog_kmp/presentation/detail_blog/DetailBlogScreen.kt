@@ -146,6 +146,7 @@ data class DetailBlogScreen(
             snackbarHostState = snackbarHostState,
             blogContentRichTextState = blogContentRichTextState,
             isLargeScreen = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact,
+            isSummaryBottomSheetShown = isSummaryBlogBottomSheetShown,
             onBackClick = navigator::pop,
             onFavoriteClick = {
                 viewModel.favoriteBlog()
@@ -163,10 +164,10 @@ data class DetailBlogScreen(
             onSummaryBlogClick = {
                 isSummaryBlogBottomSheetShown = true
             },
-            isSummaryBottomSheetShown = isSummaryBlogBottomSheetShown,
             onSummaryBottomSheetDismiss = {
                 isSummaryBlogBottomSheetShown = false
             },
+            onSummaryBlogRetry = viewModel::retrySummaryBlog,
         )
     }
 
@@ -186,22 +187,23 @@ data class DetailBlogScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailBlogScreenContent(
+    modifier: Modifier = Modifier,
     blog: Blog,
     snackbarHostState: SnackbarHostState,
     userSessionState: UserSessionState,
     blogContentRichTextState: RichTextState,
     summaryBlogContentState: SummaryBlogContentState,
-    modifier: Modifier = Modifier,
+    isLargeScreen: Boolean = false,
+    isSummaryBottomSheetShown: Boolean = false,
     onBackClick: () -> Unit,
     onFavoriteClick: (Blog) -> Unit,
     onUnFavoriteClick: (Blog) -> Unit,
     onUnAuthenticatedFavoriteClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
-    isLargeScreen: Boolean = false,
-    isSummaryBottomSheetShown: Boolean = false,
     onSummaryBottomSheetDismiss: () -> Unit = {},
     onSummaryBlogClick: () -> Unit = {},
+    onSummaryBlogRetry: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
@@ -230,6 +232,7 @@ fun DetailBlogScreenContent(
             ) {
                 SummaryBlogContentBottomSheet(
                     summaryBlogContentState = summaryBlogContentState,
+                    onRetryClick = onSummaryBlogRetry,
                 )
             }
         }

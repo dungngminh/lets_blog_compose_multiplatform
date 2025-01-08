@@ -67,12 +67,15 @@ fun ErrorView(
     modifier: Modifier = Modifier,
     type: ErrorViewType,
     onActionClick: () -> Unit = {},
+    skipSpacing: Boolean = false,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.weight(0.4f))
+        if (!skipSpacing) {
+            Spacer(modifier = Modifier.weight(0.4f))
+        }
         Image(
             painterResource(type.drawableRes),
             contentDescription = null,
@@ -94,6 +97,8 @@ fun ErrorView(
                 Text(stringResource(type.actionButtonMessageRes))
             }
         }
-        Spacer(modifier = Modifier.weight(0.6f))
+        if (!skipSpacing) {
+            Spacer(modifier = Modifier.weight(0.6f))
+        }
     }
 }

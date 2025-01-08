@@ -5,9 +5,12 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.hoc081098.flowext.flowFromSuspend
 import com.hoc081098.flowext.startWith
 import com.mohamedrejeb.richeditor.model.RichTextState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -52,7 +55,9 @@ class DetailBlogViewModel(
             .setHtml(blog.content)
             .toText()
 
-    val summaryContentState =
+    private val retrySummaryBlogFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    private val summaryContentFlow =
         flowFromSuspend {
             summaryContentRepository.summaryContent(textBlogContent)
         }.map { summaryResult ->
@@ -65,13 +70,19 @@ class DetailBlogViewModel(
                 },
             )
         }.startWith(SummaryBlogContentState.Loading)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val summaryContentState =
+        retrySummaryBlogFlow
+            .startWith(Unit)
+            .flatMapLatest { summaryContentFlow }
             .stateIn(
                 scope = screenModelScope,
                 started = SharingStarted.Lazily,
                 initialValue = SummaryBlogContentState.Initial,
             )
 
-    val currentBlogState: DetailBlogState
+    private val currentBlogState: DetailBlogState
         get() = _uiState.value
 
     fun favoriteBlog() {
@@ -110,6 +121,14 @@ class DetailBlogViewModel(
                         state.copy(deleteError = it.message)
                     }
                 }
+        }
+    }
+
+    fun retrySummaryBlog() {
+        screenModelScope.launch {
+            if (summaryContentState.value is SummaryBlogContentState.Error) {
+                retrySummaryBlogFlow.emit(Unit)
+            }
         }
     }
 }
