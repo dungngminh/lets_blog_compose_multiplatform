@@ -10,6 +10,7 @@ import com.hoc081098.flowext.flowFromSuspend
 import com.hoc081098.flowext.startWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
@@ -63,22 +64,8 @@ class SearchViewModel(
                                 offset = 1,
                                 blogCategory = null,
                             )
-                    }.map { result ->
-                        result.fold(
-                            onSuccess = { blogs ->
-                                if (blogs.isEmpty()) {
-                                    SearchUiState.EmptyResult
-                                } else {
-                                    SearchUiState.Success(searchedBlogs = blogs)
-                                }
-                            },
-                            onFailure = { error ->
-                                SearchUiState.Error(
-                                    errorMessage = error.message ?: "Unknown error",
-                                )
-                            },
-                        )
-                    }.startWith(SearchUiState.Loading)
+                    }.mapToSearchState()
+                        .startWith(SearchUiState.Loading)
                 }
             }
 
@@ -89,9 +76,27 @@ class SearchViewModel(
             .flatMapLatest { searchFlow }
             .stateIn(
                 scope = screenModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.Lazily,
                 initialValue = SearchUiState.Idle,
             )
+
+    private fun Flow<Result<List<Blog>>>.mapToSearchState(): Flow<SearchUiState> =
+        this.map { result ->
+            result.fold(
+                onSuccess = { blogs ->
+                    if (blogs.isEmpty()) {
+                        SearchUiState.EmptyResult
+                    } else {
+                        SearchUiState.Success(searchedBlogs = blogs)
+                    }
+                },
+                onFailure = { error ->
+                    SearchUiState.Error(
+                        errorMessage = error.message ?: "Unknown error",
+                    )
+                },
+            )
+        }
 
     fun onSearchChange(searchQuery: String) {
         searchFieldState = searchQuery

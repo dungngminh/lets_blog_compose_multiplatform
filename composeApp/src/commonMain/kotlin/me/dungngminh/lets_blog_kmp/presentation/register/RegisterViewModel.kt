@@ -1,4 +1,4 @@
-package me.dungngminh.lets_blog_kmp.presentation.sign_up
+package me.dungngminh.lets_blog_kmp.presentation.register
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -13,7 +13,7 @@ import me.dungngminh.lets_blog_kmp.commons.MIN_USERNAME_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.isValidEmail
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
-enum class SignUpValidationError {
+enum class RegisterValidationError {
     EMPTY_USERNAME,
     USERNAME_TOO_SHORT,
     EMPTY_EMAIL,
@@ -24,7 +24,7 @@ enum class SignUpValidationError {
     NONE,
 }
 
-data class SignUpState(
+data class RegisterState(
     val username: String = "",
     val email: String = "",
     val password: String = "",
@@ -33,30 +33,30 @@ data class SignUpState(
     val passwordVisible: Boolean = true,
     val confirmPasswordVisible: Boolean = true,
     val error: String? = null,
-    val usernameError: SignUpValidationError? = null,
-    val emailError: SignUpValidationError? = null,
-    val passwordError: SignUpValidationError? = null,
-    val confirmPasswordError: SignUpValidationError? = null,
-    val isSignUpFormValid: Boolean = false,
-    val isSignUpSuccess: Boolean = false,
+    val usernameError: RegisterValidationError? = null,
+    val emailError: RegisterValidationError? = null,
+    val passwordError: RegisterValidationError? = null,
+    val confirmPasswordError: RegisterValidationError? = null,
+    val isRegisterFormValid: Boolean = false,
+    val isRegisterSuccess: Boolean = false,
 )
 
-class SignUpViewModel(
+class RegisterViewModel(
     private val authRepository: AuthRepository,
 ) : ScreenModel {
-    private val _state = MutableStateFlow(SignUpState())
+    private val _state = MutableStateFlow(RegisterState())
     val state = _state
 
-    val currentState: SignUpState
+    val currentState: RegisterState
         get() = _state.value
 
     fun changeUsername(username: String) {
         val usernameInput = username.trim()
         val usernameError =
             when {
-                usernameInput.isEmpty() -> SignUpValidationError.EMPTY_USERNAME
-                usernameInput.length < MIN_USERNAME_LENGTH -> SignUpValidationError.USERNAME_TOO_SHORT
-                else -> SignUpValidationError.NONE
+                usernameInput.isEmpty() -> RegisterValidationError.EMPTY_USERNAME
+                usernameInput.length < MIN_USERNAME_LENGTH -> RegisterValidationError.USERNAME_TOO_SHORT
+                else -> RegisterValidationError.NONE
             }
 
         val isSignUpFormValid = isFormValid(usernameError = usernameError)
@@ -64,7 +64,7 @@ class SignUpViewModel(
             it.copy(
                 username = username,
                 usernameError = usernameError,
-                isSignUpFormValid = isSignUpFormValid,
+                isRegisterFormValid = isSignUpFormValid,
             )
         }
     }
@@ -72,9 +72,9 @@ class SignUpViewModel(
     fun changeEmail(email: String) {
         val emailError =
             when {
-                email.isEmpty() -> SignUpValidationError.EMPTY_EMAIL
-                !email.isValidEmail() -> SignUpValidationError.INVALID_EMAIL
-                else -> SignUpValidationError.NONE
+                email.isEmpty() -> RegisterValidationError.EMPTY_EMAIL
+                !email.isValidEmail() -> RegisterValidationError.INVALID_EMAIL
+                else -> RegisterValidationError.NONE
             }
 
         val isSignUpFormValid = isFormValid(emailError = emailError)
@@ -82,7 +82,7 @@ class SignUpViewModel(
             it.copy(
                 email = email,
                 emailError = emailError,
-                isSignUpFormValid = isSignUpFormValid,
+                isRegisterFormValid = isSignUpFormValid,
             )
         }
     }
@@ -90,9 +90,9 @@ class SignUpViewModel(
     fun changePassword(password: String) {
         val passwordError =
             when {
-                password.isEmpty() -> SignUpValidationError.EMPTY_PASSWORD
-                password.length < MIN_PASSWORD_LENGTH -> SignUpValidationError.PASSWORD_TOO_SHORT
-                else -> SignUpValidationError.NONE
+                password.isEmpty() -> RegisterValidationError.EMPTY_PASSWORD
+                password.length < MIN_PASSWORD_LENGTH -> RegisterValidationError.PASSWORD_TOO_SHORT
+                else -> RegisterValidationError.NONE
             }
 
         val isSignUpFormValid = isFormValid(passwordError = passwordError)
@@ -100,7 +100,7 @@ class SignUpViewModel(
             it.copy(
                 password = password,
                 passwordError = passwordError,
-                isSignUpFormValid = isSignUpFormValid,
+                isRegisterFormValid = isSignUpFormValid,
             )
         }
     }
@@ -108,9 +108,9 @@ class SignUpViewModel(
     fun changeConfirmPassword(confirmPassword: String) {
         val confirmPasswordError =
             when {
-                confirmPassword.isEmpty() -> SignUpValidationError.EMPTY_PASSWORD
-                confirmPassword != currentState.password -> SignUpValidationError.PASSWORDS_NOT_MATCH
-                else -> SignUpValidationError.NONE
+                confirmPassword.isEmpty() -> RegisterValidationError.EMPTY_PASSWORD
+                confirmPassword != currentState.password -> RegisterValidationError.PASSWORDS_NOT_MATCH
+                else -> RegisterValidationError.NONE
             }
 
         val isSignUpFormValid = isFormValid(confirmPasswordError = confirmPasswordError)
@@ -118,7 +118,7 @@ class SignUpViewModel(
             it.copy(
                 confirmPassword = confirmPassword,
                 confirmPasswordError = confirmPasswordError,
-                isSignUpFormValid = isSignUpFormValid,
+                isRegisterFormValid = isSignUpFormValid,
             )
         }
     }
@@ -135,7 +135,7 @@ class SignUpViewModel(
         }
     }
 
-    fun signUp() {
+    fun register() {
         flowFromSuspend {
             authRepository.register(
                 name = currentState.username,
@@ -151,7 +151,7 @@ class SignUpViewModel(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            isSignUpSuccess = true,
+                            isRegisterSuccess = true,
                         )
                     }
                 },
@@ -174,10 +174,10 @@ class SignUpViewModel(
     }
 
     private fun isFormValid(
-        usernameError: SignUpValidationError? = null,
-        emailError: SignUpValidationError? = null,
-        passwordError: SignUpValidationError? = null,
-        confirmPasswordError: SignUpValidationError? = null,
+        usernameError: RegisterValidationError? = null,
+        emailError: RegisterValidationError? = null,
+        passwordError: RegisterValidationError? = null,
+        confirmPasswordError: RegisterValidationError? = null,
     ): Boolean {
         val usernameValidationError = usernameError ?: currentState.usernameError
         val emailValidationError = emailError ?: currentState.emailError
@@ -191,6 +191,6 @@ class SignUpViewModel(
             emailValidationError,
             passwordValidationError,
             confirmPasswordValidationError,
-        ).all { it == SignUpValidationError.NONE }
+        ).all { it == RegisterValidationError.NONE }
     }
 }

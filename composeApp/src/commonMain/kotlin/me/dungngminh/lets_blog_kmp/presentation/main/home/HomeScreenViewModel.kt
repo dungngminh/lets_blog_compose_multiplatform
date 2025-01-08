@@ -32,7 +32,7 @@ class HomeScreenViewModel(
             .onStart { fetchBlogs() }
             .stateIn(
                 scope = screenModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.Lazily,
                 initialValue = HomeScreenUiState(),
             )
 

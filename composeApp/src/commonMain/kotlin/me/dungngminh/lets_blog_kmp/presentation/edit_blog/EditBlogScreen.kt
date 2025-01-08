@@ -9,9 +9,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntOffset
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -19,6 +22,7 @@ import cafe.adriel.voyager.transitions.ScreenTransition
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.edit_blog_screen_edit_blog_title
+import me.dungngminh.lets_blog_kmp.commons.extensions.fromJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.blog_editor.BlogEditorAppBar
 import me.dungngminh.lets_blog_kmp.presentation.components.blog_editor.BlogEditorContent
@@ -28,12 +32,17 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalVoyagerApi::class)
 class EditBlogScreen(
-    private val blog: Blog,
+    private val blogData: String,
 ) : Screen,
     ScreenTransition {
+    override val key: ScreenKey
+        get() = uniqueScreenKey
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+
+        val blog = remember { blogData.fromJsonStr<Blog>() }
 
         val richTextState = rememberRichTextState()
 
@@ -44,7 +53,10 @@ class EditBlogScreen(
         }
 
         LaunchedEffect(blog) {
-            richTextState.setHtml(blog.content)
+            richTextState.setHtml(blog?.content.orEmpty())
+
+            // Move cursor to the start of the text
+            richTextState.selection = TextRange(0)
         }
 
         BlogEditorContent(

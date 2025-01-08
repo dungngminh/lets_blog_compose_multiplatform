@@ -1,4 +1,4 @@
-package me.dungngminh.lets_blog_kmp.presentation.sign_in
+package me.dungngminh.lets_blog_kmp.presentation.login
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -12,7 +12,7 @@ import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.isValidEmail
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
-enum class SignInValidationError {
+enum class LoginValidationError {
     EMPTY_EMAIL,
     EMPTY_PASSWORD,
     INVALID_EMAIL,
@@ -20,41 +20,41 @@ enum class SignInValidationError {
     NONE,
 }
 
-data class SignInState(
+data class LoginState(
     val email: String = "",
     val password: String = "",
-    val emailError: SignInValidationError? = null,
-    val passwordError: SignInValidationError? = null,
+    val emailError: LoginValidationError? = null,
+    val passwordError: LoginValidationError? = null,
     val isLoading: Boolean = false,
     val passwordVisible: Boolean = true,
-    val isSignInFormValid: Boolean = false,
+    val isLoginFormValid: Boolean = false,
     val error: String? = null,
     val isLoginSuccess: Boolean = false,
 )
 
-class SignInViewModel(
+class LoginViewModel(
     private val authRepository: AuthRepository,
 ) : ScreenModel {
-    private val _state = MutableStateFlow(SignInState())
+    private val _state = MutableStateFlow(LoginState())
     val state = _state
 
-    val currentState: SignInState
+    val currentState: LoginState
         get() = _state.value
 
     fun changeEmail(email: String) {
         val emailInput = email.trim()
         val emailError =
             when {
-                emailInput.isEmpty() -> SignInValidationError.EMPTY_EMAIL
-                !emailInput.isValidEmail() -> SignInValidationError.INVALID_EMAIL
-                else -> SignInValidationError.NONE
+                emailInput.isEmpty() -> LoginValidationError.EMPTY_EMAIL
+                !emailInput.isValidEmail() -> LoginValidationError.INVALID_EMAIL
+                else -> LoginValidationError.NONE
             }
-        val isSignInFormValid = isFormValid(emailError = emailError)
+        val isLoginFormValid = isFormValid(emailError = emailError)
         _state.update {
             it.copy(
                 email = email,
                 emailError = emailError,
-                isSignInFormValid = isSignInFormValid,
+                isLoginFormValid = isLoginFormValid,
             )
         }
     }
@@ -62,18 +62,18 @@ class SignInViewModel(
     fun changePassword(password: String) {
         val passwordError =
             when {
-                password.isBlank() -> SignInValidationError.EMPTY_PASSWORD
-                password.length < MIN_PASSWORD_LENGTH -> SignInValidationError.PASSWORD_TOO_SHORT
-                else -> SignInValidationError.NONE
+                password.isBlank() -> LoginValidationError.EMPTY_PASSWORD
+                password.length < MIN_PASSWORD_LENGTH -> LoginValidationError.PASSWORD_TOO_SHORT
+                else -> LoginValidationError.NONE
             }
 
-        val isSignInFormValid = isFormValid(passwordError = passwordError)
+        val isLoginFormValid = isFormValid(passwordError = passwordError)
 
         _state.update {
             it.copy(
                 password = password,
                 passwordError = passwordError,
-                isSignInFormValid = isSignInFormValid,
+                isLoginFormValid = isLoginFormValid,
             )
         }
     }
@@ -119,12 +119,12 @@ class SignInViewModel(
     }
 
     private fun isFormValid(
-        emailError: SignInValidationError? = null,
-        passwordError: SignInValidationError? = null,
+        emailError: LoginValidationError? = null,
+        passwordError: LoginValidationError? = null,
     ): Boolean {
         val emailValidationError = emailError ?: currentState.emailError
         val passwordValidationError = passwordError ?: currentState.passwordError
         return listOf(emailValidationError, passwordValidationError)
-            .all { it == SignInValidationError.NONE }
+            .all { it == LoginValidationError.NONE }
     }
 }

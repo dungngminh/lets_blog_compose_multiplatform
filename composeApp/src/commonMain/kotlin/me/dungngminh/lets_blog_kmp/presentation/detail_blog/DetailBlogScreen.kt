@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -56,30 +55,40 @@ import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import letsblogkmp.composeapp.generated.resources.Res
+import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
 import letsblogkmp.composeapp.generated.resources.ic_pencil
 import letsblogkmp.composeapp.generated.resources.ic_trash
+import me.dungngminh.lets_blog_kmp.commons.extensions.fromJsonStr
 import me.dungngminh.lets_blog_kmp.commons.extensions.timeAgo
+import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
 import me.dungngminh.lets_blog_kmp.presentation.edit_blog.EditBlogScreen
+import me.dungngminh.lets_blog_kmp.presentation.login.LoginScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
-import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalVoyagerApi::class)
 data class DetailBlogScreen(
-    val blog: Blog,
+    val blogId: String,
+    val blogData: String,
 ) : Screen,
     ScreenTransition {
+    override val key: ScreenKey
+        get() = "DetailBlogScreen($blogId)"
+
     @Composable
     override fun Content() {
+        val blog = remember(blogId) { blogData.fromJsonStr<Blog>() }
+
         val navigator = LocalNavigator.currentOrThrow
+
         val userSessionViewModel = navigator.koinNavigatorScreenModel<UserSessionViewModel>()
 
         val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
@@ -90,8 +99,8 @@ data class DetailBlogScreen(
 
         val blogContentRichTextState = rememberRichTextState()
 
-        LaunchedEffect(blog.content) {
-            blogContentRichTextState.setHtml(blog.content)
+        LaunchedEffect(blogId) {
+            blogContentRichTextState.setHtml(blog?.content.orEmpty())
         }
 
         LaunchedEffect(Unit) {
@@ -117,10 +126,10 @@ data class DetailBlogScreen(
                 viewModel.unFavoriteBlog()
             },
             onUnAuthenticatedFavoriteClick = {
-                navigator.push(SignInScreen)
+                navigator.push(LoginScreen)
             },
             onEditClick = {
-                navigator.push(EditBlogScreen(detailBlogState.blog))
+                navigator.push(EditBlogScreen(detailBlogState.blog.toJsonStr()))
             },
             onDeleteClick = viewModel::deleteBlog,
             blogContentRichTextState = blogContentRichTextState,
@@ -225,7 +234,7 @@ fun DetailBlogCreatorInfo(
 ) {
     Row(modifier = modifier) {
         CoilImage(
-            imageModel = { blog.creator?.avatarUrl },
+            imageModel = { blog.creator.avatarUrl },
             modifier =
                 Modifier
                     .size(36.dp)
@@ -240,7 +249,7 @@ fun DetailBlogCreatorInfo(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
-                blog.creator?.name.orEmpty(),
+                blog.creator.name.orEmpty(),
                 style =
                     MaterialTheme
                         .typography.titleSmall
@@ -274,7 +283,7 @@ fun DetailBlogAppBar(
     val isBlogCreatorSameAsUser by remember(userSessionState) {
         derivedStateOf {
             val user = (userSessionState as? UserSessionState.Authenticated)?.user
-            user != null && user.id == blog.creator?.id
+            user != null && user.id == blog.creator.id
         }
     }
     TopAppBar(
@@ -284,7 +293,7 @@ fun DetailBlogAppBar(
                 onClick = onBackClick,
             ) {
                 Icon(
-                    Icons.AutoMirrored.Default.ArrowBack,
+                    painterResource(Res.drawable.ic_caret_left),
                     contentDescription = "create_post_back_button",
                 )
             }
@@ -363,7 +372,7 @@ fun DetailScreenFavoriteButton(
     }
     when (userSessionState) {
         is UserSessionState.Authenticated -> {
-            if (userSessionState.user != null && userSessionState.user.id != blog.creator?.id) {
+            if (userSessionState.user != null && userSessionState.user.id != blog.creator.id) {
                 FavoriteButton(
                     modifier = modifier,
                     onFavoriteClick = onFavoriteClick,

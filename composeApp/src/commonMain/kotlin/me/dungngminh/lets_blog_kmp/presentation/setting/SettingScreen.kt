@@ -3,8 +3,6 @@ package me.dungngminh.lets_blog_kmp.presentation.setting
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,11 +19,13 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import letsblogkmp.composeapp.generated.resources.Res
+import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.setting_screen_logout_label
 import letsblogkmp.composeapp.generated.resources.setting_screen_setting_app_bar_title
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState.Initial.isAuthenticated
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 object SettingScreen : Screen {
@@ -100,7 +100,7 @@ private fun SettingAppBar(
                 onClick = onBackClick,
             ) {
                 Icon(
-                    Icons.AutoMirrored.Default.ArrowBack,
+                    painterResource(Res.drawable.ic_caret_left),
                     contentDescription = null,
                 )
             }

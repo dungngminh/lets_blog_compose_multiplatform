@@ -1,4 +1,4 @@
-package me.dungngminh.lets_blog_kmp.presentation.sign_up
+package me.dungngminh.lets_blog_kmp.presentation.register
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -17,8 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,27 +45,27 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
+import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_eye
 import letsblogkmp.composeapp.generated.resources.ic_eye_closed
-import letsblogkmp.composeapp.generated.resources.sign_in_page_email_hint_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_already_have_account_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_confirm_password_hint_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_confirm_password_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_email_hint_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_email_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_password_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_sign_in_now_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_sign_up_button_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_sign_up_title
-import letsblogkmp.composeapp.generated.resources.sign_up_page_username_hint_label
-import letsblogkmp.composeapp.generated.resources.sign_up_page_username_label
+import letsblogkmp.composeapp.generated.resources.login_page_email_hint_label
+import letsblogkmp.composeapp.generated.resources.register_page_already_have_account_label
+import letsblogkmp.composeapp.generated.resources.register_page_confirm_password_hint_label
+import letsblogkmp.composeapp.generated.resources.register_page_confirm_password_label
+import letsblogkmp.composeapp.generated.resources.register_page_email_hint_label
+import letsblogkmp.composeapp.generated.resources.register_page_email_label
+import letsblogkmp.composeapp.generated.resources.register_page_login_now_label
+import letsblogkmp.composeapp.generated.resources.register_page_password_label
+import letsblogkmp.composeapp.generated.resources.register_page_register_button_label
+import letsblogkmp.composeapp.generated.resources.register_page_register_title
+import letsblogkmp.composeapp.generated.resources.register_page_username_hint_label
+import letsblogkmp.composeapp.generated.resources.register_page_username_label
 import letsblogkmp.composeapp.generated.resources.validation_error_confirm_password_empty
 import letsblogkmp.composeapp.generated.resources.validation_error_confirm_password_not_match
 import letsblogkmp.composeapp.generated.resources.validation_error_email_empty
@@ -80,11 +78,11 @@ import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-object SignUpScreen : Screen {
+object RegisterScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = koinScreenModel<SignUpViewModel>()
+        val viewModel = koinScreenModel<RegisterViewModel>()
 
         val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -101,7 +99,7 @@ object SignUpScreen : Screen {
                         }
                     }
 
-                    state.isSignUpSuccess -> {
+                    state.isRegisterSuccess -> {
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar("Sign up success")
                         }
@@ -111,7 +109,7 @@ object SignUpScreen : Screen {
             }
         }
 
-        SignUpScreenContent(
+        RegisterScreenContent(
             onBackClick = navigator::pop,
             snackbarHostState = snackbarHostState,
             state = state,
@@ -121,17 +119,17 @@ object SignUpScreen : Screen {
             onConfirmPasswordChange = viewModel::changeConfirmPassword,
             onConfirmPasswordVisibilityToggle = viewModel::toggleConfirmPasswordVisibility,
             onPasswordVisibilityToggle = viewModel::togglePasswordVisibility,
-            onSignUpClick = viewModel::signUp,
-            onSignInNowClick = navigator::pop,
+            oRegisterClick = viewModel::register,
+            onLoginNowClick = navigator::pop,
         )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SignUpScreenContent(
+fun RegisterScreenContent(
     modifier: Modifier = Modifier,
-    state: SignUpState,
+    state: RegisterState,
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onUsernameChange: (String) -> Unit,
@@ -140,8 +138,8 @@ fun SignUpScreenContent(
     onConfirmPasswordChange: (String) -> Unit,
     onPasswordVisibilityToggle: () -> Unit,
     onConfirmPasswordVisibilityToggle: () -> Unit,
-    onSignUpClick: () -> Unit,
-    onSignInNowClick: () -> Unit,
+    oRegisterClick: () -> Unit,
+    onLoginNowClick: () -> Unit,
 ) {
     val sortKeyboardController = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
@@ -164,7 +162,7 @@ fun SignUpScreenContent(
                     .padding(16.dp),
         ) {
             Text(
-                stringResource(Res.string.sign_up_page_sign_up_title),
+                stringResource(Res.string.register_page_register_title),
                 style = MaterialTheme.typography.displayLarge,
             )
             Spacer(modifier = Modifier.height(48.dp))
@@ -176,11 +174,11 @@ fun SignUpScreenContent(
                         .bringIntoView(bringIntoViewRequest),
                 isError = isFormError(state.usernameError),
                 supportingText = {
-                    if (state.usernameError != SignUpValidationError.NONE) {
+                    if (state.usernameError != RegisterValidationError.NONE) {
                         Text(
                             when (state.usernameError) {
-                                SignUpValidationError.EMPTY_USERNAME -> stringResource(Res.string.validation_error_username_empty)
-                                SignUpValidationError.USERNAME_TOO_SHORT ->
+                                RegisterValidationError.EMPTY_USERNAME -> stringResource(Res.string.validation_error_username_empty)
+                                RegisterValidationError.USERNAME_TOO_SHORT ->
                                     stringResource(
                                         Res.string.validation_error_username_too_short,
                                     )
@@ -195,10 +193,10 @@ fun SignUpScreenContent(
                         imeAction = ImeAction.Next,
                     ),
                 label = {
-                    Text(stringResource(Res.string.sign_up_page_username_label))
+                    Text(stringResource(Res.string.register_page_username_label))
                 },
                 placeholder = {
-                    Text(stringResource(Res.string.sign_up_page_username_hint_label))
+                    Text(stringResource(Res.string.register_page_username_hint_label))
                 },
                 onValueChange = { onUsernameChange(it) },
             )
@@ -211,11 +209,11 @@ fun SignUpScreenContent(
                         .bringIntoView(bringIntoViewRequest),
                 isError = isFormError(state.emailError),
                 supportingText = {
-                    if (state.emailError != SignUpValidationError.NONE) {
+                    if (state.emailError != RegisterValidationError.NONE) {
                         Text(
                             when (state.emailError) {
-                                SignUpValidationError.EMPTY_EMAIL -> stringResource(Res.string.validation_error_email_empty)
-                                SignUpValidationError.INVALID_EMAIL -> stringResource(Res.string.validation_error_email_invalid)
+                                RegisterValidationError.EMPTY_EMAIL -> stringResource(Res.string.validation_error_email_empty)
+                                RegisterValidationError.INVALID_EMAIL -> stringResource(Res.string.validation_error_email_invalid)
                                 else -> ""
                             },
                         )
@@ -226,10 +224,10 @@ fun SignUpScreenContent(
                         imeAction = ImeAction.Next,
                     ),
                 label = {
-                    Text(stringResource(Res.string.sign_up_page_email_label))
+                    Text(stringResource(Res.string.register_page_email_label))
                 },
                 placeholder = {
-                    Text(stringResource(Res.string.sign_in_page_email_hint_label))
+                    Text(stringResource(Res.string.login_page_email_hint_label))
                 },
                 onValueChange = { onEmailChange(it) },
             )
@@ -242,11 +240,11 @@ fun SignUpScreenContent(
                         .bringIntoView(bringIntoViewRequest),
                 isError = isFormError(state.passwordError),
                 supportingText = {
-                    if (state.passwordError != SignUpValidationError.NONE) {
+                    if (state.passwordError != RegisterValidationError.NONE) {
                         Text(
                             when (state.passwordError) {
-                                SignUpValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_password_empty)
-                                SignUpValidationError.PASSWORD_TOO_SHORT ->
+                                RegisterValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_password_empty)
+                                RegisterValidationError.PASSWORD_TOO_SHORT ->
                                     stringResource(
                                         Res.string.validation_error_password_too_short,
                                         MIN_PASSWORD_LENGTH,
@@ -262,10 +260,10 @@ fun SignUpScreenContent(
                         imeAction = ImeAction.Next,
                     ),
                 label = {
-                    Text(stringResource(Res.string.sign_up_page_password_label))
+                    Text(stringResource(Res.string.register_page_password_label))
                 },
                 placeholder = {
-                    Text(stringResource(Res.string.sign_up_page_email_hint_label))
+                    Text(stringResource(Res.string.register_page_email_hint_label))
                 },
                 trailingIcon = {
                     IconButton(
@@ -295,15 +293,15 @@ fun SignUpScreenContent(
                         .bringIntoView(bringIntoViewRequest),
                 isError = isFormError(state.confirmPasswordError),
                 supportingText = {
-                    if (state.confirmPasswordError != SignUpValidationError.NONE) {
+                    if (state.confirmPasswordError != RegisterValidationError.NONE) {
                         Text(
                             when (state.confirmPasswordError) {
-                                SignUpValidationError.PASSWORDS_NOT_MATCH ->
+                                RegisterValidationError.PASSWORDS_NOT_MATCH ->
                                     stringResource(
                                         Res.string.validation_error_confirm_password_not_match,
                                     )
 
-                                SignUpValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_confirm_password_empty)
+                                RegisterValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_confirm_password_empty)
                                 else -> ""
                             },
                         )
@@ -311,8 +309,8 @@ fun SignUpScreenContent(
                 },
                 keyboardActions =
                     KeyboardActions(onGo = {
-                        if (state.isSignUpFormValid) {
-                            onSignUpClick()
+                        if (state.isRegisterFormValid) {
+                            oRegisterClick()
                         } else {
                             sortKeyboardController?.hide()
                         }
@@ -322,10 +320,10 @@ fun SignUpScreenContent(
                         imeAction = ImeAction.Go,
                     ),
                 label = {
-                    Text(stringResource(Res.string.sign_up_page_confirm_password_label))
+                    Text(stringResource(Res.string.register_page_confirm_password_label))
                 },
                 placeholder = {
-                    Text(stringResource(Res.string.sign_up_page_confirm_password_hint_label))
+                    Text(stringResource(Res.string.register_page_confirm_password_hint_label))
                 },
                 trailingIcon = {
                     IconButton(
@@ -354,10 +352,10 @@ fun SignUpScreenContent(
                     CircularProgressIndicator()
                 } else {
                     Button(
-                        onClick = onSignUpClick,
-                        enabled = state.isSignUpFormValid,
+                        onClick = oRegisterClick,
+                        enabled = state.isRegisterFormValid,
                     ) {
-                        Text(stringResource(Res.string.sign_up_page_sign_up_button_label))
+                        Text(stringResource(Res.string.register_page_register_button_label))
                     }
                 }
             }
@@ -368,22 +366,22 @@ fun SignUpScreenContent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    stringResource(Res.string.sign_up_page_already_have_account_label),
+                    stringResource(Res.string.register_page_already_have_account_label),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 TextButton(onClick = {
-                    onSignInNowClick()
+                    onLoginNowClick()
                 }) {
-                    Text(stringResource(Res.string.sign_up_page_sign_in_now_label))
+                    Text(stringResource(Res.string.register_page_login_now_label))
                 }
             }
         }
     }
 }
 
-fun isFormError(validationError: SignUpValidationError? = null): Boolean =
+fun isFormError(validationError: RegisterValidationError? = null): Boolean =
     when (validationError) {
-        SignUpValidationError.NONE, null -> false
+        RegisterValidationError.NONE, null -> false
         else -> true
     }
 
@@ -396,7 +394,7 @@ fun SignUpTopBar(onBackClick: () -> Unit) {
                 onClick = onBackClick,
             ) {
                 Icon(
-                    Icons.AutoMirrored.Default.ArrowBack,
+                    painterResource(Res.drawable.ic_caret_left),
                     contentDescription = null,
                 )
             }
@@ -408,9 +406,9 @@ fun SignUpTopBar(onBackClick: () -> Unit) {
 
 @Preview
 @Composable
-fun Preview_SignInScreen() {
-    SignUpScreenContent(
-        state = SignUpState(),
+fun Preview_RegisterScreen() {
+    RegisterScreenContent(
+        state = RegisterState(),
         snackbarHostState = SnackbarHostState(),
         onBackClick = {},
         onUsernameChange = {},
@@ -419,8 +417,8 @@ fun Preview_SignInScreen() {
         onConfirmPasswordChange = {},
         onPasswordVisibilityToggle = {},
         onConfirmPasswordVisibilityToggle = {},
-        onSignUpClick = {},
-        onSignInNowClick = {},
+        oRegisterClick = {},
+        onLoginNowClick = {},
     )
 }
 

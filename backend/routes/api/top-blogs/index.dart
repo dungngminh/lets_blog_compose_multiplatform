@@ -21,7 +21,7 @@ Future<Response> onRequest(RequestContext context) {
 Future<Response> _onTopBlogsGetRequest(RequestContext context) async {
   final db = context.read<Database>();
   final queryParams = context.request.uri.queryParameters;
-  final limit = int.tryParse(queryParams['limit'].orEmpty()) ?? 20;
+  final limit = int.tryParse(queryParams['limit'].orEmpty()) ?? 5;
 
   UserView? user;
   final bearerToken = context.request.headers.bearer();

@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,6 +72,7 @@ import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_image
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_title
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_screen_preview_blog_title
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_screen_title_not_empty_label
+import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_image
 import letsblogkmp.composeapp.generated.resources.ic_rocket_launch
 import letsblogkmp.composeapp.generated.resources.ic_x
@@ -494,7 +493,7 @@ private fun PreviewBlogAppBar(
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    Icons.AutoMirrored.Default.ArrowBack,
+                    painterResource(Res.drawable.ic_caret_left),
                     contentDescription = null,
                 )
             }

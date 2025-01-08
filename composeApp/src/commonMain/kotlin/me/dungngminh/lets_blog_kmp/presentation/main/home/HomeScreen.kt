@@ -17,9 +17,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
@@ -32,9 +38,12 @@ import cafe.adriel.voyager.navigator.tab.TabOptions
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.home_screen_other_blogs_label
 import letsblogkmp.composeapp.generated.resources.home_screen_popular_blogs_label
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
+import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
@@ -74,8 +83,13 @@ object HomeTab : Tab {
                 tabNavigator.current = MainScreenDestination.Search.tab
             },
             onBlogRefresh = homeViewModel::fetchBlogs,
-            onBlogClick = {
-                parentNavigator.push(DetailBlogScreen(it))
+            onBlogClick = { blog ->
+                parentNavigator.push(
+                    DetailBlogScreen(
+                        blogId = blog.id,
+                        blogData = blog.toJsonStr(),
+                    ),
+                )
             },
             onCreateBlogClick = {
                 parentNavigator.push(CreateBlogScreen)
@@ -83,6 +97,7 @@ object HomeTab : Tab {
             onFavoriteBlogClick = homeViewModel::favoritePopularBlog,
             onUnFavoriteBlogClick = homeViewModel::unFavoritePopularBlog,
             fetchNewBlogs = homeViewModel::loadMoreBlogs,
+            windowSizeClass = LocalWindowSizeClass.currentOrThrow,
         )
     }
 
@@ -110,7 +125,11 @@ fun HomeScreenContent(
     onCreateBlogClick: () -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
     fetchNewBlogs: () -> Unit,
+    windowSizeClass: WindowSizeClass,
 ) {
+    val refreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
@@ -120,11 +139,17 @@ fun HomeScreenContent(
         },
     ) { innerPadding ->
         PullToRefreshBox(
+            state = refreshState,
             modifier =
                 Modifier
                     .fillMaxSize(),
             isRefreshing = false,
-            onRefresh = onBlogRefresh,
+            onRefresh = {
+                coroutineScope.launch {
+                    onBlogRefresh()
+                    refreshState.animateToHidden()
+                }
+            },
         ) {
             LazyColumn(
                 modifier =
@@ -168,6 +193,8 @@ fun HomeScreenContent(
                             else -> null
                         },
                     onRetry = onBlogRefresh,
+                    isExtendedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
+                    isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
                 )
             }
         }
@@ -182,6 +209,8 @@ fun LazyListScope.blogContentView(
     onFavoriteBlogClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
     fetchNewBlogs: () -> Unit,
+    isMediumScreen: Boolean = false,
+    isExtendedScreen: Boolean = false,
 ) {
     when {
         homeUiState.errorMessage != null -> {
@@ -217,6 +246,8 @@ fun LazyListScope.blogContentView(
                 isLoadingMore = homeUiState.isLoadingMore,
                 fetchNewBlogs = fetchNewBlogs,
                 user = user,
+                isExtendedScreen = isExtendedScreen,
+                isMediumScreen = isMediumScreen,
             )
     }
 }
@@ -226,6 +257,8 @@ fun LazyListScope.blogsView(
     blogs: ImmutableList<Blog>,
     user: User? = null,
     isLoadingMore: Boolean = false,
+    isMediumScreen: Boolean = false,
+    isExtendedScreen: Boolean = false,
     onBlogClick: (Blog) -> Unit,
     onFavoriteBlogClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
@@ -247,6 +280,8 @@ fun LazyListScope.blogsView(
             onUnFavoriteBlogClick = onUnFavoriteBlogClick,
             onFavoriteBlogClick = onFavoriteBlogClick,
             user = user,
+            isMediumScreen = isMediumScreen,
+            isExtendedScreen = isExtendedScreen,
         )
         // Normal blogs
         if (popularBlogs.isNotEmpty()) {
@@ -304,6 +339,8 @@ fun LazyListScope.otherBlogsContentView(
 fun LazyListScope.popularBlogContentView(
     popularBlogs: ImmutableList<Blog>,
     user: User? = null,
+    isExtendedScreen: Boolean = false,
+    isMediumScreen: Boolean = false,
     onBlogClick: (Blog) -> Unit,
     onFavoriteBlogClick: (Blog) -> Unit,
     onUnFavoriteBlogClick: (Blog) -> Unit,
@@ -327,6 +364,8 @@ fun LazyListScope.popularBlogContentView(
                 ) { index, blog ->
                     PopularBlogCard(
                         blog = blog,
+                        isExtendedScreen = isExtendedScreen,
+                        isMediumScreen = isMediumScreen,
                         onClick = onBlogClick,
                         onFavoriteClick = onFavoriteBlogClick,
                         onUnFavoriteBlogClick = onUnFavoriteBlogClick,
@@ -342,6 +381,7 @@ fun LazyListScope.popularBlogContentView(
     }
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview
 @Composable
 fun Preview_HomeScreenContent() {
@@ -434,5 +474,6 @@ fun Preview_HomeScreenContent() {
                     ),
             ),
         fetchNewBlogs = {},
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(800.dp, 600.dp)),
     )
 }

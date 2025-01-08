@@ -43,6 +43,7 @@ import letsblogkmp.composeapp.generated.resources.ic_search_filled
 import letsblogkmp.composeapp.generated.resources.search_screen_empty_query_label
 import letsblogkmp.composeapp.generated.resources.search_screen_search_hint_label
 import letsblogkmp.composeapp.generated.resources.search_screen_top_bar_title
+import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
@@ -68,8 +69,13 @@ object SearchTab : Tab {
             searchFieldState = viewModel.searchFieldState,
             searchUiState = searchUiState,
             onSearchFieldChange = viewModel::onSearchChange,
-            onBlogClick = {
-                rootNavigator?.push(DetailBlogScreen(it))
+            onBlogClick = { blog ->
+                rootNavigator?.push(
+                    DetailBlogScreen(
+                        blogId = blog.id,
+                        blogData = blog.toJsonStr(),
+                    ),
+                )
             },
             onCreateBlogClick = {
                 rootNavigator?.push(CreateBlogScreen)

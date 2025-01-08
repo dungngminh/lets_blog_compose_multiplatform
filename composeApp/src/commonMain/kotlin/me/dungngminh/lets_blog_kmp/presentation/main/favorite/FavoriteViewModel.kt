@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.hoc081098.flowext.flowFromSuspend
 import com.hoc081098.flowext.startWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
@@ -37,18 +38,7 @@ class FavoriteViewModel(
 
     private val favoriteBlogFlow =
         flowFromSuspend { favoriteRepository.getFavoriteBlogs() }
-            .map { result ->
-                result.fold(
-                    onSuccess = { blogs ->
-                        if (blogs.isEmpty()) {
-                            FavoriteUiState.NoFavoriteBlogs
-                        } else {
-                            FavoriteUiState.Success(blogs)
-                        }
-                    },
-                    onFailure = { FavoriteUiState.Error(it.message ?: "Unknown error") },
-                )
-            }
+            .mapToFavoriteState()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState =
@@ -67,6 +57,20 @@ class FavoriteViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = FavoriteUiState.Loading,
         )
+
+    private fun Flow<Result<List<Blog>>>.mapToFavoriteState(): Flow<FavoriteUiState> =
+        this.map { result ->
+            result.fold(
+                onSuccess = { blogs ->
+                    if (blogs.isEmpty()) {
+                        FavoriteUiState.NoFavoriteBlogs
+                    } else {
+                        FavoriteUiState.Success(blogs)
+                    }
+                },
+                onFailure = { FavoriteUiState.Error(it.message ?: "Unknown error") },
+            )
+        }
 
     fun refresh() {
         if (uiState.value is FavoriteUiState.Success || uiState.value is FavoriteUiState.NoFavoriteBlogs) {

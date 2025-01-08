@@ -27,12 +27,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,12 +54,14 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.general_blog_count
 import letsblogkmp.composeapp.generated.resources.ic_pencil
 import letsblogkmp.composeapp.generated.resources.ic_setting
 import letsblogkmp.composeapp.generated.resources.profile_screen_no_blog
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
+import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.User
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
@@ -67,12 +71,12 @@ import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
 import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.edit_user_profile.EditUserProfileScreen
+import me.dungngminh.lets_blog_kmp.presentation.login.LoginScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.UnauthenticatedProfileContent
 import me.dungngminh.lets_blog_kmp.presentation.setting.SettingScreen
-import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -96,7 +100,7 @@ object ProfileTab : Tab {
             ProfileScreenExpandedContent(
                 userSessionState = userSessionState,
                 onLoginClick = {
-                    rootNavigator.push(SignInScreen)
+                    rootNavigator.push(LoginScreen)
                 },
                 onRefresh = {
                     userProfileViewModel.refresh()
@@ -112,7 +116,12 @@ object ProfileTab : Tab {
                 },
                 userBlogState = userBlogState,
                 onBlogClick = { blog ->
-                    rootNavigator.push(DetailBlogScreen(blog))
+                    rootNavigator.push(
+                        DetailBlogScreen(
+                            blogId = blog.id,
+                            blogData = blog.toJsonStr(),
+                        ),
+                    )
                 },
             )
         } else {
@@ -120,15 +129,13 @@ object ProfileTab : Tab {
                 userSessionState = userSessionState,
                 userBlogState = userBlogState,
                 onLoginClick = {
-                    rootNavigator.push(SignInScreen)
+                    rootNavigator.push(LoginScreen)
                 },
                 onRefresh = {
                     userProfileViewModel.refresh()
                     userSessionViewModel.refresh()
                 },
-                onRetryClick = {
-                    userSessionViewModel.refresh()
-                },
+                onRetryClick = userSessionViewModel::retry,
                 onSettingClick = {
                     rootNavigator.push(SettingScreen)
                 },
@@ -136,11 +143,17 @@ object ProfileTab : Tab {
                     rootNavigator.push(EditUserProfileScreen)
                 },
                 onBlogClick = { blog ->
-                    rootNavigator.push(DetailBlogScreen(blog))
+                    rootNavigator.push(
+                        DetailBlogScreen(
+                            blogId = blog.id,
+                            blogData = blog.toJsonStr(),
+                        ),
+                    )
                 },
                 onCreateBlogClick = {
                     rootNavigator.push(CreateBlogScreen)
                 },
+                onRetryBlogClick = userProfileViewModel::retry,
             )
         }
     }
@@ -186,6 +199,7 @@ private fun ProfileScreenContent(
     onEditProfileClick: () -> Unit = {},
     onBlogClick: (Blog) -> Unit = {},
     onCreateBlogClick: () -> Unit = {},
+    onRetryBlogClick: () -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -228,21 +242,16 @@ private fun ProfileScreenContent(
                 )
 
             is UserSessionState.Authenticated -> {
-                if (userSessionState.user == null) {
-                    Center {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    AuthenticatedProfileScreen(
-                        modifier =
-                            Modifier
-                                .padding(innerPadding),
-                        onRefresh = onRefresh,
-                        userBlogState = userBlogState,
-                        onBlogClick = onBlogClick,
-                        onCreateBlogClick = onCreateBlogClick,
-                    )
-                }
+                AuthenticatedProfileScreen(
+                    modifier =
+                        Modifier
+                            .padding(innerPadding),
+                    onRefresh = onRefresh,
+                    userBlogState = userBlogState,
+                    onBlogClick = onBlogClick,
+                    onCreateBlogClick = onCreateBlogClick,
+                    onRetryBlogClick = onRetryBlogClick,
+                )
             }
         }
     }
@@ -254,9 +263,13 @@ fun AuthenticatedProfileScreen(
     modifier: Modifier = Modifier,
     userBlogState: UserBlogState,
     onRefresh: () -> Unit = {},
+    onRetryBlogClick: () -> Unit = {},
     onBlogClick: (Blog) -> Unit = {},
     onCreateBlogClick: () -> Unit = {},
 ) {
+    val refreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+
     when (userBlogState) {
         UserBlogState.Loading, UserBlogState.Uninitialized ->
             Center(modifier = modifier) {
@@ -267,7 +280,7 @@ fun AuthenticatedProfileScreen(
             ErrorView(
                 modifier = modifier.fillMaxWidth(),
                 type = ErrorViewType.GENERAL_ERROR,
-                onActionClick = onRefresh,
+                onActionClick = onRetryBlogClick,
             )
 
         UserBlogState.EmptyBlog -> {
@@ -280,9 +293,15 @@ fun AuthenticatedProfileScreen(
 
         is UserBlogState.Success -> {
             PullToRefreshBox(
+                state = refreshState,
                 modifier = modifier,
                 isRefreshing = false,
-                onRefresh = onRefresh,
+                onRefresh = {
+                    coroutineScope.launch {
+                        onRefresh()
+                        refreshState.animateToHidden()
+                    }
+                },
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),

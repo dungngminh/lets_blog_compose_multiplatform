@@ -1,7 +1,5 @@
 package me.dungngminh.lets_blog_kmp.presentation.components.blog_editor
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -10,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import letsblogkmp.composeapp.generated.resources.Res
+import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_check
 import org.jetbrains.compose.resources.painterResource
 
@@ -29,7 +28,7 @@ fun BlogEditorAppBar(
                 onClick = onBackClick,
             ) {
                 Icon(
-                    Icons.AutoMirrored.Default.ArrowBack,
+                    painterResource(Res.drawable.ic_caret_left),
                     contentDescription = "create_post_back_button",
                 )
             }

@@ -42,6 +42,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun PopularBlogCard(
     modifier: Modifier = Modifier,
+    isExtendedScreen: Boolean = false,
+    isMediumScreen: Boolean = false,
     blog: Blog,
     user: User?,
     onClick: (Blog) -> Unit,
@@ -51,8 +53,13 @@ fun PopularBlogCard(
     Box(
         modifier =
             modifier
-                .size(260.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .size(
+                    when {
+                        isExtendedScreen -> 400.dp
+                        isMediumScreen -> 320.dp
+                        else -> 260.dp
+                    },
+                ).clip(RoundedCornerShape(24.dp))
                 .clickable { onClick(blog) },
     ) {
         CoilImage(
@@ -67,7 +74,12 @@ fun PopularBlogCard(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(6.dp),
+                    .padding(
+                        when {
+                            isExtendedScreen -> 12.dp
+                            else -> 6.dp
+                        },
+                    ),
             blog = blog,
             user = user,
             onFavoriteClick = onFavoriteClick,

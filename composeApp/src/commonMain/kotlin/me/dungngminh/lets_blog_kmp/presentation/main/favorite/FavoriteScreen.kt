@@ -20,17 +20,18 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.favorite_screen_favorite_blogs_label
+import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.components.ErrorView
 import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
+import me.dungngminh.lets_blog_kmp.presentation.login.LoginScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.favorite.components.AuthenticatedFavoriteContent
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.UnauthenticatedProfileContent
-import me.dungngminh.lets_blog_kmp.presentation.sign_in.SignInScreen
 import org.jetbrains.compose.resources.stringResource
 
 object FavoriteTab : Tab {
@@ -49,14 +50,19 @@ object FavoriteTab : Tab {
         FavoriteScreenContent(
             favoriteUiState = favoriteUiState,
             userSessionState = userSessionState,
-            onBlogClick = {
-                rootNavigator.push(DetailBlogScreen(it))
+            onBlogClick = { blog ->
+                rootNavigator.push(
+                    DetailBlogScreen(
+                        blogId = blog.id,
+                        blogData = blog.toJsonStr(),
+                    ),
+                )
             },
             onRetryClick = favoriteViewModel::retry,
             onRefresh = favoriteViewModel::refresh,
             onUserSessionRetry = userSessionViewModel::refresh,
             onLoginClick = {
-                rootNavigator.push(SignInScreen)
+                rootNavigator.push(LoginScreen)
             },
         )
     }

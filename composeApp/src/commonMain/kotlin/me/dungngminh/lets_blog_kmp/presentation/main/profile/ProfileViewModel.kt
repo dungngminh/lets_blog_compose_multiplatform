@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
@@ -21,6 +22,9 @@ class ProfileViewModel(
     private val userRepository: UserRepository,
 ) : ScreenModel {
     private val refreshFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    // This flow will use for initial fetch and retry
+    private val retryFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val userBlogFlow =
@@ -45,24 +49,40 @@ class ProfileViewModel(
                                 UserBlogState.Error(error.message ?: "Unknown error")
                             },
                         )
-                    }.startWith(UserBlogState.Loading)
+                    }
                 }
             }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val userBlogState =
-        refreshFlow
-            .startWith(Unit)
-            .flatMapLatest { userBlogFlow }
-            .stateIn(
-                scope = screenModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = UserBlogState.Uninitialized,
-            )
+        merge(
+            refreshFlow
+                .flatMapLatest { userBlogFlow },
+            retryFlow
+                .startWith(Unit)
+                .flatMapLatest {
+                    userBlogFlow
+                        .startWith(UserBlogState.Loading)
+                },
+        ).stateIn(
+            scope = screenModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = UserBlogState.Uninitialized,
+        )
 
     fun refresh() {
         screenModelScope.launch {
-            refreshFlow.emit(Unit)
+            if (userBlogState.value is UserBlogState.Success) {
+                refreshFlow.emit(Unit)
+            }
+        }
+    }
+
+    fun retry() {
+        screenModelScope.launch {
+            if (userBlogState.value is UserBlogState.Error) {
+                retryFlow.emit(Unit)
+            }
         }
     }
 }

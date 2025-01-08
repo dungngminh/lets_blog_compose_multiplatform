@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.dungngminh.lets_blog_kmp.domain.entities.User
@@ -23,6 +24,9 @@ class UserSessionViewModel(
     private val userRepository: UserRepository,
 ) : ScreenModel {
     private val refreshFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    // This flow will use for initial fetch and retry
+    private val retryFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     private val userSessionFlow =
         authRepository.userStoreDataFlow
@@ -43,22 +47,38 @@ class UserSessionViewModel(
                             )
                         },
                     )
-                }.startWith(UserSessionState.Authenticated())
+                }
             }
 
     val userSessionState =
-        refreshFlow
-            .startWith(Unit)
-            .flatMapLatest { userSessionFlow }
-            .stateIn(
-                scope = screenModelScope,
-                started = SharingStarted.Eagerly,
-                initialValue = UserSessionState.Unauthenticated,
-            )
+        merge(
+            refreshFlow
+                .flatMapLatest { userSessionFlow },
+            retryFlow
+                .startWith(Unit)
+                .flatMapLatest {
+                    userSessionFlow
+                        .startWith(UserSessionState.Authenticated())
+                },
+        ).stateIn(
+            scope = screenModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = UserSessionState.Unauthenticated,
+        )
 
     fun refresh() {
         screenModelScope.launch {
-            refreshFlow.emit(Unit)
+            if (userSessionState.value is UserSessionState.Authenticated) {
+                refreshFlow.emit(Unit)
+            }
+        }
+    }
+
+    fun retry() {
+        screenModelScope.launch {
+            if (userSessionState.value is UserSessionState.AuthenticatedFetchDataError) {
+                retryFlow.emit(Unit)
+            }
         }
     }
 
