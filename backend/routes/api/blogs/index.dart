@@ -37,6 +37,7 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
       ) ??
       true;
   final search = queryParams['search'];
+  final category = queryParams['category'];
 
   UserView? user;
   final bearerToken = context.request.headers.bearer();
@@ -51,12 +52,19 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
         limit: limit,
         orderBy: descending ? 'created_at DESC' : 'created_at ASC',
         offset: (currentPage - 1) * limit,
-        where: search.isNullOrEmpty
-            ? 'is_deleted=false'
-            : '(LOWER(title) LIKE @search OR LOWER(content) LIKE @search) '
-                'AND is_deleted=false',
+        where: category.isNullOrEmpty
+            ? search.isNullOrEmpty
+                ? 'is_deleted=false'
+                : '(LOWER(title) LIKE @search OR LOWER(content) LIKE @search) '
+                    'AND is_deleted=false'
+            : search.isNullOrEmpty
+                ? 'category=@category AND is_deleted=false'
+                : '(LOWER(title) LIKE @search OR LOWER(content) LIKE @search) '
+                    'AND category=@category AND is_deleted=false',
         values: search.isNullOrEmpty
-            ? null
+            ? category.isNullOrEmpty
+                ? null
+                : {'category': category}
             : {'search': '%${search?.toLowerCase()}%'},
       ),
     );
