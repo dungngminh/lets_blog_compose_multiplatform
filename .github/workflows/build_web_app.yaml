@@ -23,9 +23,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create environment file
-        run: BASE_URL=${{ secrets.BASE_URL }}
-          GEMINI_KEY=${{ secrets.GEMINI_KEY }}
-          ENV=$BASE_URL\n$GEMINI_KEY
+        run: BASE_URL="BASE_URL=${{ secrets.BASE_URL }}"
+          GEMINI="GEMINI_KEY=${{ secrets.GEMINI_KEY }}"
+          ENV=$BASE_URL\GEMINI
           echo $ENV > env.properties
 
       - name: Run Gradle Tasks
