@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -72,6 +73,7 @@ import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_image
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_blog_title
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_screen_preview_blog_title
 import letsblogkmp.composeapp.generated.resources.create_blog_preview_screen_title_not_empty_label
+import letsblogkmp.composeapp.generated.resources.general_wide_image_is_recommend
 import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_image
 import letsblogkmp.composeapp.generated.resources.ic_rocket_launch
@@ -142,47 +144,27 @@ class PreviewBlogScreen(
             LoadingDialog()
         }
 
-        if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
-            PreviewBlogExpandedContent(
-                createBlogPreviewUiState = previewBlogUiState,
-                richTextState = richTextState,
-                onBackClick = {
-                    navigator.pop()
-                },
-                onCreateBlockClick = {
-                    when (publishAction) {
-                        PreviewPublishAction.PUBLISH_NEW -> viewModel.publishBlog()
-                        PreviewPublishAction.PUBLISH_EDIT -> blog?.let(viewModel::editBlog)
-                    }
-                },
-                onCategoryClick = viewModel::changeCategory,
-                onTitleChange = viewModel::changeTitle,
-                onImageChange = viewModel::changeImageFile,
-                isCategoryDropDownExpanded = isCategoryDropDownExpanded,
-                imagePickerLauncher = imagePickerLauncher,
-                onCategoryDropDownExpandedChange = { isCategoryDropDownExpanded = it },
-            )
-        } else {
-            PreviewBlogCompactContent(
-                createBlogPreviewUiState = previewBlogUiState,
-                richTextState = richTextState,
-                onBackClick = {
-                    navigator.pop()
-                },
-                onCreateBlockClick = {
-                    when (publishAction) {
-                        PreviewPublishAction.PUBLISH_NEW -> viewModel.publishBlog()
-                        PreviewPublishAction.PUBLISH_EDIT -> blog?.let(viewModel::editBlog)
-                    }
-                },
-                onCategoryClick = viewModel::changeCategory,
-                onTitleChange = viewModel::changeTitle,
-                isCategoryDropDownExpanded = isCategoryDropDownExpanded,
-                imagePickerLauncher = imagePickerLauncher,
-                onCategoryDropDownExpandedChange = { isCategoryDropDownExpanded = it },
-                onDeleteImageClick = viewModel::deleteImage,
-            )
-        }
+        PreviewBlogContent(
+            createBlogPreviewUiState = previewBlogUiState,
+            richTextState = richTextState,
+            onBackClick = {
+                navigator.pop()
+            },
+            onCreateBlockClick = {
+                when (publishAction) {
+                    PreviewPublishAction.PUBLISH_NEW -> viewModel.publishBlog()
+                    PreviewPublishAction.PUBLISH_EDIT -> blog?.let(viewModel::editBlog)
+                }
+            },
+            onCategoryClick = viewModel::changeCategory,
+            onTitleChange = viewModel::changeTitle,
+            isCategoryDropDownExpanded = isCategoryDropDownExpanded,
+            imagePickerLauncher = imagePickerLauncher,
+            onCategoryDropDownExpandedChange = { isCategoryDropDownExpanded = it },
+            onDeleteImageClick = viewModel::deleteImage,
+            isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
+            isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
+        )
     }
 
     override fun enter(lastEvent: StackEvent): EnterTransition =
@@ -199,33 +181,7 @@ class PreviewBlogScreen(
 }
 
 @Composable
-fun PreviewBlogExpandedContent(
-    modifier: Modifier = Modifier,
-    createBlogPreviewUiState: PreviewBlogUiState,
-    richTextState: RichTextState,
-    onBackClick: () -> Unit = {},
-    onCreateBlockClick: () -> Unit = {},
-    onCategoryClick: (BlogCategory) -> Unit = {},
-    onTitleChange: (String) -> Unit = {},
-    onImageChange: (PlatformFile?) -> Unit = {},
-    isCategoryDropDownExpanded: Boolean = true,
-    imagePickerLauncher: PickerResultLauncher,
-    onCategoryDropDownExpandedChange: (Boolean) -> Unit = {},
-) {
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            PreviewBlogAppBar(
-                onPublishBlogClick = onCreateBlockClick,
-                onBackClick = onBackClick,
-                enablePublishButton = createBlogPreviewUiState.isFormValid,
-            )
-        },
-    ) {}
-}
-
-@Composable
-fun PreviewBlogCompactContent(
+fun PreviewBlogContent(
     modifier: Modifier = Modifier,
     createBlogPreviewUiState: PreviewBlogUiState,
     richTextState: RichTextState,
@@ -237,6 +193,8 @@ fun PreviewBlogCompactContent(
     isCategoryDropDownExpanded: Boolean = true,
     imagePickerLauncher: PickerResultLauncher,
     onCategoryDropDownExpandedChange: (Boolean) -> Unit = {},
+    isMediumScreen: Boolean = false,
+    isExpandedScreen: Boolean = false,
 ) {
     Scaffold(
         modifier = modifier,
@@ -248,74 +206,104 @@ fun PreviewBlogCompactContent(
             )
         },
     ) { innerPadding ->
-        LazyColumn(
-            modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .consumeWindowInsets(WindowInsets.ime)
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .padding(bottom = 16.dp),
-        ) {
-            item {
-                Text(
-                    stringResource(Res.string.create_blog_preview_blog_image),
-                    style =
-                        MaterialTheme
-                            .typography.titleMedium
-                            .copy(fontWeight = FontWeight.SemiBold),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                PreviewImageBox(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(350.dp),
-                    imageFile = createBlogPreviewUiState.imageFile,
-                    networkImage = createBlogPreviewUiState.networkImageUrl,
-                    onPickImageClick = {
-                        imagePickerLauncher.launch()
-                    },
-                    onDeleteImageClick = onDeleteImageClick,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+        val spaceWeight =
+            remember(isMediumScreen, isExpandedScreen) {
+                when {
+                    isExpandedScreen -> 0.15f
+                    isMediumScreen -> 0.1f
+                    else -> 0.05f
+                }
             }
+        val contentWeight =
+            remember(isMediumScreen, isExpandedScreen) {
+                when {
+                    isExpandedScreen -> 0.7f
+                    isMediumScreen -> 0.8f
+                    else -> 0.9f
+                }
+            }
+        Row {
+            Spacer(modifier = Modifier.weight(spaceWeight))
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .padding(innerPadding)
+                        .consumeWindowInsets(WindowInsets.ime)
+                        .weight(contentWeight)
+                        .fillMaxSize()
+                        .padding(bottom = 16.dp),
+            ) {
+                item {
+                    Text(
+                        stringResource(Res.string.create_blog_preview_blog_image),
+                        style =
+                            MaterialTheme
+                                .typography.titleMedium
+                                .copy(fontWeight = FontWeight.SemiBold),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    PreviewImageBox(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(350.dp),
+                        imageFile = createBlogPreviewUiState.imageFile,
+                        networkImage = createBlogPreviewUiState.networkImageUrl,
+                        onPickImageClick = {
+                            imagePickerLauncher.launch()
+                        },
+                        onDeleteImageClick = onDeleteImageClick,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Text(
+                            stringResource(Res.string.general_wide_image_is_recommend),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-            item {
-                BlogTitleTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    createBlogPreviewUiState = createBlogPreviewUiState,
-                    onTitleChange = onTitleChange,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
+                item {
+                    BlogTitleTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        createBlogPreviewUiState = createBlogPreviewUiState,
+                        onTitleChange = onTitleChange,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-            item {
-                BlogCategoryDropdownMenu(
-                    modifier = Modifier.fillMaxWidth(),
-                    selectedCategory = createBlogPreviewUiState.category,
-                    isCategoryDropDownExpanded = isCategoryDropDownExpanded,
-                    onExpandedChange = onCategoryDropDownExpandedChange,
-                    onDismissRequest = { onCategoryDropDownExpandedChange(false) },
-                    onCategoryClick = onCategoryClick,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+                item {
+                    BlogCategoryDropdownMenu(
+                        modifier = Modifier.fillMaxWidth(),
+                        selectedCategory = createBlogPreviewUiState.category,
+                        isCategoryDropDownExpanded = isCategoryDropDownExpanded,
+                        onExpandedChange = onCategoryDropDownExpandedChange,
+                        onDismissRequest = { onCategoryDropDownExpandedChange(false) },
+                        onCategoryClick = onCategoryClick,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-            item {
-                Text(
-                    stringResource(Res.string.create_blog_preview_blog_content_title),
-                    style =
-                        MaterialTheme
-                            .typography.titleMedium
-                            .copy(fontWeight = FontWeight.SemiBold),
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                RichText(
-                    state = richTextState,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                item {
+                    Text(
+                        stringResource(Res.string.create_blog_preview_blog_content_title),
+                        style =
+                            MaterialTheme
+                                .typography.titleMedium
+                                .copy(fontWeight = FontWeight.SemiBold),
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    RichText(
+                        state = richTextState,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
+            Spacer(modifier = Modifier.weight(spaceWeight))
         }
     }
 }

@@ -345,7 +345,7 @@ fun DetailBlogScreenContent(
                             .height(
                                 when {
                                     isExpandedScreen -> 500.dp
-                                    isMediumScreen -> 400.dp
+                                    isMediumScreen -> 350.dp
                                     else -> 300.dp
                                 },
                             ).clip(RoundedCornerShape(16.dp)),

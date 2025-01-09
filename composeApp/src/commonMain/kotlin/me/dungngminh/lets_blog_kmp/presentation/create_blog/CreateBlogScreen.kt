@@ -6,6 +6,7 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -20,6 +21,7 @@ import cafe.adriel.voyager.transitions.ScreenTransition
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.create_blog_screen_create_blog_title
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.presentation.components.blog_editor.BlogEditorAppBar
 import me.dungngminh.lets_blog_kmp.presentation.components.blog_editor.BlogEditorContent
 import me.dungngminh.lets_blog_kmp.presentation.preview_blog.PreviewBlogScreen
@@ -40,6 +42,8 @@ object CreateBlogScreen : Screen, ScreenTransition {
             }
         }
 
+        val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
         BlogEditorContent(
             richTextState = richTextState,
             topAppBar = {
@@ -59,6 +63,8 @@ object CreateBlogScreen : Screen, ScreenTransition {
                     enableCheckButton = enableCheckButton,
                 )
             },
+            isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
+            isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
         )
     }
 

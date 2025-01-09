@@ -180,7 +180,7 @@ fun onStyleButtonClick(
         EditorStyleButtonType.BOLD -> {
             richTextState.toggleSpanStyle(
                 SpanStyle(
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.ExtraBold,
                 ),
             )
         }
