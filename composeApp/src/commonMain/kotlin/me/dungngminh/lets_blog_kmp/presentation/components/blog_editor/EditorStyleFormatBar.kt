@@ -12,6 +12,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -242,7 +243,9 @@ private fun EditorStyleButton(
     if (isSelected) {
         FilledIconButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier =
+                modifier
+                    .focusProperties { canFocus = false },
         ) {
             Icon(
                 painterResource(styleButtonType.icon),
@@ -252,7 +255,9 @@ private fun EditorStyleButton(
     } else {
         IconButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier =
+                modifier
+                    .focusProperties { canFocus = false },
         ) {
             Icon(
                 painterResource(styleButtonType.icon),

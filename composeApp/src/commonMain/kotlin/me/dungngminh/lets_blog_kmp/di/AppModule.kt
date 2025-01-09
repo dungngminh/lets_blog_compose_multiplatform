@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.di
 
 import me.dungngminh.lets_blog_kmp.AppViewModel
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogViewModel
+import me.dungngminh.lets_blog_kmp.presentation.edit_blog.EditBlogViewModel
 import me.dungngminh.lets_blog_kmp.presentation.edit_user_profile.EditUserProfileViewModel
 import me.dungngminh.lets_blog_kmp.presentation.login.LoginViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
@@ -61,6 +62,11 @@ private val ViewModelModule =
         }
         factory {
             FavoriteViewModel(get())
+        }
+        factory { param ->
+            EditBlogViewModel(
+                blog = param.get(),
+            )
         }
         factory { param ->
             EditUserProfileViewModel(

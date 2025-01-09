@@ -48,6 +48,7 @@ import letsblogkmp.composeapp.generated.resources.login_page_email_label
 import letsblogkmp.composeapp.generated.resources.login_page_login_button_label
 import letsblogkmp.composeapp.generated.resources.login_page_login_title
 import letsblogkmp.composeapp.generated.resources.login_page_new_in_lets_blog_label
+import letsblogkmp.composeapp.generated.resources.login_page_password_hint_label
 import letsblogkmp.composeapp.generated.resources.login_page_password_label
 import letsblogkmp.composeapp.generated.resources.login_page_register_now_label
 import letsblogkmp.composeapp.generated.resources.validation_error_email_empty
@@ -207,7 +208,7 @@ fun LoginScreenContent(
                     Text(stringResource(Res.string.login_page_password_label))
                 },
                 placeholder = {
-                    Text(stringResource(Res.string.login_page_email_hint_label))
+                    Text(stringResource(Res.string.login_page_password_hint_label))
                 },
                 trailingIcon = {
                     IconButton(

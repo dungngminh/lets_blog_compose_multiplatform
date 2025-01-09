@@ -5,20 +5,18 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntOffset
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.stack.StackEvent
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
-import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.edit_blog_screen_edit_blog_title
 import me.dungngminh.lets_blog_kmp.commons.extensions.fromJsonStr
@@ -28,6 +26,7 @@ import me.dungngminh.lets_blog_kmp.presentation.components.blog_editor.BlogEdito
 import me.dungngminh.lets_blog_kmp.presentation.preview_blog.PreviewBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.preview_blog.PreviewPublishAction
 import org.jetbrains.compose.resources.stringResource
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalVoyagerApi::class)
 class EditBlogScreen(
@@ -44,23 +43,16 @@ class EditBlogScreen(
 
         val blog = remember { blogData.fromJsonStr<Blog>() }
 
-        val richTextState = rememberRichTextState()
+        val viewModel = koinScreenModel<EditBlogViewModel> { parametersOf(blog) }
 
-        val enableCheckButton by remember(richTextState.annotatedString) {
+        val enableCheckButton by remember(viewModel.richTextState.annotatedString) {
             derivedStateOf {
-                richTextState.annotatedString.isNotEmpty()
+                viewModel.richTextState.annotatedString.isNotEmpty()
             }
         }
 
-        LaunchedEffect(blog) {
-            richTextState.setHtml(blog?.content.orEmpty())
-
-            // Move cursor to the start of the text
-            richTextState.selection = TextRange(0)
-        }
-
         BlogEditorContent(
-            richTextState = richTextState,
+            richTextState = viewModel.richTextState,
             topAppBar = {
                 BlogEditorAppBar(
                     onBackClick = {
@@ -69,7 +61,7 @@ class EditBlogScreen(
                     onCheckClick = {
                         navigator.push(
                             PreviewBlogScreen(
-                                content = richTextState.toHtml(),
+                                content = viewModel.richTextState.toHtml(),
                                 blog = blog,
                                 publishAction = PreviewPublishAction.PUBLISH_EDIT,
                             ),
