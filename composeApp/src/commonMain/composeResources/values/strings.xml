@@ -128,5 +128,5 @@
     <string name="general_delete">Delete</string>
     <string name="delete_blog_dialog_title">Delete blog</string>
     <string name="delete_blog_dialog_message">Are you sure you want to delete this blog?</string>
-    <string name="general_wide_image_is_recommend">Wide image is recommended</string>
+    <string name="general_wide_image_is_recommend">**Wide image is recommended</string>
 </resources>
