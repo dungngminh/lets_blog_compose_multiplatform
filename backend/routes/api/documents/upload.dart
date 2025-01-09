@@ -17,8 +17,6 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
   final cloudinary = context.read<Cloudinary>();
   try {
     final request = await context.request.formData();
-    print(request.fields);
-    print(request.files);
     final folderName = request.fields[''];
     final uploadedFile = request.files[''];
 
@@ -36,7 +34,7 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
       resourceType: CloudinaryResourceType.image,
     )
         .then<Response>((cloudinaryResponse) {
-      final url = cloudinaryResponse.url;
+      final url = cloudinaryResponse.secureUrl;
       if (url != null) {
         return OkResponse(UploadDocumentResponse(url: url));
       } else {
@@ -44,7 +42,6 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
       }
     });
   } catch (e, st) {
-    print(st);
     return InternalServerErrorResponse(st.toString());
   }
 }

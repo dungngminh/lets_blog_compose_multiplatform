@@ -33,7 +33,7 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
       resourceType: CloudinaryResourceType.image,
     )
         .then<Response>((cloudinaryResponse) {
-      final url = cloudinaryResponse.url;
+      final url = cloudinaryResponse.secureUrl;
       if (url != null) {
         return OkResponse(UploadDocumentResponse(url: url));
       } else {
