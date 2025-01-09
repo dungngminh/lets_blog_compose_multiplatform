@@ -121,4 +121,11 @@
     <string name="summary_screen_summary_title">Summary</string>
     <string name="summary_screen_ai_is_summarizing">AI is summarizing</string>
     <string name="summary_screen_fab_label">Summarize content</string>
+    <string name="general_delete_blog_success">Delete blog successfully</string>
+    <string name="general_favorite_blog_success">Favorite blog successfully</string>
+    <string name="general_unfavorite_blog_success">Unfavorite blog successfully</string>
+    <string name="general_cancel">Cancel</string>
+    <string name="general_delete">Delete</string>
+    <string name="delete_blog_dialog_title">Delete blog</string>
+    <string name="delete_blog_dialog_message">Are you sure you want to delete this blog?</string>
 </resources>

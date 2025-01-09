@@ -75,6 +75,7 @@ import letsblogkmp.composeapp.generated.resources.validation_error_password_too_
 import letsblogkmp.composeapp.generated.resources.validation_error_username_empty
 import letsblogkmp.composeapp.generated.resources.validation_error_username_too_short
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
+import me.dungngminh.lets_blog_kmp.commons.extensions.tabsVisualTransformation
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -199,6 +200,7 @@ fun RegisterScreenContent(
                     Text(stringResource(Res.string.register_page_username_hint_label))
                 },
                 onValueChange = { onUsernameChange(it) },
+                visualTransformation = tabsVisualTransformation,
             )
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
@@ -230,6 +232,7 @@ fun RegisterScreenContent(
                     Text(stringResource(Res.string.login_page_email_hint_label))
                 },
                 onValueChange = { onEmailChange(it) },
+                visualTransformation = tabsVisualTransformation,
             )
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(

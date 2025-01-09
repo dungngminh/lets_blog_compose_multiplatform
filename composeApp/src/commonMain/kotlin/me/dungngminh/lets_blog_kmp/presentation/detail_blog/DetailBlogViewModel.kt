@@ -22,7 +22,10 @@ import me.dungngminh.lets_blog_kmp.domain.repositories.SummaryContentRepository
 
 data class DetailBlogState(
     val blog: Blog,
+    val isLoading: Boolean = false,
     val isDeleteSuccess: Boolean = false,
+    val isFavoriteSuccess: Boolean = false,
+    val isUnFavoriteSuccess: Boolean = false,
     val deleteError: String? = null,
 )
 
@@ -89,7 +92,10 @@ class DetailBlogViewModel(
         val currentBlog = currentBlogState.blog
         val updatedBlog = currentBlog.copy(isFavoriteByUser = true)
         _uiState.update {
-            it.copy(blog = updatedBlog)
+            it.copy(
+                blog = updatedBlog,
+                isFavoriteSuccess = true,
+            )
         }
         screenModelScope.launch {
             favoriteRepository.favoriteBlog(currentBlog.id)
@@ -100,7 +106,10 @@ class DetailBlogViewModel(
         val currentBlog = currentBlogState.blog
         val updatedBlog = currentBlog.copy(isFavoriteByUser = false)
         _uiState.update {
-            it.copy(blog = updatedBlog)
+            it.copy(
+                blog = updatedBlog,
+                isUnFavoriteSuccess = true,
+            )
         }
         screenModelScope.launch {
             favoriteRepository.unFavoriteBlog(currentBlog.id)
@@ -108,19 +117,46 @@ class DetailBlogViewModel(
     }
 
     fun deleteBlog() {
+        _uiState.update {
+            it.copy(isLoading = true)
+        }
         val currentBlog = currentBlogState.blog
         screenModelScope.launch {
             blogRepository
                 .deleteBlog(currentBlog.id)
                 .onSuccess {
                     _uiState.update {
-                        it.copy(isDeleteSuccess = true)
+                        it.copy(
+                            isDeleteSuccess = true,
+                            isLoading = false,
+                        )
                     }
                 }.onFailure {
                     _uiState.update { state ->
-                        state.copy(deleteError = it.message)
+                        state.copy(
+                            deleteError = it.message,
+                            isLoading = false,
+                        )
                     }
                 }
+        }
+    }
+
+    fun onFavoriteSuccessShown() {
+        _uiState.update {
+            it.copy(isFavoriteSuccess = false)
+        }
+    }
+
+    fun onUnFavoriteSuccessShown() {
+        _uiState.update {
+            it.copy(isUnFavoriteSuccess = false)
+        }
+    }
+
+    fun onDeleteErrorShown() {
+        _uiState.update {
+            it.copy(deleteError = null)
         }
     }
 

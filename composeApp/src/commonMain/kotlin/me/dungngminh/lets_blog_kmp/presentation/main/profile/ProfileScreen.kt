@@ -33,9 +33,11 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,6 +97,8 @@ object ProfileTab : Tab {
         val userBlogState by userProfileViewModel.userBlogState.collectAsStateWithLifecycle()
 
         val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
+        var isSignOutDialogOpen by remember { mutableStateOf(false) }
 
         if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact) {
             ProfileScreenExpandedContent(

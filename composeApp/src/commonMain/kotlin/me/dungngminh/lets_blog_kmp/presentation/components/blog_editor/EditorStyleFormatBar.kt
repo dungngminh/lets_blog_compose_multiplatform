@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.sp
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import letsblogkmp.composeapp.generated.resources.Res
@@ -29,6 +30,11 @@ import letsblogkmp.composeapp.generated.resources.ic_align_right
 import letsblogkmp.composeapp.generated.resources.ic_bold
 import letsblogkmp.composeapp.generated.resources.ic_code_simple
 import letsblogkmp.composeapp.generated.resources.ic_dash_list
+import letsblogkmp.composeapp.generated.resources.ic_heading_1
+import letsblogkmp.composeapp.generated.resources.ic_heading_2
+import letsblogkmp.composeapp.generated.resources.ic_heading_3
+import letsblogkmp.composeapp.generated.resources.ic_heading_4
+import letsblogkmp.composeapp.generated.resources.ic_heading_5
 import letsblogkmp.composeapp.generated.resources.ic_italic
 import letsblogkmp.composeapp.generated.resources.ic_number_list
 import letsblogkmp.composeapp.generated.resources.ic_strikethrough
@@ -45,6 +51,11 @@ enum class EditorStyleButtonType {
     JUSTIFY_CENTER,
     JUSTIFY_RIGHT,
     JUSTIFY_FULL,
+    H1,
+    H2,
+    H3,
+    H4,
+    H5,
     CODE_BLOCK,
     NUMBERED_LIST,
     BULLET_LIST,
@@ -64,6 +75,11 @@ enum class EditorStyleButtonType {
                 CODE_BLOCK -> Res.drawable.ic_code_simple
                 NUMBERED_LIST -> Res.drawable.ic_number_list
                 BULLET_LIST -> Res.drawable.ic_dash_list
+                H1 -> Res.drawable.ic_heading_1
+                H2 -> Res.drawable.ic_heading_2
+                H3 -> Res.drawable.ic_heading_3
+                H4 -> Res.drawable.ic_heading_4
+                H5 -> Res.drawable.ic_heading_5
             }
 }
 
@@ -106,7 +122,7 @@ private fun isStyleButtonSelected(
 ): Boolean =
     when (styleButtonType) {
         EditorStyleButtonType.BOLD -> {
-            richTextState.currentSpanStyle.fontWeight == FontWeight.Bold
+            richTextState.currentSpanStyle.fontWeight == FontWeight.ExtraBold
         }
 
         EditorStyleButtonType.ITALIC -> {
@@ -148,9 +164,15 @@ private fun isStyleButtonSelected(
         EditorStyleButtonType.BULLET_LIST -> {
             richTextState.isUnorderedList
         }
+
+        EditorStyleButtonType.H1 -> richTextState.currentSpanStyle.fontSize == 40.sp
+        EditorStyleButtonType.H2 -> richTextState.currentSpanStyle.fontSize == 32.sp
+        EditorStyleButtonType.H3 -> richTextState.currentSpanStyle.fontSize == 24.sp
+        EditorStyleButtonType.H4 -> richTextState.currentSpanStyle.fontSize == 20.sp
+        EditorStyleButtonType.H5 -> richTextState.currentSpanStyle.fontSize == 16.sp
     }
 
-private fun onStyleButtonClick(
+fun onStyleButtonClick(
     richTextState: RichTextState,
     styleButtonType: EditorStyleButtonType,
 ) {
@@ -229,6 +251,46 @@ private fun onStyleButtonClick(
 
         EditorStyleButtonType.BULLET_LIST -> {
             richTextState.toggleUnorderedList()
+        }
+
+        EditorStyleButtonType.H1 -> {
+            richTextState.addSpanStyle(
+                SpanStyle(
+                    fontSize = 40.sp,
+                ),
+            )
+        }
+
+        EditorStyleButtonType.H2 -> {
+            richTextState.addSpanStyle(
+                SpanStyle(
+                    fontSize = 32.sp,
+                ),
+            )
+        }
+
+        EditorStyleButtonType.H3 -> {
+            richTextState.addSpanStyle(
+                SpanStyle(
+                    fontSize = 24.sp,
+                ),
+            )
+        }
+
+        EditorStyleButtonType.H4 -> {
+            richTextState.addSpanStyle(
+                SpanStyle(
+                    fontSize = 20.sp,
+                ),
+            )
+        }
+
+        EditorStyleButtonType.H5 -> {
+            richTextState.addSpanStyle(
+                SpanStyle(
+                    fontSize = 16.sp,
+                ),
+            )
         }
     }
 }

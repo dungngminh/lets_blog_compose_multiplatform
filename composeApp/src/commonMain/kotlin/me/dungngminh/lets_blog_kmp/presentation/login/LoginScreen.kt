@@ -56,6 +56,7 @@ import letsblogkmp.composeapp.generated.resources.validation_error_email_invalid
 import letsblogkmp.composeapp.generated.resources.validation_error_password_empty
 import letsblogkmp.composeapp.generated.resources.validation_error_password_too_short
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
+import me.dungngminh.lets_blog_kmp.commons.extensions.tabsVisualTransformation
 import me.dungngminh.lets_blog_kmp.presentation.register.RegisterScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -168,6 +169,7 @@ fun LoginScreenContent(
                     Text(stringResource(Res.string.login_page_email_hint_label))
                 },
                 onValueChange = { onEmailChange(it) },
+                visualTransformation = tabsVisualTransformation,
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(

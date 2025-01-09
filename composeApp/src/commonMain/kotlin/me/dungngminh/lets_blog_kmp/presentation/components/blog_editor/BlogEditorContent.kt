@@ -13,6 +13,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.material3.OutlinedRichTextEditor
@@ -54,7 +60,15 @@ fun BlogEditorContent(
                         state = richTextState,
                         modifier =
                             Modifier
-                                .fillParentMaxSize(),
+                                .fillParentMaxSize()
+                                .onPreviewKeyEvent { event ->
+                                    onKeyCombination(
+                                        richTextState = richTextState,
+                                        key = event.key,
+                                        isCtrlPressed = event.isCtrlPressed,
+                                        type = event.type,
+                                    )
+                                },
                         placeholder = {
                             Text(stringResource(Res.string.blog_editor_put_your_content_here_label))
                         },
@@ -64,3 +78,73 @@ fun BlogEditorContent(
         }
     }
 }
+
+private fun onKeyCombination(
+    richTextState: RichTextState,
+    key: Key,
+    isCtrlPressed: Boolean,
+    type: KeyEventType,
+): Boolean =
+    if (type != KeyEventType.KeyUp) {
+        false
+    } else {
+        when {
+            isCtrlPressed && key == Key.B -> {
+                onStyleButtonClick(
+                    richTextState = richTextState,
+                    styleButtonType = EditorStyleButtonType.BOLD,
+                )
+                true
+            }
+
+            isCtrlPressed && key == Key.I -> {
+                onStyleButtonClick(
+                    richTextState = richTextState,
+                    styleButtonType = EditorStyleButtonType.ITALIC,
+                )
+                true
+            }
+
+            isCtrlPressed && key == Key.U -> {
+                onStyleButtonClick(
+                    richTextState = richTextState,
+                    styleButtonType = EditorStyleButtonType.UNDERLINE,
+                )
+                true
+            }
+
+            isCtrlPressed && key == Key.L -> {
+                onStyleButtonClick(
+                    richTextState = richTextState,
+                    styleButtonType = EditorStyleButtonType.JUSTIFY_LEFT,
+                )
+                true
+            }
+
+            isCtrlPressed && key == Key.E -> {
+                onStyleButtonClick(
+                    richTextState = richTextState,
+                    styleButtonType = EditorStyleButtonType.JUSTIFY_CENTER,
+                )
+                true
+            }
+
+            isCtrlPressed && key == Key.R -> {
+                onStyleButtonClick(
+                    richTextState = richTextState,
+                    styleButtonType = EditorStyleButtonType.JUSTIFY_RIGHT,
+                )
+                true
+            }
+
+            isCtrlPressed && key == Key.J -> {
+                onStyleButtonClick(
+                    richTextState = richTextState,
+                    styleButtonType = EditorStyleButtonType.JUSTIFY_FULL,
+                )
+                true
+            }
+
+            else -> false
+        }
+    }

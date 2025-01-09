@@ -78,6 +78,7 @@ import letsblogkmp.composeapp.generated.resources.ic_rocket_launch
 import letsblogkmp.composeapp.generated.resources.ic_x
 import letsblogkmp.composeapp.generated.resources.platform_image_picker_title
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
+import me.dungngminh.lets_blog_kmp.commons.extensions.tabsVisualTransformation
 import me.dungngminh.lets_blog_kmp.commons.extensions.toByteArray
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
@@ -422,6 +423,7 @@ private fun BlogTitleTextField(
                 )
             }
         },
+        visualTransformation = tabsVisualTransformation,
     )
 }
 

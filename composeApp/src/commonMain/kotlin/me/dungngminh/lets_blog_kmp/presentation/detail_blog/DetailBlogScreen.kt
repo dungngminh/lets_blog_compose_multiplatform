@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -63,7 +65,16 @@ import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
+import letsblogkmp.composeapp.generated.resources.delete_blog_dialog_message
+import letsblogkmp.composeapp.generated.resources.delete_blog_dialog_title
+import letsblogkmp.composeapp.generated.resources.general_cancel
+import letsblogkmp.composeapp.generated.resources.general_delete
+import letsblogkmp.composeapp.generated.resources.general_delete_blog_success
+import letsblogkmp.composeapp.generated.resources.general_favorite_blog_success
+import letsblogkmp.composeapp.generated.resources.general_something_went_wrong_please_try_again
+import letsblogkmp.composeapp.generated.resources.general_unfavorite_blog_success
 import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
@@ -78,12 +89,14 @@ import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
+import me.dungngminh.lets_blog_kmp.presentation.components.LoadingDialog
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.summary.SummaryBlogContentBottomSheet
 import me.dungngminh.lets_blog_kmp.presentation.edit_blog.EditBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.login.LoginScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
@@ -123,6 +136,39 @@ data class DetailBlogScreen(
 
         var isSummaryBlogBottomSheetShown by remember { mutableStateOf(false) }
 
+        var isDeleteBlogDialogShown by remember { mutableStateOf(false) }
+
+        if (detailBlogState.isLoading) {
+            LoadingDialog()
+        }
+
+        if (isDeleteBlogDialogShown) {
+            AlertDialog(
+                onDismissRequest = { isDeleteBlogDialogShown = false },
+                title = { Text(stringResource(Res.string.delete_blog_dialog_title)) },
+                text = { Text(stringResource(Res.string.delete_blog_dialog_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteBlog()
+                            isDeleteBlogDialogShown = false
+                        },
+                    ) {
+                        Text(stringResource(Res.string.general_delete))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            isDeleteBlogDialogShown = false
+                        },
+                    ) {
+                        Text(stringResource(Res.string.general_cancel))
+                    }
+                },
+            )
+        }
+
         LaunchedEffect(blogId) {
             blogContentRichTextState.setHtml(blog?.content.orEmpty())
         }
@@ -133,7 +179,39 @@ data class DetailBlogScreen(
                 .onEach { state ->
                     when {
                         state.isDeleteSuccess -> {
-                            navigator.popUntil { it is MainScreen }
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = getString(Res.string.general_delete_blog_success),
+                                )
+                                navigator.popUntil { it is MainScreen }
+                            }
+                        }
+
+                        state.isFavoriteSuccess -> {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = getString(Res.string.general_favorite_blog_success),
+                                )
+                                viewModel.onFavoriteSuccessShown()
+                            }
+                        }
+
+                        state.isUnFavoriteSuccess -> {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = getString(Res.string.general_unfavorite_blog_success),
+                                )
+                                viewModel.onUnFavoriteSuccessShown()
+                            }
+                        }
+
+                        state.deleteError != null -> {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = getString(Res.string.general_something_went_wrong_please_try_again),
+                                )
+                                viewModel.onDeleteErrorShown()
+                            }
                         }
                     }
                 }.launchIn(this)
@@ -145,7 +223,8 @@ data class DetailBlogScreen(
             summaryBlogContentState = summaryContentState,
             snackbarHostState = snackbarHostState,
             blogContentRichTextState = blogContentRichTextState,
-            isLargeScreen = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact,
+            isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
+            isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
             isSummaryBottomSheetShown = isSummaryBlogBottomSheetShown,
             onBackClick = navigator::pop,
             onFavoriteClick = {
@@ -165,7 +244,9 @@ data class DetailBlogScreen(
                     ),
                 )
             },
-            onDeleteClick = viewModel::deleteBlog,
+            onDeleteClick = {
+                isDeleteBlogDialogShown = true
+            },
             onSummaryBlogClick = {
                 isSummaryBlogBottomSheetShown = true
             },
@@ -198,7 +279,8 @@ fun DetailBlogScreenContent(
     userSessionState: UserSessionState,
     blogContentRichTextState: RichTextState,
     summaryBlogContentState: SummaryBlogContentState,
-    isLargeScreen: Boolean = false,
+    isMediumScreen: Boolean = false,
+    isExpandedScreen: Boolean = false,
     isSummaryBottomSheetShown: Boolean = false,
     onBackClick: () -> Unit,
     onFavoriteClick: (Blog) -> Unit,
@@ -260,48 +342,52 @@ fun DetailBlogScreenContent(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(350.dp)
-                            .clip(RoundedCornerShape(16.dp)),
+                            .height(
+                                when {
+                                    isExpandedScreen -> 500.dp
+                                    isMediumScreen -> 400.dp
+                                    else -> 300.dp
+                                },
+                            ).clip(RoundedCornerShape(16.dp)),
                 )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            item(contentType = "blog_title") {
-                Text(
-                    text = blog.title,
-                    style =
-                        MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            item(contentType = "creator_info") {
-                DetailBlogCreatorInfo(blog = blog)
-            }
-
-            item {
                 Spacer(modifier = Modifier.height(16.dp))
             }
             item(contentType = "blog_content") {
-                if (isLargeScreen) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Spacer(modifier = Modifier.weight(0.3f))
-                        RichText(
-                            blogContentRichTextState,
-                            modifier = Modifier.weight(0.6f),
-                        )
-                        Spacer(modifier = Modifier.weight(0.3f))
+                val spaceWeight =
+                    remember(isMediumScreen, isExpandedScreen) {
+                        when {
+                            isExpandedScreen -> 0.25f
+                            isMediumScreen -> 0.2f
+                            else -> 0.05f
+                        }
                     }
-                } else {
-                    RichText(blogContentRichTextState)
+                val contentWeight =
+                    remember(isMediumScreen, isExpandedScreen) {
+                        when {
+                            isExpandedScreen -> 0.5f
+                            isMediumScreen -> 0.6f
+                            else -> 0.9f
+                        }
+                    }
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Spacer(modifier = Modifier.weight(spaceWeight))
+                    Column(modifier = Modifier.weight(contentWeight)) {
+                        Text(
+                            text = blog.title,
+                            style =
+                                when {
+                                    isExpandedScreen -> MaterialTheme.typography.headlineLarge
+                                    else -> MaterialTheme.typography.headlineMedium
+                                }.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                ),
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        DetailBlogCreatorInfo(blog = blog)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        RichText(blogContentRichTextState)
+                    }
+                    Spacer(modifier = Modifier.weight(spaceWeight))
                 }
             }
         }
@@ -486,7 +572,6 @@ fun DetailScreenFavoriteButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun Preview_DetailBlogScreenContent() {
