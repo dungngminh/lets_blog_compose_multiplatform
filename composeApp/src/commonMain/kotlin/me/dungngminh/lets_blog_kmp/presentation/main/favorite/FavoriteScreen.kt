@@ -97,7 +97,7 @@ fun FavoriteScreenContent(
         },
     ) { innerPadding ->
         when (userSessionState) {
-            UserSessionState.Initial ->
+            UserSessionState.Initial, UserSessionState.Loading ->
                 Center {
                     CircularProgressIndicator()
                 }

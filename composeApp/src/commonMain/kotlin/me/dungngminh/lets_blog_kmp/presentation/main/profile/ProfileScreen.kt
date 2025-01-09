@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -36,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,8 +60,12 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.general_blog_count
+import letsblogkmp.composeapp.generated.resources.general_no
+import letsblogkmp.composeapp.generated.resources.general_sign_out_label
+import letsblogkmp.composeapp.generated.resources.general_sign_out_message
+import letsblogkmp.composeapp.generated.resources.general_yes
 import letsblogkmp.composeapp.generated.resources.ic_pencil
-import letsblogkmp.composeapp.generated.resources.ic_setting
+import letsblogkmp.composeapp.generated.resources.ic_sign_out
 import letsblogkmp.composeapp.generated.resources.profile_screen_no_blog
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
@@ -99,6 +104,33 @@ object ProfileTab : Tab {
         val windowSizeClass = LocalWindowSizeClass.currentOrThrow
 
         var isSignOutDialogOpen by remember { mutableStateOf(false) }
+
+        if (isSignOutDialogOpen) {
+            AlertDialog(
+                onDismissRequest = { isSignOutDialogOpen = false },
+                title = { Text(stringResource(Res.string.general_sign_out_label)) },
+                text = { Text(stringResource(Res.string.general_sign_out_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            userSessionViewModel.logout()
+                            isSignOutDialogOpen = false
+                        },
+                    ) {
+                        Text(stringResource(Res.string.general_yes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            isSignOutDialogOpen = false
+                        },
+                    ) {
+                        Text(stringResource(Res.string.general_no))
+                    }
+                },
+            )
+        }
 
         if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact) {
             ProfileScreenExpandedContent(
@@ -140,8 +172,8 @@ object ProfileTab : Tab {
                     userSessionViewModel.refresh()
                 },
                 onRetryClick = userSessionViewModel::retry,
-                onSettingClick = {
-                    rootNavigator.push(SettingScreen)
+                onSignOutClick = {
+                    isSignOutDialogOpen = true
                 },
                 onEditProfileClick = {
                     rootNavigator.push(EditUserProfileScreen)
@@ -199,7 +231,7 @@ private fun ProfileScreenContent(
     onLoginClick: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onRetryClick: () -> Unit = {},
-    onSettingClick: () -> Unit = {},
+    onSignOutClick: () -> Unit = {},
     onEditProfileClick: () -> Unit = {},
     onBlogClick: (Blog) -> Unit = {},
     onCreateBlogClick: () -> Unit = {},
@@ -207,15 +239,13 @@ private fun ProfileScreenContent(
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-    val user by rememberUpdatedState((userSessionState as? UserSessionState.Authenticated)?.user)
-
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            if (user != null) {
+            if (userSessionState is UserSessionState.Authenticated) {
                 ProfileAppBar(
-                    user = user!!,
-                    onSettingClick = onSettingClick,
+                    user = userSessionState.user,
+                    onSignOutClick = onSignOutClick,
                     onEditProfileClick = onEditProfileClick,
                     scrollBehavior = scrollBehavior,
                 )
@@ -223,7 +253,7 @@ private fun ProfileScreenContent(
         },
     ) { innerPadding ->
         when (userSessionState) {
-            UserSessionState.Initial ->
+            UserSessionState.Initial, UserSessionState.Loading ->
                 Center {
                     CircularProgressIndicator()
                 }
@@ -333,7 +363,7 @@ fun AuthenticatedProfileScreen(
 @Composable
 fun ProfileAppBar(
     modifier: Modifier = Modifier,
-    onSettingClick: () -> Unit,
+    onSignOutClick: () -> Unit,
     user: User,
     onEditProfileClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
@@ -408,11 +438,12 @@ fun ProfileAppBar(
                 )
             }
             IconButton(
-                onClick = onSettingClick,
+                onClick = onSignOutClick,
             ) {
                 Icon(
-                    painterResource(Res.drawable.ic_setting),
+                    painterResource(Res.drawable.ic_sign_out),
                     contentDescription = null,
+                    modifier = Modifier.size(24.dp),
                 )
             }
         },

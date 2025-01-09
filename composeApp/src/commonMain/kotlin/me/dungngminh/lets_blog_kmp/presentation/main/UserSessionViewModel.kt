@@ -47,7 +47,7 @@ class UserSessionViewModel(
                             )
                         },
                     )
-                }
+                }.startWith(UserSessionState.Loading)
             }
 
     val userSessionState =
@@ -58,12 +58,11 @@ class UserSessionViewModel(
                 .startWith(Unit)
                 .flatMapLatest {
                     userSessionFlow
-                        .startWith(UserSessionState.Authenticated())
                 },
         ).stateIn(
             scope = screenModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = UserSessionState.Unauthenticated,
+            initialValue = UserSessionState.Initial,
         )
 
     fun refresh() {
@@ -94,11 +93,11 @@ sealed class UserSessionState {
 
     data object Unauthenticated : UserSessionState()
 
+    data object Loading : UserSessionState()
+
     data class Authenticated(
-        val user: User? = null,
-    ) : UserSessionState() {
-        val hasUser get() = user != null
-    }
+        val user: User,
+    ) : UserSessionState()
 
     data class AuthenticatedFetchDataError(
         val message: String,
