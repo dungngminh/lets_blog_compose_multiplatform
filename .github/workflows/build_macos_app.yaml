@@ -4,6 +4,8 @@ on:
     outputs:
       macos_dmg_path:
         value: ${{ jobs.build.outputs.dmg_path }}
+      macos_file_dmg_path:
+        value: ${{ jobs.build.outputs.file_dmg_path }}
 
 jobs:
   # Build job
@@ -12,6 +14,7 @@ jobs:
     runs-on: macos-latest
     outputs:
       dmg_path: ${{ steps.get_dmg_path.outputs.dmg_path }}
+      file_dmg_path: ${{ steps.get_dmg_path.outputs.file_dmg_path }}
     steps:
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -37,4 +40,12 @@ jobs:
 
       - name: Get the path to the DMG file
         id: get_dmg_path
-        run: echo "dmg_path=$(find composeApp/build/compose/binaries/main/dmg -name '*.dmg')" >> "$GITHUB_OUTPUT"
+        run: echo "file_dmg_path=$(find composeApp/build/compose/binaries/main/dmg -name '*.dmg')" >> "$GITHUB_OUTPUT"
+          echo "dmg_path=composeApp/build/compose/binaries/main/dmg" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: ${{ steps.get_dmg_path.outputs.file_dmg_path }}
+          retention-days: 1
