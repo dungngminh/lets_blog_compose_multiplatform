@@ -71,6 +71,7 @@ import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.tabsVisualTransformation
 import me.dungngminh.lets_blog_kmp.commons.extensions.toByteArray
 import me.dungngminh.lets_blog_kmp.domain.entities.User
+import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.components.LoadingDialog
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
@@ -298,7 +299,9 @@ fun AvatarBox(
         CoilImage(
             imageModel = { avatarUrl ?: imageBytes },
             loading = {
-                CircularProgressIndicator()
+                Center {
+                    CircularProgressIndicator()
+                }
             },
             failure = {
                 Image(

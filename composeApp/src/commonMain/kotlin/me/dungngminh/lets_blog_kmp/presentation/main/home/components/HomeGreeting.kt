@@ -31,6 +31,7 @@ import letsblogkmp.composeapp.generated.resources.home_screen_good_evening_label
 import letsblogkmp.composeapp.generated.resources.home_screen_good_morning_label
 import letsblogkmp.composeapp.generated.resources.home_screen_greeting_label
 import letsblogkmp.composeapp.generated.resources.home_screen_welcome_to_lets_blog_label
+import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -73,7 +74,9 @@ fun HomeGreeting(
                     imageModel = { userAvatarUrl },
                     imageOptions = ImageOptions(contentScale = ContentScale.Crop),
                     loading = {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                        Center {
+                            CircularProgressIndicator()
+                        }
                     },
                     modifier = Modifier.fillMaxSize(),
                 )

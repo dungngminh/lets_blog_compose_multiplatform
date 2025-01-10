@@ -393,7 +393,9 @@ fun ProfileAppBar(
                     CoilImage(
                         imageModel = { user.avatarUrl },
                         loading = {
-                            CircularProgressIndicator()
+                            Center {
+                                CircularProgressIndicator()
+                            }
                         },
                         failure = {
                             Image(

@@ -74,7 +74,9 @@ fun PopularBlogCard(
                     .clip(RoundedCornerShape(24.dp)),
             imageOptions = ImageOptions(contentScale = ContentScale.Crop),
             loading = {
-                CircularProgressIndicator()
+                Center {
+                    CircularProgressIndicator()
+                }
             },
             failure = {
                 Image(

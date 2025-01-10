@@ -93,6 +93,7 @@ import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
 import me.dungngminh.lets_blog_kmp.domain.entities.User
+import me.dungngminh.lets_blog_kmp.presentation.components.Center
 import me.dungngminh.lets_blog_kmp.presentation.components.LoadingDialog
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.summary.SummaryBlogContentBottomSheet
 import me.dungngminh.lets_blog_kmp.presentation.edit_blog.EditBlogScreen
@@ -411,7 +412,9 @@ fun DetailBlogCreatorInfo(
                     .clip(CircleShape),
             imageOptions = ImageOptions(contentScale = ContentScale.Crop),
             loading = {
-                CircularProgressIndicator()
+                Center {
+                    CircularProgressIndicator()
+                }
             },
             failure = {
                 Image(
