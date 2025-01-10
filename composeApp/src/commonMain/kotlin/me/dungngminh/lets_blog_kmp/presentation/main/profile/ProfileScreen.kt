@@ -3,6 +3,7 @@ package me.dungngminh.lets_blog_kmp.presentation.main.profile
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,12 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -86,7 +87,6 @@ import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.UnauthenticatedProfileContent
-import me.dungngminh.lets_blog_kmp.presentation.setting.SettingScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -135,66 +135,38 @@ object ProfileTab : Tab {
             )
         }
 
-        if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact) {
-            ProfileScreenExpandedContent(
-                userSessionState = userSessionState,
-                onLoginClick = {
-                    rootNavigator.push(LoginScreen)
-                },
-                onRefresh = {
-                    userProfileViewModel.refresh()
-                    userSessionViewModel.refresh()
-                },
-                onRetryClick = {
-                },
-                onSettingClick = {
-                    rootNavigator.push(SettingScreen)
-                },
-                onEditProfileClick = {
-                    rootNavigator.push(EditUserProfileScreen)
-                },
-                userBlogState = userBlogState,
-                onBlogClick = { blog ->
-                    rootNavigator.push(
-                        DetailBlogScreen(
-                            blogId = blog.id,
-                            blogData = blog.toJsonStr(),
-                        ),
-                    )
-                },
-            )
-        } else {
-            ProfileScreenContent(
-                userSessionState = userSessionState,
-                userBlogState = userBlogState,
-                onLoginClick = {
-                    rootNavigator.push(LoginScreen)
-                },
-                onRefresh = {
-                    userProfileViewModel.refresh()
-                    userSessionViewModel.refresh()
-                },
-                onRetryClick = userSessionViewModel::retry,
-                onSignOutClick = {
-                    isSignOutDialogOpen = true
-                },
-                onEditProfileClick = {
-                    rootNavigator.push(EditUserProfileScreen)
-                },
-                onBlogClick = { blog ->
-                    rootNavigator.push(
-                        DetailBlogScreen(
-                            blogId = blog.id,
-                            blogData = blog.toJsonStr(),
-                        ),
-                    )
-                },
-                onCreateBlogClick = {
-                    rootNavigator.push(CreateBlogScreen)
-                },
-                onRetryBlogClick = userProfileViewModel::retry,
-            )
-        }
+        ProfileScreenContent(
+            userSessionState = userSessionState,
+            userBlogState = userBlogState,
+            isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
+            isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
+            onLoginClick = {
+                rootNavigator.push(LoginScreen)
+            },
+            onRefresh = {
+                userProfileViewModel.refresh()
+                userSessionViewModel.refresh()
+            },
+            onRetryClick = userSessionViewModel::retry,
+            onSignOutClick = {
+                isSignOutDialogOpen = true
+            },
+            onEditProfileClick = {
+                rootNavigator.push(EditUserProfileScreen)
+            },
+            onBlogClick = { blog ->
+                rootNavigator.push(
+                    DetailBlogScreen(
+                        blogId = blog.id,
+                        blogData = blog.toJsonStr(),
+                    ),
+                )
+            },
+            onCreateBlogClick = {
+                rootNavigator.push(CreateBlogScreen)
+            },
+            onRetryBlogClick = userProfileViewModel::retry,
+        )
     }
 
     override val options: TabOptions
@@ -231,6 +203,8 @@ private fun ProfileScreenContent(
     modifier: Modifier = Modifier,
     userSessionState: UserSessionState,
     userBlogState: UserBlogState,
+    isExpandedScreen: Boolean,
+    isMediumScreen: Boolean,
     onLoginClick: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onRetryClick: () -> Unit = {},
@@ -288,6 +262,8 @@ private fun ProfileScreenContent(
                     onBlogClick = onBlogClick,
                     onCreateBlogClick = onCreateBlogClick,
                     onRetryBlogClick = onRetryBlogClick,
+                    isExpandedScreen = isExpandedScreen,
+                    isMediumScreen = isMediumScreen,
                 )
             }
         }
@@ -299,6 +275,8 @@ private fun ProfileScreenContent(
 fun AuthenticatedProfileScreen(
     modifier: Modifier = Modifier,
     userBlogState: UserBlogState,
+    isExpandedScreen: Boolean,
+    isMediumScreen: Boolean,
     onRefresh: () -> Unit = {},
     onRetryBlogClick: () -> Unit = {},
     onBlogClick: (Blog) -> Unit = {},
@@ -340,21 +318,30 @@ fun AuthenticatedProfileScreen(
                     }
                 },
             ) {
-                LazyColumn(
+                LazyVerticalGrid(
+                    columns =
+                        GridCells.Fixed(
+                            when {
+                                isExpandedScreen -> 3
+                                isMediumScreen -> 2
+                                else -> 1
+                            },
+                        ),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    itemsIndexed(
+                    items(
                         userBlogState.blogs.toImmutableList(),
-                        key = { _, blog -> blog.id },
-                    ) { index, blog ->
+                        key = { blog -> blog.id },
+                    ) { blog ->
                         BlogCard(
                             blog = blog,
                             onClick = { onBlogClick(blog) },
+                            isMediumScreen = isMediumScreen,
+                            isExpandedScreen = isExpandedScreen,
                         )
-                        if (index < userBlogState.blogs.size - 1) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
                     }
                 }
             }
