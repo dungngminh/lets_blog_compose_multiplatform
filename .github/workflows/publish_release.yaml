@@ -21,26 +21,23 @@ jobs:
     permissions:
       contents: write
     steps:
-      - env:
-          MACOS_DMG_PATH: ${{ needs.build_macos_app.outputs.macos_dmg_path }}
-        run: echo "$MACOS_DMG_PATH"
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Read properties
+      - name: Read version to release
         uses: BrycensRanch/read-properties-action@v1
         id: version
         with:
           file: gradle.properties
           property: version
           default: 0.0.1
-      - name: Release to github
+      - name: Create and release a new GitHub release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ env.MACOS_DMG_PATH }}
           tag_name: ${{ steps.version.outputs.version }}
-          release_name: ${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
           generate_release_notes: true
 
   deploy:
