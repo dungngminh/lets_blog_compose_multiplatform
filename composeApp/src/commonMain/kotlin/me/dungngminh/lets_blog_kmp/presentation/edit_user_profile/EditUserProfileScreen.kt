@@ -3,6 +3,7 @@ package me.dungngminh.lets_blog_kmp.presentation.edit_user_profile
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,6 +67,7 @@ import letsblogkmp.composeapp.generated.resources.register_page_username_hint_la
 import letsblogkmp.composeapp.generated.resources.register_page_username_label
 import letsblogkmp.composeapp.generated.resources.validation_error_username_empty
 import letsblogkmp.composeapp.generated.resources.validation_error_username_too_short
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.tabsVisualTransformation
 import me.dungngminh.lets_blog_kmp.commons.extensions.toByteArray
 import me.dungngminh.lets_blog_kmp.domain.entities.User
@@ -113,6 +116,8 @@ object EditUserProfileScreen : Screen {
 
         val currentFocusManager = LocalFocusManager.current
 
+        val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
         if (editUserProfileState.isLoading) {
             LoadingDialog()
         }
@@ -144,6 +149,8 @@ object EditUserProfileScreen : Screen {
             user = user!!,
             snackbarHostState = snackbarHostState,
             editUserProfileState = editUserProfileState,
+            isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
+            isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
             onBackClick = {
                 navigator.pop()
             },
@@ -165,6 +172,8 @@ fun EditUserProfileContent(
     user: User,
     snackbarHostState: SnackbarHostState,
     editUserProfileState: EditUserProfileState,
+    isMediumScreen: Boolean = false,
+    isExpandedScreen: Boolean = false,
     onBackClick: () -> Unit,
     onCameraClick: () -> Unit,
     onUsernameChange: (String) -> Unit,
@@ -181,27 +190,46 @@ fun EditUserProfileContent(
             )
         },
     ) { innerPadding ->
-        Column(
-            modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .windowInsetsPadding(WindowInsets.ime)
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(modifier = Modifier.height(80.dp))
-            AvatarBox(
-                localImageFile = editUserProfileState.selectedImagePath,
-                avatarUrl = user.avatarUrl,
-                onCameraClick = onCameraClick,
-            )
-            Spacer(modifier = Modifier.height(42.dp))
-            UserNameTextField(
-                userName = editUserProfileState.userName,
-                onUsernameChange = onUsernameChange,
-                userProfileValidationError = editUserProfileState.userNameError,
-            )
+        val spaceWeight =
+            remember(isMediumScreen, isExpandedScreen) {
+                when {
+                    isExpandedScreen -> 0.25f
+                    isMediumScreen -> 0.2f
+                    else -> 0.05f
+                }
+            }
+        val contentWeight =
+            remember(isMediumScreen, isExpandedScreen) {
+                when {
+                    isExpandedScreen -> 0.5f
+                    isMediumScreen -> 0.6f
+                    else -> 0.9f
+                }
+            }
+        Row {
+            Spacer(modifier = Modifier.weight(spaceWeight))
+            Column(
+                modifier =
+                    Modifier
+                        .padding(innerPadding)
+                        .windowInsetsPadding(WindowInsets.ime)
+                        .weight(contentWeight),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(80.dp))
+                AvatarBox(
+                    localImageFile = editUserProfileState.selectedImagePath,
+                    avatarUrl = user.avatarUrl,
+                    onCameraClick = onCameraClick,
+                )
+                Spacer(modifier = Modifier.height(42.dp))
+                UserNameTextField(
+                    userName = editUserProfileState.userName,
+                    onUsernameChange = onUsernameChange,
+                    userProfileValidationError = editUserProfileState.userNameError,
+                )
+            }
+            Spacer(modifier = Modifier.weight(spaceWeight))
         }
     }
 }
