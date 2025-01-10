@@ -219,7 +219,7 @@ fun EditUserProfileContent(
                 Spacer(modifier = Modifier.height(80.dp))
                 AvatarBox(
                     localImageFile = editUserProfileState.selectedImagePath,
-                    avatarUrl = user.avatarUrl,
+                    avatarUrl = editUserProfileState.currentUserAvatarUrl,
                     onCameraClick = onCameraClick,
                 )
                 Spacer(modifier = Modifier.height(42.dp))

@@ -70,6 +70,7 @@ class EditUserProfileViewModel(
         _uiState.update { state ->
             state.copy(
                 selectedImagePath = imageFile,
+                currentUserAvatarUrl = null,
             )
         }
     }

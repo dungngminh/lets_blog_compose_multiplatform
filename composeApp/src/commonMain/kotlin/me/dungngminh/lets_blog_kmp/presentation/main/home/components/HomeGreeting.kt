@@ -73,7 +73,7 @@ fun HomeGreeting(
                     imageModel = { userAvatarUrl },
                     imageOptions = ImageOptions(contentScale = ContentScale.Crop),
                     loading = {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp))
                     },
                     modifier = Modifier.fillMaxSize(),
                 )
