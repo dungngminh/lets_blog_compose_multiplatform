@@ -41,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -329,22 +330,18 @@ fun DetailBlogScreenContent(
                 Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
-            contentPadding =
-                PaddingValues(
-                    bottom = 42.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                ),
+            contentPadding = PaddingValues(bottom = 42.dp),
         ) {
             item(contentType = "blog_image") {
                 CoilImage(
                     imageModel = { blog.imageUrl },
                     modifier =
                         Modifier
+                            .padding(horizontal = 16.dp)
                             .fillMaxWidth()
                             .height(
                                 when {
-                                    isExpandedScreen -> 500.dp
+                                    isExpandedScreen -> 450.dp
                                     isMediumScreen -> 350.dp
                                     else -> 300.dp
                                 },
@@ -399,7 +396,10 @@ fun DetailBlogCreatorInfo(
     modifier: Modifier = Modifier,
     blog: Blog,
 ) {
-    Row(modifier = modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         CoilImage(
             imageModel = { blog.creator.avatarUrl },
             modifier =
@@ -553,7 +553,7 @@ fun DetailScreenFavoriteButton(
     }
     when (userSessionState) {
         is UserSessionState.Authenticated -> {
-            if (userSessionState.user != null && userSessionState.user.id != blog.creator.id) {
+            if (userSessionState.user.id != blog.creator.id) {
                 FavoriteButton(
                     modifier = modifier,
                     onFavoriteClick = onFavoriteClick,

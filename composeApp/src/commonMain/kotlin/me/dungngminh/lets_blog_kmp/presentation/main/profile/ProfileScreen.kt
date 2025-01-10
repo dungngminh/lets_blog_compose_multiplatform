@@ -2,6 +2,7 @@ package me.dungngminh.lets_blog_kmp.presentation.main.profile
 
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -66,6 +68,7 @@ import letsblogkmp.composeapp.generated.resources.general_sign_out_message
 import letsblogkmp.composeapp.generated.resources.general_yes
 import letsblogkmp.composeapp.generated.resources.ic_pencil
 import letsblogkmp.composeapp.generated.resources.ic_sign_out
+import letsblogkmp.composeapp.generated.resources.img_placeholder
 import letsblogkmp.composeapp.generated.resources.profile_screen_no_blog
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
@@ -388,7 +391,18 @@ fun ProfileAppBar(
                             .clip(CircleShape),
                 ) {
                     CoilImage(
-                        imageModel = { "https://avatars.githubusercontent.com/u/63831488?v=4" },
+                        imageModel = { user.avatarUrl },
+                        loading = {
+                            CircularProgressIndicator()
+                        },
+                        failure = {
+                            Image(
+                                painterResource(Res.drawable.img_placeholder),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                        },
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
