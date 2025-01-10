@@ -39,6 +39,7 @@ jobs:
         with:
           name: macos-dmg
           path: ${{ env.MACOS_DMG_PATH }}
+          run: ls -R ${{ env.MACOS_DMG_PATH }}
       - name: Create and release a new GitHub release
         uses: softprops/action-gh-release@v2
         env:
