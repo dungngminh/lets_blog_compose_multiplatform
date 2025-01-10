@@ -18,8 +18,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,6 +68,7 @@ import letsblogkmp.composeapp.generated.resources.general_sign_out_label
 import letsblogkmp.composeapp.generated.resources.general_sign_out_message
 import letsblogkmp.composeapp.generated.resources.general_yes
 import letsblogkmp.composeapp.generated.resources.ic_pencil
+import letsblogkmp.composeapp.generated.resources.ic_refresh
 import letsblogkmp.composeapp.generated.resources.ic_sign_out
 import letsblogkmp.composeapp.generated.resources.img_placeholder
 import letsblogkmp.composeapp.generated.resources.profile_screen_no_blog
@@ -430,7 +429,7 @@ fun ProfileAppBar(
                     onClick = onRefreshClick,
                 ) {
                     Icon(
-                        Icons.Default.Refresh,
+                        painterResource(Res.drawable.ic_refresh),
                         contentDescription = null,
                     )
                 }

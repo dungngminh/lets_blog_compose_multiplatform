@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -20,6 +22,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.favorite_screen_favorite_blogs_label
+import letsblogkmp.composeapp.generated.resources.ic_refresh
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
@@ -31,6 +34,7 @@ import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
 import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import me.dungngminh.lets_blog_kmp.presentation.main.favorite.components.AuthenticatedFavoriteContent
 import me.dungngminh.lets_blog_kmp.presentation.main.profile.components.UnauthenticatedProfileContent
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 object FavoriteTab : Tab {
@@ -96,7 +100,12 @@ fun FavoriteScreenContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            FavoriteAppBar()
+            val showRefresh =
+                (isMediumScreen || isExpandedScreen) && userSessionState is UserSessionState.Authenticated
+            FavoriteAppBar(
+                showRefresh = showRefresh,
+                onRefresh = onRefresh,
+            )
         },
     ) { innerPadding ->
         when (userSessionState) {
@@ -130,11 +139,27 @@ fun FavoriteScreenContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteAppBar(modifier: Modifier = Modifier) {
+fun FavoriteAppBar(
+    modifier: Modifier = Modifier,
+    showRefresh: Boolean = false,
+    onRefresh: () -> Unit,
+) {
     CenterAlignedTopAppBar(
         modifier = modifier,
         title = {
             Text(stringResource(Res.string.favorite_screen_favorite_blogs_label))
+        },
+        actions = {
+            if (showRefresh) {
+                IconButton(
+                    onClick = onRefresh,
+                ) {
+                    Icon(
+                        painterResource(Res.drawable.ic_refresh),
+                        contentDescription = null,
+                    )
+                }
+            }
         },
     )
 }

@@ -242,10 +242,19 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "me.dungngminh.lets_blog_kmp"
+            packageName = "Lets Blog"
             packageVersion = "1.0.0"
+            vendor = "Dzung Nguyen Minh"
             linux {
                 modules("jdk.security.auth")
+            }
+            macOS {
+                setDockNameSameAsPackageName = true
+                iconFile.set(project.file("src/desktopMain/resources/icon.icns"))
+                packageVersion = "1.0.0"
+                packageBuildVersion = "1"
+                bundleID = "me.dungngminh.lets-blog-kmp"
+                packageName = "Lets Blog"
             }
         }
     }

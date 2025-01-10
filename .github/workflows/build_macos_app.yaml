@@ -1,0 +1,42 @@
+name: Build MacOS App
+on:
+  push:
+    paths-ignore:
+      - 'backend/**'
+    branches:
+      - main
+
+
+jobs:
+  # Build job
+  build:
+    name: Build MacOS App with Kotlin/Native
+    runs-on: macos-latest
+    outputs:
+      output1: ${{ steps.get_dmg_path.outputs.dmg_path }}
+    steps:
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create environment file
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          BASE_URL: ${{ secrets.BASE_URL }}
+        run: |
+          cat <<EOF > env.properties
+            GEMINI_KEY=$GEMINI_KEY
+            BASE_URL=$BASE_URL
+          EOF
+
+      - name: Run Package DMG task
+        run: ./gradlew packageDmg
+
+      - name: Get the path to the DMG file
+        id: get_dmg_path
+        run: echo "dmg_path=composeApp/build/compose/binaries/main/dmg/*.dmg" >> "$GITHUB_OUTPUT"

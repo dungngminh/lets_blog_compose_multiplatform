@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +33,9 @@ import letsblogkmp.composeapp.generated.resources.home_screen_good_evening_label
 import letsblogkmp.composeapp.generated.resources.home_screen_good_morning_label
 import letsblogkmp.composeapp.generated.resources.home_screen_greeting_label
 import letsblogkmp.composeapp.generated.resources.home_screen_welcome_to_lets_blog_label
+import letsblogkmp.composeapp.generated.resources.ic_refresh
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -94,7 +94,7 @@ fun HomeGreeting(
                 onClick = onRefreshClick,
             ) {
                 Icon(
-                    Icons.Default.Refresh,
+                    painterResource(Res.drawable.ic_refresh),
                     contentDescription = null,
                 )
             }

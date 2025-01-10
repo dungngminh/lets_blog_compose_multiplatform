@@ -17,7 +17,7 @@ fun main() {
     application {
         Window(
             onCloseRequest = ::exitApplication,
-            title = "LetsBlogKMP",
+            title = "Lets Blog",
             icon = painterResource(Res.drawable.img_app_icon),
         ) {
             window.minimumSize = Dimension(500, 800)

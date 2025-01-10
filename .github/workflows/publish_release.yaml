@@ -1,0 +1,37 @@
+name: Publish Release
+on:
+  push:
+    paths-ignore:
+      - 'backend/**'
+    branches:
+      - main
+
+jobs:
+  build_web_app:
+    uses: .github/workflows/build_and_publish_web_app_to_github_pages.yaml@ref
+
+  build_macos_app:
+    uses: .github/workflows/build_macos_app.yaml@ref
+
+  publish_release:
+    needs:
+      - build_web_app
+      - build_macos_app
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          MACOS_DMG_PATH: ${{needs.build_macos_app.outputs.dmg_path}}
+        run: echo "$MACOS_DMG_PATH"
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Release to github
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: $MACOS_DMG_PATH
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: true
+          prerelease: false
+
