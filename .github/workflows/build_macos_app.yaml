@@ -40,7 +40,8 @@ jobs:
 
       - name: Get the path to the DMG file
         id: get_dmg_path
-        run: echo "file_dmg_path=$(find composeApp/build/compose/binaries/main/dmg -name '*.dmg')" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "file_dmg_path=$(find composeApp/build/compose/binaries/main/dmg -name '*.dmg')" >> "$GITHUB_OUTPUT"
           echo "dmg_path=composeApp/build/compose/binaries/main/dmg" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
