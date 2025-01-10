@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +43,8 @@ fun HomeGreeting(
     modifier: Modifier = Modifier,
     username: String? = null,
     userAvatarUrl: String? = null,
+    onRefreshClick: () -> Unit = {},
+    showRefresh: Boolean = false,
 ) {
     Row(
         modifier = modifier,
@@ -79,6 +85,17 @@ fun HomeGreeting(
                         }
                     },
                     modifier = Modifier.fillMaxSize(),
+                )
+            }
+        }
+
+        if (showRefresh) {
+            IconButton(
+                onClick = onRefreshClick,
+            ) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = null,
                 )
             }
         }

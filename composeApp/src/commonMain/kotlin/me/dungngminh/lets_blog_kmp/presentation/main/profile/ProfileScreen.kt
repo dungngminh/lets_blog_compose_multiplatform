@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -166,6 +168,7 @@ object ProfileTab : Tab {
                 rootNavigator.push(CreateBlogScreen)
             },
             onRetryBlogClick = userProfileViewModel::retry,
+            onRefreshBlogClick = userProfileViewModel::refresh,
         )
     }
 
@@ -179,22 +182,6 @@ object ProfileTab : Tab {
                         .toUShort(),
                 title = stringResource(MainScreenDestination.Profile.title),
             )
-}
-
-@Composable
-private fun ProfileScreenExpandedContent(
-    modifier: Modifier = Modifier,
-    userSessionState: UserSessionState,
-    onLoginClick: () -> Unit,
-    onRefresh: () -> Unit,
-    onRetryClick: () -> Unit,
-    onSettingClick: () -> Unit,
-    onEditProfileClick: () -> Unit,
-    onBlogClick: (Blog) -> Unit,
-    userBlogState: UserBlogState,
-) {
-    Scaffold {
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -213,6 +200,7 @@ private fun ProfileScreenContent(
     onBlogClick: (Blog) -> Unit = {},
     onCreateBlogClick: () -> Unit = {},
     onRetryBlogClick: () -> Unit = {},
+    onRefreshBlogClick: () -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -225,6 +213,8 @@ private fun ProfileScreenContent(
                     onSignOutClick = onSignOutClick,
                     onEditProfileClick = onEditProfileClick,
                     scrollBehavior = scrollBehavior,
+                    showRefresh = isExpandedScreen || isMediumScreen,
+                    onRefreshClick = onRefreshBlogClick,
                 )
             }
         },
@@ -357,6 +347,8 @@ fun ProfileAppBar(
     user: User,
     onEditProfileClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
+    showRefresh: Boolean = true,
+    onRefreshClick: () -> Unit = {},
 ) {
     val isExpanded by remember { derivedStateOf { scrollBehavior.state.collapsedFraction == 0f } }
     val transition = updateTransition(scrollBehavior.state.collapsedFraction)
@@ -433,6 +425,16 @@ fun ProfileAppBar(
             }
         },
         actions = {
+            if (showRefresh) {
+                IconButton(
+                    onClick = onRefreshClick,
+                ) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = null,
+                    )
+                }
+            }
             IconButton(onClick = onEditProfileClick) {
                 Icon(
                     painterResource(Res.drawable.ic_pencil),

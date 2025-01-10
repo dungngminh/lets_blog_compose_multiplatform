@@ -177,6 +177,8 @@ fun HomeScreenContent(
                                 is UserSessionState.Authenticated -> userSessionState.user.avatarUrl
                                 else -> null
                             },
+                        onRefreshClick = onBlogRefresh,
+                        showRefresh = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     HomeSearchBar(
