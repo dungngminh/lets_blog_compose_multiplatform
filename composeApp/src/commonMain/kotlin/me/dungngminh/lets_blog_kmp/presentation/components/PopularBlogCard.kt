@@ -1,6 +1,7 @@
 package me.dungngminh.lets_blog_kmp.presentation.components
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +36,7 @@ import com.skydoves.landscapist.coil3.CoilImage
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_favorite
 import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
+import letsblogkmp.composeapp.generated.resources.img_placeholder
 import me.dungngminh.lets_blog_kmp.commons.extensions.timeAgo
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.domain.entities.BlogCategory
@@ -69,6 +73,16 @@ fun PopularBlogCard(
                     .fillMaxSize()
                     .clip(RoundedCornerShape(24.dp)),
             imageOptions = ImageOptions(contentScale = ContentScale.Crop),
+            loading = {
+                CircularProgressIndicator()
+            },
+            failure = {
+                Image(
+                    painterResource(Res.drawable.img_placeholder),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                )
+            },
         )
         PopularBlogCardContent(
             modifier =
@@ -140,16 +154,32 @@ private fun PopularBlogCardContent(
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Row {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     CoilImage(
                         imageModel = { blog.creator.avatarUrl },
-                        modifier = Modifier.size(36.dp),
+                        modifier =
+                            Modifier
+                                .size(36.dp)
+                                .clip(CircleShape),
                         imageOptions = ImageOptions(contentScale = ContentScale.Crop),
+                        loading = {
+                            CircularProgressIndicator()
+                        },
+                        failure = {
+                            Image(
+                                painterResource(Res.drawable.img_placeholder),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                        },
                     )
 
                     Column(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         Text(
                             blog.creator.name,

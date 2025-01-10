@@ -5,6 +5,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -82,6 +84,7 @@ import letsblogkmp.composeapp.generated.resources.ic_favorite_filled
 import letsblogkmp.composeapp.generated.resources.ic_gemini
 import letsblogkmp.composeapp.generated.resources.ic_pencil
 import letsblogkmp.composeapp.generated.resources.ic_trash
+import letsblogkmp.composeapp.generated.resources.img_placeholder
 import letsblogkmp.composeapp.generated.resources.summary_screen_fab_label
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.fromJsonStr
@@ -407,10 +410,19 @@ fun DetailBlogCreatorInfo(
                     .size(36.dp)
                     .clip(CircleShape),
             imageOptions = ImageOptions(contentScale = ContentScale.Crop),
+            loading = {
+                CircularProgressIndicator()
+            },
+            failure = {
+                Image(
+                    painterResource(Res.drawable.img_placeholder),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            },
         )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
+        Spacer(modifier = Modifier.width(8.dp))
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
