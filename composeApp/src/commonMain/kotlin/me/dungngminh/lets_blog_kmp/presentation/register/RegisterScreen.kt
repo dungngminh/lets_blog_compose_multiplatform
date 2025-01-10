@@ -2,6 +2,8 @@ package me.dungngminh.lets_blog_kmp.presentation.register
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -54,6 +58,7 @@ import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.ic_caret_left
 import letsblogkmp.composeapp.generated.resources.ic_eye
 import letsblogkmp.composeapp.generated.resources.ic_eye_closed
+import letsblogkmp.composeapp.generated.resources.img_register
 import letsblogkmp.composeapp.generated.resources.login_page_email_hint_label
 import letsblogkmp.composeapp.generated.resources.register_page_already_have_account_label
 import letsblogkmp.composeapp.generated.resources.register_page_confirm_password_hint_label
@@ -74,6 +79,7 @@ import letsblogkmp.composeapp.generated.resources.validation_error_password_empt
 import letsblogkmp.composeapp.generated.resources.validation_error_password_too_short
 import letsblogkmp.composeapp.generated.resources.validation_error_username_empty
 import letsblogkmp.composeapp.generated.resources.validation_error_username_too_short
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.tabsVisualTransformation
 import org.jetbrains.compose.resources.painterResource
@@ -146,6 +152,10 @@ fun RegisterScreenContent(
     val scrollState = rememberScrollState()
     val bringIntoViewRequest = remember { BringIntoViewRequester() }
 
+    val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
+    val isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier,
@@ -153,230 +163,299 @@ fun RegisterScreenContent(
             SignUpTopBar(onBackClick = onBackClick)
         },
     ) { innerPadding ->
-        Column(
+        if (isExpandedScreen) {
+            Row(
+                modifier =
+                    Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Image(
+                    painterResource(Res.drawable.img_register),
+                    contentDescription = null,
+                    modifier =
+                        Modifier
+                            .weight(0.55f)
+                            .height(500.dp),
+                )
+                RegisterForm(
+                    modifier =
+                        Modifier
+                            .weight(0.45f),
+                    state = state,
+                    onUsernameChange = onUsernameChange,
+                    onEmailChange = onEmailChange,
+                    onPasswordChange = onPasswordChange,
+                    onConfirmPasswordChange = onConfirmPasswordChange,
+                    onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+                    onConfirmPasswordVisibilityToggle = onConfirmPasswordVisibilityToggle,
+                    oRegisterClick = oRegisterClick,
+                    onLoginNowClick = onLoginNowClick,
+                    sortKeyboardController = sortKeyboardController,
+                    scrollState = scrollState,
+                    bringIntoViewRequest = bringIntoViewRequest,
+                )
+            }
+        } else {
+            RegisterForm(
+                modifier = Modifier.padding(innerPadding),
+                state = state,
+                onUsernameChange = onUsernameChange,
+                onEmailChange = onEmailChange,
+                onPasswordChange = onPasswordChange,
+                onConfirmPasswordChange = onConfirmPasswordChange,
+                onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+                onConfirmPasswordVisibilityToggle = onConfirmPasswordVisibilityToggle,
+                oRegisterClick = oRegisterClick,
+                onLoginNowClick = onLoginNowClick,
+                sortKeyboardController = sortKeyboardController,
+                scrollState = scrollState,
+                bringIntoViewRequest = bringIntoViewRequest,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun RegisterForm(
+    modifier: Modifier = Modifier,
+    state: RegisterState,
+    onUsernameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onPasswordVisibilityToggle: () -> Unit,
+    onConfirmPasswordVisibilityToggle: () -> Unit,
+    oRegisterClick: () -> Unit,
+    onLoginNowClick: () -> Unit,
+    sortKeyboardController: SoftwareKeyboardController?,
+    scrollState: ScrollState,
+    bringIntoViewRequest: BringIntoViewRequester,
+) {
+    Column(
+        modifier =
+            modifier
+                .imePadding()
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+    ) {
+        Text(
+            stringResource(Res.string.register_page_register_title),
+            style = MaterialTheme.typography.displayLarge,
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        OutlinedTextField(
+            value = state.username,
             modifier =
                 Modifier
-                    .imePadding()
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(16.dp),
+                    .fillMaxWidth()
+                    .bringIntoView(bringIntoViewRequest),
+            isError = isFormError(state.usernameError),
+            supportingText = {
+                if (state.usernameError != RegisterValidationError.NONE) {
+                    Text(
+                        when (state.usernameError) {
+                            RegisterValidationError.EMPTY_USERNAME -> stringResource(Res.string.validation_error_username_empty)
+                            RegisterValidationError.USERNAME_TOO_SHORT ->
+                                stringResource(
+                                    Res.string.validation_error_username_too_short,
+                                )
+
+                            else -> ""
+                        },
+                    )
+                }
+            },
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                ),
+            label = {
+                Text(stringResource(Res.string.register_page_username_label))
+            },
+            placeholder = {
+                Text(stringResource(Res.string.register_page_username_hint_label))
+            },
+            onValueChange = { onUsernameChange(it) },
+            visualTransformation = tabsVisualTransformation,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedTextField(
+            value = state.email,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .bringIntoView(bringIntoViewRequest),
+            isError = isFormError(state.emailError),
+            supportingText = {
+                if (state.emailError != RegisterValidationError.NONE) {
+                    Text(
+                        when (state.emailError) {
+                            RegisterValidationError.EMPTY_EMAIL -> stringResource(Res.string.validation_error_email_empty)
+                            RegisterValidationError.INVALID_EMAIL -> stringResource(Res.string.validation_error_email_invalid)
+                            else -> ""
+                        },
+                    )
+                }
+            },
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                ),
+            label = {
+                Text(stringResource(Res.string.register_page_email_label))
+            },
+            placeholder = {
+                Text(stringResource(Res.string.login_page_email_hint_label))
+            },
+            onValueChange = { onEmailChange(it) },
+            visualTransformation = tabsVisualTransformation,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedTextField(
+            value = state.password,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .bringIntoView(bringIntoViewRequest),
+            isError = isFormError(state.passwordError),
+            supportingText = {
+                if (state.passwordError != RegisterValidationError.NONE) {
+                    Text(
+                        when (state.passwordError) {
+                            RegisterValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_password_empty)
+                            RegisterValidationError.PASSWORD_TOO_SHORT ->
+                                stringResource(
+                                    Res.string.validation_error_password_too_short,
+                                    MIN_PASSWORD_LENGTH,
+                                )
+
+                            else -> ""
+                        },
+                    )
+                }
+            },
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                ),
+            label = {
+                Text(stringResource(Res.string.register_page_password_label))
+            },
+            placeholder = {
+                Text(stringResource(Res.string.register_page_email_hint_label))
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = { onPasswordVisibilityToggle() },
+                ) {
+                    Icon(
+                        painter =
+                            if (state.passwordVisible) {
+                                painterResource(Res.drawable.ic_eye)
+                            } else {
+                                painterResource(Res.drawable.ic_eye_closed)
+                            },
+                        contentDescription = null,
+                    )
+                }
+            },
+            visualTransformation = if (state.passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+            onValueChange = { onPasswordChange(it) },
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedTextField(
+            value = state.confirmPassword,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .bringIntoView(bringIntoViewRequest),
+            isError = isFormError(state.confirmPasswordError),
+            supportingText = {
+                if (state.confirmPasswordError != RegisterValidationError.NONE) {
+                    Text(
+                        when (state.confirmPasswordError) {
+                            RegisterValidationError.PASSWORDS_NOT_MATCH ->
+                                stringResource(
+                                    Res.string.validation_error_confirm_password_not_match,
+                                )
+
+                            RegisterValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_confirm_password_empty)
+                            else -> ""
+                        },
+                    )
+                }
+            },
+            keyboardActions =
+                KeyboardActions(onGo = {
+                    if (state.isRegisterFormValid) {
+                        oRegisterClick()
+                    } else {
+                        sortKeyboardController?.hide()
+                    }
+                }),
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Go,
+                ),
+            label = {
+                Text(stringResource(Res.string.register_page_confirm_password_label))
+            },
+            placeholder = {
+                Text(stringResource(Res.string.register_page_confirm_password_hint_label))
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = { onConfirmPasswordVisibilityToggle() },
+                ) {
+                    Icon(
+                        painter =
+                            if (state.confirmPasswordVisible) {
+                                painterResource(Res.drawable.ic_eye)
+                            } else {
+                                painterResource(Res.drawable.ic_eye_closed)
+                            },
+                        contentDescription = null,
+                    )
+                }
+            },
+            visualTransformation = if (state.confirmPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+            onValueChange = { onConfirmPasswordChange(it) },
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
         ) {
-            Text(
-                stringResource(Res.string.register_page_register_title),
-                style = MaterialTheme.typography.displayLarge,
-            )
-            Spacer(modifier = Modifier.height(48.dp))
-            OutlinedTextField(
-                value = state.username,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .bringIntoView(bringIntoViewRequest),
-                isError = isFormError(state.usernameError),
-                supportingText = {
-                    if (state.usernameError != RegisterValidationError.NONE) {
-                        Text(
-                            when (state.usernameError) {
-                                RegisterValidationError.EMPTY_USERNAME -> stringResource(Res.string.validation_error_username_empty)
-                                RegisterValidationError.USERNAME_TOO_SHORT ->
-                                    stringResource(
-                                        Res.string.validation_error_username_too_short,
-                                    )
-
-                                else -> ""
-                            },
-                        )
-                    }
-                },
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                    ),
-                label = {
-                    Text(stringResource(Res.string.register_page_username_label))
-                },
-                placeholder = {
-                    Text(stringResource(Res.string.register_page_username_hint_label))
-                },
-                onValueChange = { onUsernameChange(it) },
-                visualTransformation = tabsVisualTransformation,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = state.email,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .bringIntoView(bringIntoViewRequest),
-                isError = isFormError(state.emailError),
-                supportingText = {
-                    if (state.emailError != RegisterValidationError.NONE) {
-                        Text(
-                            when (state.emailError) {
-                                RegisterValidationError.EMPTY_EMAIL -> stringResource(Res.string.validation_error_email_empty)
-                                RegisterValidationError.INVALID_EMAIL -> stringResource(Res.string.validation_error_email_invalid)
-                                else -> ""
-                            },
-                        )
-                    }
-                },
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                    ),
-                label = {
-                    Text(stringResource(Res.string.register_page_email_label))
-                },
-                placeholder = {
-                    Text(stringResource(Res.string.login_page_email_hint_label))
-                },
-                onValueChange = { onEmailChange(it) },
-                visualTransformation = tabsVisualTransformation,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = state.password,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .bringIntoView(bringIntoViewRequest),
-                isError = isFormError(state.passwordError),
-                supportingText = {
-                    if (state.passwordError != RegisterValidationError.NONE) {
-                        Text(
-                            when (state.passwordError) {
-                                RegisterValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_password_empty)
-                                RegisterValidationError.PASSWORD_TOO_SHORT ->
-                                    stringResource(
-                                        Res.string.validation_error_password_too_short,
-                                        MIN_PASSWORD_LENGTH,
-                                    )
-
-                                else -> ""
-                            },
-                        )
-                    }
-                },
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                    ),
-                label = {
-                    Text(stringResource(Res.string.register_page_password_label))
-                },
-                placeholder = {
-                    Text(stringResource(Res.string.register_page_email_hint_label))
-                },
-                trailingIcon = {
-                    IconButton(
-                        onClick = { onPasswordVisibilityToggle() },
-                    ) {
-                        Icon(
-                            painter =
-                                if (state.passwordVisible) {
-                                    painterResource(Res.drawable.ic_eye)
-                                } else {
-                                    painterResource(Res.drawable.ic_eye_closed)
-                                },
-                            contentDescription = null,
-                        )
-                    }
-                },
-                visualTransformation = if (state.passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-                onValueChange = { onPasswordChange(it) },
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = state.confirmPassword,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .bringIntoView(bringIntoViewRequest),
-                isError = isFormError(state.confirmPasswordError),
-                supportingText = {
-                    if (state.confirmPasswordError != RegisterValidationError.NONE) {
-                        Text(
-                            when (state.confirmPasswordError) {
-                                RegisterValidationError.PASSWORDS_NOT_MATCH ->
-                                    stringResource(
-                                        Res.string.validation_error_confirm_password_not_match,
-                                    )
-
-                                RegisterValidationError.EMPTY_PASSWORD -> stringResource(Res.string.validation_error_confirm_password_empty)
-                                else -> ""
-                            },
-                        )
-                    }
-                },
-                keyboardActions =
-                    KeyboardActions(onGo = {
-                        if (state.isRegisterFormValid) {
-                            oRegisterClick()
-                        } else {
-                            sortKeyboardController?.hide()
-                        }
-                    }),
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Go,
-                    ),
-                label = {
-                    Text(stringResource(Res.string.register_page_confirm_password_label))
-                },
-                placeholder = {
-                    Text(stringResource(Res.string.register_page_confirm_password_hint_label))
-                },
-                trailingIcon = {
-                    IconButton(
-                        onClick = { onConfirmPasswordVisibilityToggle() },
-                    ) {
-                        Icon(
-                            painter =
-                                if (state.confirmPasswordVisible) {
-                                    painterResource(Res.drawable.ic_eye)
-                                } else {
-                                    painterResource(Res.drawable.ic_eye_closed)
-                                },
-                            contentDescription = null,
-                        )
-                    }
-                },
-                visualTransformation = if (state.confirmPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-                onValueChange = { onConfirmPasswordChange(it) },
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator()
-                } else {
-                    Button(
-                        onClick = oRegisterClick,
-                        enabled = state.isRegisterFormValid,
-                    ) {
-                        Text(stringResource(Res.string.register_page_register_button_label))
-                    }
+            if (state.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Button(
+                    onClick = oRegisterClick,
+                    enabled = state.isRegisterFormValid,
+                ) {
+                    Text(stringResource(Res.string.register_page_register_button_label))
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    stringResource(Res.string.register_page_already_have_account_label),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                TextButton(onClick = {
-                    onLoginNowClick()
-                }) {
-                    Text(stringResource(Res.string.register_page_login_now_label))
-                }
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                stringResource(Res.string.register_page_already_have_account_label),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            TextButton(onClick = {
+                onLoginNowClick()
+            }) {
+                Text(stringResource(Res.string.register_page_login_now_label))
             }
         }
     }
