@@ -1,11 +1,9 @@
 name: Build MacOS App
 on:
-  push:
-    paths-ignore:
-      - 'backend/**'
-    branches:
-      - main
-
+  workflow_call:
+    outputs:
+      macos_dmg_path:
+        value: ${{ jobs.build.outputs.dmg_path }}
 
 jobs:
   # Build job
@@ -13,7 +11,7 @@ jobs:
     name: Build MacOS App with Kotlin/Native
     runs-on: macos-latest
     outputs:
-      output1: ${{ steps.get_dmg_path.outputs.dmg_path }}
+      dmg_path: ${{ steps.get_dmg_path.outputs.dmg_path }}
     steps:
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -34,8 +32,8 @@ jobs:
             BASE_URL=$BASE_URL
           EOF
 
-      - name: Run Package DMG task
-        run: ./gradlew packageDmg
+      #      - name: Run Package DMG task
+      #        run: ./gradlew packageDmg
 
       - name: Get the path to the DMG file
         id: get_dmg_path
