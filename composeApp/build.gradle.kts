@@ -18,6 +18,12 @@ plugins {
     alias(libs.plugins.buildKonfig)
 }
 
+val gradleProperties = Properties()
+val gradlePropertiesFile = project.rootProject.file("gradle.properties")
+if (gradlePropertiesFile.exists()) {
+    gradleProperties.load(gradlePropertiesFile.inputStream())
+}
+
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -243,7 +249,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Lets Blog"
-            packageVersion = "1.0.0"
+            packageVersion = gradleProperties.getProperty("version") ?: "0.0.1"
             vendor = "Dzung Nguyen Minh"
             linux {
                 modules("jdk.security.auth")
@@ -251,7 +257,7 @@ compose.desktop {
             macOS {
                 setDockNameSameAsPackageName = true
                 iconFile.set(project.file("src/desktopMain/resources/icon.icns"))
-                packageVersion = "1.0.0"
+                packageVersion = gradleProperties.getProperty("version") ?: "0.0.1"
                 packageBuildVersion = "1"
                 bundleID = "me.dungngminh.lets-blog-kmp"
                 packageName = "Lets Blog"
