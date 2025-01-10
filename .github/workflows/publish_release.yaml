@@ -7,15 +7,15 @@ on:
       - main
 
 jobs:
-  #  build_web_app:
-  #    uses: ./.github/workflows/build_web_app.yaml
+  build_web_app:
+    uses: ./.github/workflows/build_web_app.yaml
 
   build_macos_app:
     uses: ./.github/workflows/build_macos_app.yaml
 
   publish_release:
     needs:
-      #      - build_web_app
+      - build_web_app
       - build_macos_app
     runs-on: ubuntu-latest
     permissions:
@@ -40,27 +40,26 @@ jobs:
         with:
           files: ${{ env.MACOS_DMG_PATH }}
           tag_name: ${{ steps.version.outputs.version }}
-          release_name: v${{ steps.version.outputs.version }}
-          draft: true
-          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          generate_release_notes: true
 
-#  deploy:
-#    # Add a dependency to the build job
-#    needs: build_web_app
-#
-#    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-#    permissions:
-#      pages: write      # to deploy to Pages
-#      id-token: write   # to verify the deployment originates from an appropriate source
-#
-#    # Deploy to the github-pages environment
-#    environment:
-#      name: github-pages
-#      url: ${{ steps.deployment.outputs.page_url }}
-#
-#    # Specify runner + deployment step
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Deploy to GitHub Pages
-#        id: deployment
-#        uses: actions/deploy-pages@v4
+  deploy:
+    # Add a dependency to the build job
+    needs: build_web_app
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

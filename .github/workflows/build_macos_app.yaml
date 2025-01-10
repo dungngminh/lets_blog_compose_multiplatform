@@ -32,9 +32,9 @@ jobs:
             BASE_URL=$BASE_URL
           EOF
 
-      #      - name: Run Package DMG task
-      #        run: ./gradlew packageDmg
+      - name: Run Package DMG task
+        run: ./gradlew packageDmg
 
       - name: Get the path to the DMG file
         id: get_dmg_path
-        run: echo "dmg_path=composeApp/build/compose/binaries/main/dmg/*.dmg" >> "$GITHUB_OUTPUT"
+        run: echo "dmg_path=$(find composeApp/build/compose/binaries/main/dmg/ -name '*.dmg')" >> "$GITHUB_OUTPUT"
