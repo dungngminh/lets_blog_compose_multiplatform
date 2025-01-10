@@ -170,6 +170,7 @@ fun RegisterScreenContent(
                         .padding(innerPadding)
                         .fillMaxSize(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Image(
                     painterResource(Res.drawable.img_register),
@@ -195,6 +196,7 @@ fun RegisterScreenContent(
                     sortKeyboardController = sortKeyboardController,
                     scrollState = scrollState,
                     bringIntoViewRequest = bringIntoViewRequest,
+                    isExpandedScreen = isExpandedScreen,
                 )
             }
         } else {
@@ -212,6 +214,7 @@ fun RegisterScreenContent(
                 sortKeyboardController = sortKeyboardController,
                 scrollState = scrollState,
                 bringIntoViewRequest = bringIntoViewRequest,
+                isExpandedScreen = isExpandedScreen,
             )
         }
     }
@@ -233,6 +236,7 @@ fun RegisterForm(
     sortKeyboardController: SoftwareKeyboardController?,
     scrollState: ScrollState,
     bringIntoViewRequest: BringIntoViewRequester,
+    isExpandedScreen: Boolean = false,
 ) {
     Column(
         modifier =
@@ -241,7 +245,9 @@ fun RegisterForm(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(16.dp),
+        verticalArrangement = if (isExpandedScreen) Arrangement.Center else Arrangement.Top,
     ) {
+        Spacer(modifier = Modifier.weight(1f))
         Text(
             stringResource(Res.string.register_page_register_title),
             style = MaterialTheme.typography.displayLarge,

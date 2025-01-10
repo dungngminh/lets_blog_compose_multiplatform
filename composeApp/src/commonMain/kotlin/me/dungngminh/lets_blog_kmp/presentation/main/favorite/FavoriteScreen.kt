@@ -11,7 +11,6 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -25,8 +24,6 @@ import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
-import me.dungngminh.lets_blog_kmp.presentation.components.ErrorView
-import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.login.LoginScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
@@ -64,7 +61,6 @@ object FavoriteTab : Tab {
             },
             onRetryClick = favoriteViewModel::retry,
             onRefresh = favoriteViewModel::refresh,
-            onUserSessionRetry = userSessionViewModel::refresh,
             onLoginClick = {
                 rootNavigator.push(LoginScreen)
             },
@@ -95,7 +91,6 @@ fun FavoriteScreenContent(
     onBlogClick: (Blog) -> Unit,
     onRetryClick: () -> Unit,
     onRefresh: () -> Unit,
-    onUserSessionRetry: () -> Unit,
     onLoginClick: () -> Unit,
 ) {
     Scaffold(
@@ -110,24 +105,13 @@ fun FavoriteScreenContent(
                     CircularProgressIndicator()
                 }
 
-            is UserSessionState.AuthenticatedFetchDataError ->
-                ErrorView(
-                    modifier =
-                        Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                    type = ErrorViewType.GENERAL_ERROR,
-                    onActionClick = onUserSessionRetry,
-                )
-
             UserSessionState.Unauthenticated ->
                 UnauthenticatedProfileContent(
                     modifier = Modifier.padding(innerPadding),
                     onLoginClick = onLoginClick,
                 )
 
-            is UserSessionState.Authenticated ->
+            else ->
                 AuthenticatedFavoriteContent(
                     modifier =
                         Modifier

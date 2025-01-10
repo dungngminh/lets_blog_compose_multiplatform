@@ -142,6 +142,7 @@ fun LoginScreenContent(
                         .padding(innerPadding)
                         .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Image(
                     painterResource(Res.drawable.img_login),
@@ -161,6 +162,7 @@ fun LoginScreenContent(
                     onSignUpClick = onSignUpClick,
                     onPasswordVisibilityToggle = onPasswordVisibilityToggle,
                     onLoginClick = onLoginClick,
+                    isExpandedScreen = isExpandedScreen,
                 )
             }
         } else {
@@ -172,6 +174,7 @@ fun LoginScreenContent(
                 onSignUpClick = onSignUpClick,
                 onPasswordVisibilityToggle = onPasswordVisibilityToggle,
                 onLoginClick = onLoginClick,
+                isExpandedScreen = isExpandedScreen,
             )
         }
     }
@@ -186,12 +189,17 @@ fun LoginForm(
     onSignUpClick: () -> Unit,
     onPasswordVisibilityToggle: () -> Unit,
     onLoginClick: () -> Unit,
+    isExpandedScreen: Boolean = false,
 ) {
     Column(
         modifier =
             modifier
                 .padding(16.dp),
+        verticalArrangement = if (isExpandedScreen) Arrangement.Center else Arrangement.Top,
     ) {
+        if (isExpandedScreen) {
+            Spacer(modifier = Modifier.weight(1f))
+        }
         Text(
             stringResource(Res.string.login_page_login_title),
             style = MaterialTheme.typography.displayLarge,

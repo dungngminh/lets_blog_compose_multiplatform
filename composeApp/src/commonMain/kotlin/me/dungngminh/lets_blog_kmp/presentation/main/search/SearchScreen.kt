@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -58,13 +59,19 @@ import me.dungngminh.lets_blog_kmp.presentation.components.ErrorViewType
 import me.dungngminh.lets_blog_kmp.presentation.create_blog.CreateBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.detail_blog.DetailBlogScreen
 import me.dungngminh.lets_blog_kmp.presentation.main.MainScreenDestination
+import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionState
+import me.dungngminh.lets_blog_kmp.presentation.main.UserSessionViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 object SearchTab : Tab {
     @Composable
     override fun Content() {
-        val rootNavigator = LocalNavigator.currentOrThrow.parent
+        val rootNavigator = LocalNavigator.currentOrThrow.parent ?: return
+
+        val userSessionViewModel = rootNavigator.koinNavigatorScreenModel<UserSessionViewModel>()
+
+        val userSessionState by userSessionViewModel.userSessionState.collectAsStateWithLifecycle()
 
         val viewModel = koinScreenModel<SearchViewModel>()
 
@@ -74,6 +81,7 @@ object SearchTab : Tab {
 
         SearchScreenContent(
             searchFieldState = viewModel.searchFieldState,
+            userSessionState = userSessionState,
             searchUiState = searchUiState,
             onSearchFieldChange = viewModel::onSearchChange,
             isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
@@ -110,6 +118,7 @@ object SearchTab : Tab {
 private fun SearchScreenContent(
     modifier: Modifier = Modifier,
     searchUiState: SearchUiState,
+    userSessionState: UserSessionState,
     searchFieldState: String,
     isMediumScreen: Boolean = false,
     isExpandedScreen: Boolean = false,
@@ -130,8 +139,10 @@ private fun SearchScreenContent(
             )
         },
         floatingActionButton = {
-            CreateBlogFabButton {
-                onCreateBlogClick()
+            if (userSessionState is UserSessionState.Authenticated) {
+                CreateBlogFabButton {
+                    onCreateBlogClick()
+                }
             }
         },
     ) { innerPadding ->

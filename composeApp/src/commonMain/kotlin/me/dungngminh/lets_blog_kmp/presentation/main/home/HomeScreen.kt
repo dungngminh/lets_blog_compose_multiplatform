@@ -135,8 +135,10 @@ fun HomeScreenContent(
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
-            CreateBlogFabButton {
-                onCreateBlogClick()
+            if (userSessionState is UserSessionState.Authenticated) {
+                CreateBlogFabButton {
+                    onCreateBlogClick()
+                }
             }
         },
     ) { innerPadding ->

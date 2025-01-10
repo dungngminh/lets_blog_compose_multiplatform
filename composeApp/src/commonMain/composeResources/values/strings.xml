@@ -17,8 +17,8 @@
     <string name="login_page_password_label">Password</string>
     <string name="login_page_new_in_lets_blog_label">New in Let's Blog?</string>
     <string name="login_page_register_now_label">Register now</string>
-    <string name="register_page_register_title">Sign up</string>
-    <string name="register_page_register_button_label">Sign up</string>
+    <string name="register_page_register_title">Register</string>
+    <string name="register_page_register_button_label">Register</string>
     <string name="register_page_login_button_label">Login</string>
     <string name="register_page_username_label">Username</string>
     <string name="register_page_username_hint_label">Input your username</string>
