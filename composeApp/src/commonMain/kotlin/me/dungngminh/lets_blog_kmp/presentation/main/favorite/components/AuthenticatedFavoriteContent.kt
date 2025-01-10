@@ -1,11 +1,11 @@
 package me.dungngminh.lets_blog_kmp.presentation.main.favorite.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -25,6 +25,8 @@ import me.dungngminh.lets_blog_kmp.presentation.main.favorite.FavoriteUiState
 fun AuthenticatedFavoriteContent(
     modifier: Modifier = Modifier,
     favoriteUiState: FavoriteUiState,
+    isExpandedScreen: Boolean,
+    isMediumScreen: Boolean,
     onBlogClick: (Blog) -> Unit,
     onRetryClick: () -> Unit,
     onRefresh: () -> Unit,
@@ -57,6 +59,8 @@ fun AuthenticatedFavoriteContent(
                 favoriteBlogs = favoriteUiState.blogs.toImmutableList(),
                 onBlogClick = onBlogClick,
                 onRefresh = onRefresh,
+                isMediumScreen = isMediumScreen,
+                isExpandedScreen = isExpandedScreen,
             )
         }
     }
@@ -69,29 +73,40 @@ private fun FavoriteBlogList(
     favoriteBlogs: ImmutableList<Blog>,
     onBlogClick: (Blog) -> Unit,
     onRefresh: () -> Unit,
+    isMediumScreen: Boolean = false,
+    isExpandedScreen: Boolean = false,
 ) {
     PullToRefreshBox(
         isRefreshing = false,
         onRefresh = onRefresh,
     ) {
-        LazyColumn(
+        LazyVerticalGrid(
+            columns =
+                GridCells.Fixed(
+                    when {
+                        isExpandedScreen -> 3
+                        isMediumScreen -> 2
+                        else -> 1
+                    },
+                ),
             modifier = modifier,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            itemsIndexed(
+            items(
                 favoriteBlogs,
-                { _, blog -> blog.id },
-            ) { index, blog ->
+                { blog -> blog.id },
+            ) { blog ->
                 BlogCard(
                     modifier = Modifier.fillMaxWidth(),
                     blog = blog,
                     onClick = {
                         onBlogClick(blog)
                     },
+                    isExpandedScreen = isExpandedScreen,
+                    isMediumScreen = isMediumScreen,
                 )
-                if (index < favoriteBlogs.size - 1) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
             }
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import letsblogkmp.composeapp.generated.resources.Res
 import letsblogkmp.composeapp.generated.resources.favorite_screen_favorite_blogs_label
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.Center
@@ -47,6 +49,8 @@ object FavoriteTab : Tab {
 
         val favoriteUiState by favoriteViewModel.uiState.collectAsStateWithLifecycle()
 
+        val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
         FavoriteScreenContent(
             favoriteUiState = favoriteUiState,
             userSessionState = userSessionState,
@@ -64,6 +68,8 @@ object FavoriteTab : Tab {
             onLoginClick = {
                 rootNavigator.push(LoginScreen)
             },
+            isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
+            isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
         )
     }
 
@@ -84,6 +90,8 @@ fun FavoriteScreenContent(
     modifier: Modifier = Modifier,
     favoriteUiState: FavoriteUiState,
     userSessionState: UserSessionState,
+    isMediumScreen: Boolean,
+    isExpandedScreen: Boolean,
     onBlogClick: (Blog) -> Unit,
     onRetryClick: () -> Unit,
     onRefresh: () -> Unit,
@@ -126,6 +134,8 @@ fun FavoriteScreenContent(
                             .padding(innerPadding)
                             .fillMaxSize(),
                     favoriteUiState = favoriteUiState,
+                    isExpandedScreen = isExpandedScreen,
+                    isMediumScreen = isMediumScreen,
                     onBlogClick = onBlogClick,
                     onRetryClick = onRetryClick,
                     onRefresh = onRefresh,

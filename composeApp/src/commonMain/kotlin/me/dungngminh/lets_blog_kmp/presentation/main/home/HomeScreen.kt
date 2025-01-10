@@ -167,12 +167,12 @@ fun HomeScreenContent(
                                 .padding(16.dp),
                         username =
                             when (userSessionState) {
-                                is UserSessionState.Authenticated -> userSessionState.user?.name
+                                is UserSessionState.Authenticated -> userSessionState.user.name
                                 else -> null
                             },
                         userAvatarUrl =
                             when (userSessionState) {
-                                is UserSessionState.Authenticated -> userSessionState.user?.avatarUrl
+                                is UserSessionState.Authenticated -> userSessionState.user.avatarUrl
                                 else -> null
                             },
                     )
@@ -303,16 +303,16 @@ fun LazyListScope.blogsView(
                 )
             }
         }
-        otherBlogsContentView(
+        otherBlogsContentCompactView(
             blogs = blogs,
-            onBlogClick = onBlogClick,
             isLoadingMore = isLoadingMore,
+            onBlogClick = onBlogClick,
             fetchNewBlogs = fetchNewBlogs,
         )
     }
 }
 
-fun LazyListScope.otherBlogsContentView(
+fun LazyListScope.otherBlogsContentCompactView(
     blogs: ImmutableList<Blog>,
     isLoadingMore: Boolean,
     onBlogClick: (Blog) -> Unit,

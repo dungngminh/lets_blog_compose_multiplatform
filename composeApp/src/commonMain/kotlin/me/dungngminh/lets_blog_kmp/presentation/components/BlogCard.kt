@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +16,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -36,6 +39,34 @@ fun BlogCard(
     modifier: Modifier = Modifier,
     blog: Blog,
     onClick: () -> Unit = {},
+    isMediumScreen: Boolean = false,
+    isExpandedScreen: Boolean = false,
+) {
+    val isLargeScreen =
+        remember(isExpandedScreen, isMediumScreen) {
+            isMediumScreen || isExpandedScreen
+        }
+    if (isLargeScreen) {
+        LargeBlogCard(
+            modifier = modifier,
+            blog = blog,
+            onClick = onClick,
+            isMediumScreen = isMediumScreen,
+        )
+    } else {
+        CompactBlogCard(
+            modifier = modifier,
+            blog = blog,
+            onClick = onClick,
+        )
+    }
+}
+
+@Composable
+fun CompactBlogCard(
+    modifier: Modifier = Modifier,
+    blog: Blog,
+    onClick: () -> Unit = {},
 ) {
     ElevatedCard(
         modifier = modifier,
@@ -54,7 +85,9 @@ fun BlogCard(
                         .clip(RoundedCornerShape(12.dp)),
                 imageOptions = ImageOptions(contentScale = ContentScale.Crop),
                 loading = {
-                    CircularProgressIndicator()
+                    Center {
+                        CircularProgressIndicator()
+                    }
                 },
                 failure = {
                     Image(
@@ -76,6 +109,69 @@ fun BlogCard(
                             fontWeight = FontWeight.SemiBold,
                         ),
                     minLines = 1,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    stringResource(blog.category.localizedStringRes()) + " - " + blog.createdAt.timeAgo(),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    blog.creator.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LargeBlogCard(
+    modifier: Modifier = Modifier,
+    blog: Blog,
+    onClick: () -> Unit = {},
+    isMediumScreen: Boolean = false,
+) {
+    ElevatedCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        onClick = onClick,
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            CoilImage(
+                imageModel = { blog.imageUrl },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(if (isMediumScreen) 180.dp else 250.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                imageOptions = ImageOptions(contentScale = ContentScale.Crop),
+                loading = {
+                    Center {
+                        CircularProgressIndicator()
+                    }
+                },
+                failure = {
+                    Image(
+                        painterResource(Res.drawable.img_placeholder),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                },
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    blog.title,
+                    style =
+                        MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )

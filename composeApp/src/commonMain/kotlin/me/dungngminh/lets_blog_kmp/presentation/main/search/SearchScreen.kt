@@ -1,8 +1,10 @@
 package me.dungngminh.lets_blog_kmp.presentation.main.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +14,9 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -43,6 +47,7 @@ import letsblogkmp.composeapp.generated.resources.ic_search_filled
 import letsblogkmp.composeapp.generated.resources.search_screen_empty_query_label
 import letsblogkmp.composeapp.generated.resources.search_screen_search_hint_label
 import letsblogkmp.composeapp.generated.resources.search_screen_top_bar_title
+import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.extensions.toJsonStr
 import me.dungngminh.lets_blog_kmp.domain.entities.Blog
 import me.dungngminh.lets_blog_kmp.presentation.components.BlogCard
@@ -65,10 +70,14 @@ object SearchTab : Tab {
 
         val searchUiState by viewModel.searchState.collectAsStateWithLifecycle()
 
+        val windowSizeClass = LocalWindowSizeClass.currentOrThrow
+
         SearchScreenContent(
             searchFieldState = viewModel.searchFieldState,
             searchUiState = searchUiState,
             onSearchFieldChange = viewModel::onSearchChange,
+            isMediumScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium,
+            isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
             onBlogClick = { blog ->
                 rootNavigator?.push(
                     DetailBlogScreen(
@@ -100,12 +109,14 @@ object SearchTab : Tab {
 @Composable
 private fun SearchScreenContent(
     modifier: Modifier = Modifier,
+    searchUiState: SearchUiState,
     searchFieldState: String,
+    isMediumScreen: Boolean = false,
+    isExpandedScreen: Boolean = false,
     onSearchFieldChange: (String) -> Unit,
     onBlogClick: (Blog) -> Unit = {},
     onCreateBlogClick: () -> Unit = {},
     onRetryClick: () -> Unit = {},
-    searchUiState: SearchUiState,
 ) {
     Scaffold(
         modifier = modifier,
@@ -176,24 +187,36 @@ private fun SearchScreenContent(
                     )
 
                 is SearchUiState.Success -> {
-                    LazyColumn(
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .padding(horizontal = 16.dp),
+                    LazyVerticalGrid(
+                        columns =
+                            GridCells.Fixed(
+                                when {
+                                    isExpandedScreen -> 3
+                                    isMediumScreen -> 2
+                                    else -> 1
+                                },
+                            ),
+                        modifier = Modifier.weight(1f),
+                        contentPadding =
+                            PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = 24.dp,
+                            ),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        itemsIndexed(
+                        items(
                             searchUiState.searchedBlogs.toImmutableList(),
-                            key = { _, blog -> blog.id },
-                        ) { index, blog ->
+                            key = { blog -> blog.id },
+                        ) { blog ->
                             BlogCard(
                                 blog = blog,
                                 onClick = { onBlogClick(blog) },
                                 modifier = Modifier.fillMaxWidth(),
+                                isMediumScreen = isMediumScreen,
+                                isExpandedScreen = isExpandedScreen,
                             )
-                            if (index < searchUiState.searchedBlogs.size - 1) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
                         }
                     }
                 }

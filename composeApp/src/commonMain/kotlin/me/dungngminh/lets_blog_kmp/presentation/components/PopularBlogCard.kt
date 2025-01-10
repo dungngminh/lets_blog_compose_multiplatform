@@ -166,7 +166,9 @@ private fun PopularBlogCardContent(
                                 .clip(CircleShape),
                         imageOptions = ImageOptions(contentScale = ContentScale.Crop),
                         loading = {
-                            CircularProgressIndicator()
+                            Center {
+                                CircularProgressIndicator()
+                            }
                         },
                         failure = {
                             Image(
