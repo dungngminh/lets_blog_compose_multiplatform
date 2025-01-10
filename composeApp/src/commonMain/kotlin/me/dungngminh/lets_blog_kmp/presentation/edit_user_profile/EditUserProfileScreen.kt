@@ -139,7 +139,6 @@ object EditUserProfileScreen : Screen {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(getString(Res.string.edit_user_profile_success))
                                 userSessionViewModel.refresh()
-                                navigator.pop()
                             }
                         }
                     }
