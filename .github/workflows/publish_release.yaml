@@ -9,6 +9,9 @@ on:
 jobs:
   build_web_app:
     uses: ./.github/workflows/build_and_deploy_web_app.yaml
+    permissions:
+      pages: write
+      id-token: write
 
   build_macos_app:
     uses: ./.github/workflows/build_macos_app.yaml
