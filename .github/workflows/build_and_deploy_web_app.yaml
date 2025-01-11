@@ -17,15 +17,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create environment file
-        env:
-          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
-          BASE_URL: ${{ secrets.BASE_URL }}
-        run: |
-          cat <<EOF > env.properties
-            GEMINI_KEY=$GEMINI_KEY
-            BASE_URL=$BASE_URL
-          EOF
+      #      - name: Create environment file
+      #        env:
+      #          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+      #          BASE_URL: ${{ secrets.BASE_URL }}
+      #        run: |
+      #          cat <<EOF > env.properties
+      #            GEMINI_KEY=$GEMINI_KEY
+      #            BASE_URL=$BASE_URL
+      #          EOF
 
       - name: Run Gradle Tasks
         run: ./gradlew wasmJsBrowserDistribution

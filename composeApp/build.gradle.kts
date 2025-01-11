@@ -270,12 +270,12 @@ buildkonfig {
     packageName = "me.dungngminh.lets_blog_kmp"
 
     defaultConfigs {
-        val envProperties = readProperty("env.properties") ?: return@defaultConfigs
+        val envProperties = readProperty("env.contest.properties") ?: return@defaultConfigs
         buildConfigField(STRING, "BASE_URL", envProperties.getProperty("BASE_URL"))
         buildConfigField(STRING, "GEMINI_KEY", envProperties.getProperty("GEMINI_KEY"))
     }
     defaultConfigs("dev") {
-        val envProperties = readProperty("env.dev.properties") ?: return@defaultConfigs
+        val envProperties = readProperty("env.contest.properties") ?: return@defaultConfigs
         buildConfigField(STRING, "BASE_URL", envProperties.getProperty("BASE_URL"))
         buildConfigField(STRING, "GEMINI_KEY", envProperties.getProperty("GEMINI_KEY"))
     }

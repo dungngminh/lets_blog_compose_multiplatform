@@ -254,7 +254,7 @@ fun onStyleButtonClick(
         }
 
         EditorStyleButtonType.H1 -> {
-            richTextState.addSpanStyle(
+            richTextState.toggleSpanStyle(
                 SpanStyle(
                     fontSize = 40.sp,
                 ),
@@ -262,7 +262,7 @@ fun onStyleButtonClick(
         }
 
         EditorStyleButtonType.H2 -> {
-            richTextState.addSpanStyle(
+            richTextState.toggleSpanStyle(
                 SpanStyle(
                     fontSize = 32.sp,
                 ),
@@ -270,7 +270,7 @@ fun onStyleButtonClick(
         }
 
         EditorStyleButtonType.H3 -> {
-            richTextState.addSpanStyle(
+            richTextState.toggleSpanStyle(
                 SpanStyle(
                     fontSize = 24.sp,
                 ),
@@ -278,7 +278,7 @@ fun onStyleButtonClick(
         }
 
         EditorStyleButtonType.H4 -> {
-            richTextState.addSpanStyle(
+            richTextState.toggleSpanStyle(
                 SpanStyle(
                     fontSize = 20.sp,
                 ),
@@ -286,7 +286,7 @@ fun onStyleButtonClick(
         }
 
         EditorStyleButtonType.H5 -> {
-            richTextState.addSpanStyle(
+            richTextState.toggleSpanStyle(
                 SpanStyle(
                     fontSize = 16.sp,
                 ),

@@ -54,32 +54,17 @@ follows [Recommended app architecture](https://developer.android.com/topic/archi
 
 ## How to run this project ❓
 
-### Install Flutter
+### IDE Setup
 
 ### Prepare env configuration
 
-Clone `env.json` from `env.example.json`. Key and value in `env.example.json` is:
-
-```groovy
-"SUPABASE_URL" : "PASTE_YOUR
-` ` ` groovy
-
-
-You can
-create a
-new Supabase project with[this configuration](SUPABASE_CONFIG.md) or use my
-configuration below:
-
-` ` ` json
-        {
-            "SUPABASE_URL" : "https://yznpjybdklkbnjaqgpor.supabase.co" ,
-            "SUPABASE_ANON" :
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bnBqeWJka2xrYm5qYXFncG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE0ODc2ODAsImV4cCI6MTk5NzA2MzY4MH0.ymBej2GzwqimWqMc2pDN5a_kARhDzXMGSNtHLpItXKE"
-            ,
-            "SENTRY_DSN" :
-            "https://f3ce107186614265a0c9f9fc1e00f190@o4505489138450432.ingest.sentry.io/4505489139302400"
-        }
-```
+- *Currently, I filled env for KotlinConf contest, you can use it for testing in
+  `env.contest.properties`.*
+- Copy `env.sample.properties` to `env.properties` and fill in your own configuration.
+- Env information:
+    - `GEMINI_KEY`: Gemini API key, how to get it, check this link
+      to [Gemini](https://ai.google.dev/gemini-api/docs/api-key)
+    - `BASE_URL`: Your backend base URL
 
 ## Contributors 🌟
 
