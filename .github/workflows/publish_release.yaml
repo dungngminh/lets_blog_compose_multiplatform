@@ -8,7 +8,7 @@ on:
 
 jobs:
   build_web_app:
-    uses: ./.github/workflows/build_web_app.yaml
+    uses: ./.github/workflows/build_and_deploy_web_app.yaml
 
   build_macos_app:
     uses: ./.github/workflows/build_macos_app.yaml
@@ -21,11 +21,6 @@ jobs:
     permissions:
       contents: write
     steps:
-      - env:
-          GITHUB_PAGES_URL: ${{ steps.build_web_app.outputs.github_pages_url }}
-          MACOS_DMG_PATH: ${{ needs.build_macos_app.outputs.macos_dmg_path }}
-          MACOS_DMG_FILE: ${{ needs.build_macos_app.outputs.macos_file_dmg_path }}
-        run: echo "$MACOS_DMG_PATH"
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Read version to release
@@ -45,28 +40,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ steps.download-artifact.outputs.download-path }}
+          files: $(find ${{ steps.download-artifact.outputs.download-path }} -name '*.dmg')
           tag_name: ${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
           generate_release_notes: true
-
-  deploy:
-    # Add a dependency to the build job
-    needs: build_web_app
-
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
-
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ env.GITHUB_PAGES_URL }}
-
-    # Specify runner + deployment step
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4

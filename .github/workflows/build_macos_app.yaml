@@ -1,20 +1,12 @@
 name: Build MacOS App
 on:
   workflow_call:
-    outputs:
-      macos_dmg_path:
-        value: ${{ jobs.build.outputs.dmg_path }}
-      macos_file_dmg_path:
-        value: ${{ jobs.build.outputs.file_dmg_path }}
 
 jobs:
   # Build job
   build:
     name: Build MacOS App with Kotlin/Native
     runs-on: macos-latest
-    outputs:
-      dmg_path: ${{ steps.get_dmg_path.outputs.dmg_path }}
-      file_dmg_path: ${{ steps.get_dmg_path.outputs.file_dmg_path }}
     steps:
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -42,7 +34,6 @@ jobs:
         id: get_dmg_path
         run: |
           echo "file_dmg_path=$(find composeApp/build/compose/binaries/main/dmg -name '*.dmg')" >> "$GITHUB_OUTPUT"
-          echo "dmg_path=composeApp/build/compose/binaries/main/dmg" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
