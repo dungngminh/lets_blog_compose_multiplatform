@@ -37,15 +37,14 @@ jobs:
           done
 
       - name: Upload Pages artifact
-        id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
           path: composeApp/build/dist/wasmJs/productionExecutable/
 
-
   deploy:
     # Add a dependency to the build job
     needs: build
+
     # Deploy to the github-pages environment
     environment:
       name: github-pages
@@ -55,4 +54,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4

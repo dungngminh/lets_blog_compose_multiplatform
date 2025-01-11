@@ -13,13 +13,13 @@ jobs:
       pages: write
       id-token: write
 
-  build_macos_app:
-    uses: ./.github/workflows/build_macos_app.yaml
+  #  build_macos_app:
+  #    uses: ./.github/workflows/build_macos_app.yaml
 
   publish_release:
     needs:
       - build_web_app
-      - build_macos_app
+    #      - build_macos_app
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -33,17 +33,17 @@ jobs:
           file: gradle.properties
           property: version
           default: 0.0.1
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        id: download-artifact
-        with:
-          name: macos-dmg
-      - name: Create and release a new GitHub release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: $(find ${{ steps.download-artifact.outputs.download-path }} -name '*.dmg')
-          tag_name: ${{ steps.version.outputs.version }}
-          name: v${{ steps.version.outputs.version }}
-          generate_release_notes: true
+#      - name: Download artifact
+#        uses: actions/download-artifact@v4
+#        id: download-artifact
+#        with:
+#          name: macos-dmg
+#      - name: Create and release a new GitHub release
+#        uses: softprops/action-gh-release@v2
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          files: $(find ${{ steps.download-artifact.outputs.download-path }} -name '*.dmg')
+#          tag_name: ${{ steps.version.outputs.version }}
+#          name: v${{ steps.version.outputs.version }}
+#          generate_release_notes: true
