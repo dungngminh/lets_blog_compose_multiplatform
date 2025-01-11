@@ -1,11 +1,16 @@
 name: Build Web App
 on:
   workflow_call:
+    outputs:
+      github_pages_url:
+        value: ${{ jobs.build.outputs.page_url }}
 
 jobs:
   # Build job
   build:
     name: Build Kotlin/Wasm
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up JDK
@@ -37,6 +42,7 @@ jobs:
           done
 
       - name: Upload Pages artifact
+        id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
           path: composeApp/build/dist/wasmJs/productionExecutable/
