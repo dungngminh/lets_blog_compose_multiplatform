@@ -1,3 +1,4 @@
+<video controls src="art/showcase/demo v4.mp4" title="Showcase"></video>
 # Let's Blog - Read, Write and Share Blog platform
 
 <img alt="AppLogo.webp" height="100" src="art/img_app_icon.webp" width="100"/>
@@ -7,7 +8,7 @@ by [@dungngminh](https://github.com/dungngminh).
 
 ## Getting Started 🤖
 
-Everyone loves writing throught their own stories, experiences, knowledge, lifehack via blog and so do I. I want to create a place for everyone writing, sharing, reading blogs, anything, anyway, anytime and cross-platform. That's why I created this project. I hope this will be a good platform for everyone, this platform is also integrate **Gemini AI** to help reading more efficiently, no more skimming through lines, find the needing information and also a good example for ***Compose Multiplatform**. And now, **Let's Blog!** 🚀
+Everyone loves writing through their own stories, experiences, knowledge, lifehack via blog and so do I. I want to create a place for everyone **writing, sharing, reading blogs, anything, anyway, anytime and cross-platform**. That's why I created this project. I hope this will be a good platform for everyone. This platform is also integrated **Gemini AI** to help read more efficiently, no more skimming through lines, find the needed information and also a good example of **Compose Multiplatform**. And now, **Let's Blog!** 🚀
 
 ## Feature set 🔥
 
@@ -29,8 +30,6 @@ Everyone loves writing throught their own stories, experiences, knowledge, lifeh
 
 - App architecture
 follows [Recommended app architecture](https://developer.android.com/topic/architecture#recommended-app-arch) from Android.
-
-- 
 
 ## What I used 💪
 
@@ -80,7 +79,6 @@ This project includes 4 run configurations:
 - *Currently, I filled env for KotlinConf contest, you can use it for testing in `env.contest.properties`.*
 - If you want to run this project, with your own configuration, you need to create env properties file, I also put a sample file is `env.sample.properties`, you can copy it to `env.properties` and fill your own configuration. Currently, source code is filled with `env.contest.properties` file, you can change it in `build.gradle.kts` file at `buildKonfig` block in `composeApp` module.
 
-
 ![buildKonfig](art/screenshots/buildkonfig.png)
 
 - Env information:
@@ -103,6 +101,16 @@ Run `WebApp` via imported configuration or run command:
 ```shell
 ./gradlew :composeApp:wasmJsBrowserRun -t --quiet
 ```
+
+## Screenshots 📸
+
+### Android
+
+### iOS
+
+### Desktop (MacOS)
+
+### Web
 
 ## Contributors 🌟
 

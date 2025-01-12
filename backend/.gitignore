@@ -17,5 +17,3 @@ coverage/
 .env
 
 .env.local
-
-run.sh
