@@ -1,4 +1,6 @@
-<video controls src="art/showcase/demo v4.mp4" title="Showcase"></video>
+
+https://github.com/user-attachments/assets/8637ecb4-20d6-430b-acd2-126ddf8f6639
+
 # Let's Blog - Read, Write and Share Blog platform
 
 <img alt="AppLogo.webp" height="100" src="art/img_app_icon.webp" width="100"/>
