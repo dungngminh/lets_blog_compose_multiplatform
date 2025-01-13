@@ -63,9 +63,9 @@ import letsblogkmp.composeapp.generated.resources.login_page_email_hint_label
 import letsblogkmp.composeapp.generated.resources.register_page_already_have_account_label
 import letsblogkmp.composeapp.generated.resources.register_page_confirm_password_hint_label
 import letsblogkmp.composeapp.generated.resources.register_page_confirm_password_label
-import letsblogkmp.composeapp.generated.resources.register_page_email_hint_label
 import letsblogkmp.composeapp.generated.resources.register_page_email_label
 import letsblogkmp.composeapp.generated.resources.register_page_login_now_label
+import letsblogkmp.composeapp.generated.resources.register_page_password_hint_label
 import letsblogkmp.composeapp.generated.resources.register_page_password_label
 import letsblogkmp.composeapp.generated.resources.register_page_register_button_label
 import letsblogkmp.composeapp.generated.resources.register_page_register_title
@@ -352,7 +352,7 @@ fun RegisterForm(
                 Text(stringResource(Res.string.register_page_password_label))
             },
             placeholder = {
-                Text(stringResource(Res.string.register_page_email_hint_label))
+                Text(stringResource(Res.string.register_page_password_hint_label))
             },
             trailingIcon = {
                 IconButton(

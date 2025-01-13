@@ -3,10 +3,9 @@
 # input dev or prod or contest
 read -p "dev/prod/contest: " mode
 
-if [ $mode == "dev" ]
-then
+if [[ $mode == "dev" ]]; then
     export $(egrep -v '^#' .env.local | xargs)
-else if [ $mode == "prod" ]
+elif [[ $mode == "prod" ]]; then
     export $(egrep -v '^#' .env | xargs)
 else
     export $(egrep -v '^#' .env.contest | xargs)
