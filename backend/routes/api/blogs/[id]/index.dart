@@ -53,7 +53,7 @@ Future<Response> _onBlogsGetRequest(RequestContext context, String id) async {
           .toJson(),
     );
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }
 
@@ -65,9 +65,17 @@ Future<Response> _onBlogsPatchRequest(RequestContext context, String id) async {
     if (body.isEmpty) return BadRequestResponse(ErrorMessageCode.bodyEmpty);
     final request = EditBlogRequest.fromJson(body.asJson());
     final blog = await db.blogs.queryBlog(id).onError((e, _) => null);
-    if (blog == null) return NotFoundResponse('Blog not found');
+    if (blog == null) {
+      return NotFoundResponse(
+        ErrorMessageCode.blogNotFound,
+        'Not found blog with id: $id',
+      );
+    }
     if (blog.creator.id != user.id) {
-      return ForbiddenResponse('You are not creator of this blog');
+      return ForbiddenResponse(
+        ErrorMessageCode.youAreNotCreator,
+        "You aren't creator of this blog",
+      );
     }
     await db.blogs
         .updateOne(
@@ -85,7 +93,7 @@ Future<Response> _onBlogsPatchRequest(RequestContext context, String id) async {
   } on CheckedFromJsonException catch (e) {
     return BadRequestResponse(e.message);
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }
 
@@ -111,6 +119,6 @@ Future<Response> _onBlogsDeleteRequest(
         .whenComplete(db.close);
     return OkResponse();
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }

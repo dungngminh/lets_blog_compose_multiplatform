@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:very_good_blog_app_backend/models/following_follower.dart';
 import 'package:very_good_blog_app_backend/models/user.dart';
 
 part 'get_user_profile_response.g.dart';

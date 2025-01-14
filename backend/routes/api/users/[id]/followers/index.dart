@@ -1,5 +1,6 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:stormberry/stormberry.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
 import 'package:very_good_blog_app_backend/dtos/response/users/followers/get_user_profile_response.dart';
 import 'package:very_good_blog_app_backend/models/following_follower.dart';
@@ -39,6 +40,8 @@ Future<Response> _onFollowersByIdGetRequest(
       )
       .then((followers) => followers.map(GetUserFollowerResponse.fromView))
       .then<Response>((res) => OkResponse(res.map((e) => e.toJson()).toList()))
-      .onError((e, _) => InternalServerErrorResponse(e.toString()))
+      .onError(
+        (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+      )
       .whenComplete(database.close);
 }

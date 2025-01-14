@@ -40,13 +40,13 @@ Future<Response> _onLoginPostRequest(RequestContext context) async {
       .then<Response>((users) {
         final user = users.firstOrNull;
         return user == null
-            ? BadRequestResponse(ErrorMessageCode.notRegisterYet)
+            ? BadRequestResponse(ErrorMessageCode.invalidEmailOrPassword)
             : OkResponse(
                 LoginResponse(id: user.id, token: createJwt(user.id)).toJson(),
               );
       })
       .onError(
-        (e, _) => InternalServerErrorResponse(ErrorMessageCode.unknownError),
+        (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
       )
       .whenComplete(db.close);
 }

@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dartx/dartx.dart';
 import 'package:stormberry/stormberry.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/common/extensions/header_extesion.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
 import 'package:very_good_blog_app_backend/dtos/response/blogs/get_blog_response.dart';
@@ -68,5 +69,7 @@ Future<Response> _onTopBlogsGetRequest(RequestContext context) async {
       .then<Response>(
         (topBlogs) => OkResponse(topBlogs.map((e) => e.toJson()).toList()),
       )
-      .onError((e, _) => InternalServerErrorResponse(e.toString()));
+      .onError(
+        (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+      );
 }

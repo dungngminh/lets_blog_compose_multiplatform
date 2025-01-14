@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:stormberry/stormberry.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/common/extensions/json_ext.dart';
 import 'package:very_good_blog_app_backend/dtos/request/followings/create_following_request.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
@@ -48,7 +49,9 @@ Future<Response> _onFollowingPost(RequestContext context) async {
             parameters: {'followingId': userView.id, 'userId': userView.id},
           )
           .then<Response>((_) => OkResponse())
-          .onError((e, _) => InternalServerErrorResponse(e.toString()))
+          .onError(
+            (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+          )
           .whenComplete(db.close);
     }
     return db.followingFollowers
@@ -59,11 +62,13 @@ Future<Response> _onFollowingPost(RequestContext context) async {
           ),
         )
         .then<Response>((_) => OkResponse())
-        .onError((e, _) => InternalServerErrorResponse(e.toString()))
+        .onError(
+          (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+        )
         .whenComplete(db.close);
   } on CheckedFromJsonException catch (e) {
     return BadRequestResponse(e.message);
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }

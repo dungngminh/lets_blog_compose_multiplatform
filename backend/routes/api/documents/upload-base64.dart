@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloudinary/cloudinary.dart' hide Response;
 import 'package:dart_frog/dart_frog.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/common/extensions/json_ext.dart';
 import 'package:very_good_blog_app_backend/dtos/request/document/upload_document_request.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
@@ -20,7 +21,7 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
   final cloudinary = context.read<Cloudinary>();
   final body = await context.request.body();
   if (body.isEmpty) {
-    return BadRequestResponse();
+    return BadRequestResponse(ErrorMessageCode.noImageUpload);
   }
   try {
     final request = UploadDocumentRequest.fromJson(body.asJson());
@@ -37,12 +38,12 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
       if (url != null) {
         return OkResponse(UploadDocumentResponse(url: url));
       } else {
-        return InternalServerErrorResponse('upload-failed');
+        return InternalServerErrorResponse(ErrorMessageCode.uploadFailed);
       }
     });
-  } on CheckedFromJsonException catch (e) {
-    return BadRequestResponse(e.message);
-  } catch (e, st) {
-    return InternalServerErrorResponse(st.toString());
+  } on CheckedFromJsonException {
+    return BadRequestResponse(ErrorMessageCode.bodyInvalid);
+  } catch (e, _) {
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }

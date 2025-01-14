@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cloudinary/cloudinary.dart' hide Response;
 import 'package:dart_frog/dart_frog.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
 import 'package:very_good_blog_app_backend/dtos/response/document/upload_document_response.dart';
 
@@ -17,11 +18,11 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
   final cloudinary = context.read<Cloudinary>();
   try {
     final request = await context.request.formData();
-    final folderName = request.fields[''];
-    final uploadedFile = request.files[''];
+    final folderName = request.fields['folderName'];
+    final uploadedFile = request.files['image'];
 
     if (uploadedFile == null) {
-      return BadRequestResponse('no-image-upload');
+      return BadRequestResponse(ErrorMessageCode.noImageUpload);
     }
 
     final imageByteData = await uploadedFile.readAsBytes();
@@ -38,10 +39,10 @@ Future<Response> _onUploadPostRequest(RequestContext context) async {
       if (url != null) {
         return OkResponse(UploadDocumentResponse(url: url));
       } else {
-        return InternalServerErrorResponse('upload-failed');
+        return InternalServerErrorResponse(ErrorMessageCode.serverError);
       }
     });
-  } catch (e, st) {
-    return InternalServerErrorResponse(st.toString());
+  } catch (e, _) {
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }

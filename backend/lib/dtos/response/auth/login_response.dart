@@ -10,8 +10,7 @@ class LoginResponse {
       _$LoginResponseFromJson(json);
 
   final String id;
-  final String token; 
+  final String token;
 
   Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
 }
- 

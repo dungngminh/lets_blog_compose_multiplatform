@@ -12,7 +12,7 @@ class BasePaginationResponse {
 
   factory BasePaginationResponse.fromJson(Map<String, dynamic> json) =>
       _$BasePaginationResponseFromJson(json);
-      
+
   final int currentPage;
   final int limit;
   final int totalCount;

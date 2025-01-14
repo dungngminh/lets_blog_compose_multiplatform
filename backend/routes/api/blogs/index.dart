@@ -3,6 +3,7 @@ import 'package:dartx/dartx.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:stormberry/stormberry.dart';
 import 'package:uuid/uuid.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/common/extensions/header_extesion.dart';
 import 'package:very_good_blog_app_backend/common/extensions/json_ext.dart';
 import 'package:very_good_blog_app_backend/dtos/request/blogs/create_blog_request.dart';
@@ -95,7 +96,7 @@ Future<Response> _onBlogsGetRequest(RequestContext context) async {
 
     return OkResponse(blogs.map((e) => e.toJson()).toList());
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }
 
@@ -125,9 +126,9 @@ Future<Response> _onBlogsPostRequest(RequestContext context) async {
         )
         .whenComplete(db.close);
     return CreatedResponse('New blog is created');
-  } on CheckedFromJsonException catch (e) {
-    return BadRequestResponse(e.message);
+  } on CheckedFromJsonException {
+    return BadRequestResponse(ErrorMessageCode.bodyInvalid);
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }

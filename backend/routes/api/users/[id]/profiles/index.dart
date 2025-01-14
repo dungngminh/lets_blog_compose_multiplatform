@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:stormberry/stormberry.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/common/extensions/json_ext.dart';
 import 'package:very_good_blog_app_backend/dtos/request/users/edit_user_profile_request.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
@@ -49,7 +50,10 @@ Future<Response> _onUserByIdGetRequest(
         .queryUser(id)
         .then<Response>(
           (user) => user == null
-              ? NotFoundResponse('User not found')
+              ? NotFoundResponse(
+                  ErrorMessageCode.userNotFound,
+                  'Not found user with id: $id',
+                )
               : OkResponse(
                   GetUserProfileResponse.fromDb(
                     view: user,
@@ -59,9 +63,13 @@ Future<Response> _onUserByIdGetRequest(
                   ).toJson(),
                 ),
         )
-        .onError((e, st) => InternalServerErrorResponse(e.toString()));
+        .onError(
+          (e, st) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+        );
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(
+      ErrorMessageCode.serverError,
+    );
   }
 }
 
@@ -89,11 +97,13 @@ Future<Response> _onUserByIdPatchRequest(
           ),
         )
         .then<Response>((_) => OkResponse())
-        .onError((e, _) => InternalServerErrorResponse(e.toString()))
+        .onError(
+          (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+        )
         .whenComplete(db.close);
-  } on CheckedFromJsonException catch (e) {
-    return BadRequestResponse(e.message);
+  } on CheckedFromJsonException {
+    return BadRequestResponse(ErrorMessageCode.bodyInvalid);
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }

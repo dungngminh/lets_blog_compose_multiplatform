@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:stormberry/stormberry.dart';
+import 'package:very_good_blog_app_backend/common/error_message_code.dart';
 import 'package:very_good_blog_app_backend/common/extensions/json_ext.dart';
 import 'package:very_good_blog_app_backend/dtos/request/favorites/favorite_blog_request.dart';
 import 'package:very_good_blog_app_backend/dtos/response/base_response_data.dart';
@@ -28,7 +29,9 @@ Future<Response> _onFavoritesGetRequest(RequestContext context) {
       .then((r) => r.where((e) => !e.blog.isDeleted).toList())
       .then((r) => r.map(GetUserFavoriteBlogResponse.fromView).toList())
       .then<Response>((res) => OkResponse(res.map((e) => e.toJson()).toList()))
-      .onError((e, _) => InternalServerErrorResponse(e.toString()))
+      .onError(
+        (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+      )
       .whenComplete(db.close);
 }
 
@@ -46,10 +49,16 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
           (e, _) => null,
         );
     if (requestedBlog == null) {
-      return BadRequestResponse('Blog not found');
+      return BadRequestResponse(
+        ErrorMessageCode.blogNotFound,
+        'Not found blog with ${request.blogId}',
+      );
     }
     if (requestedBlog.creator.id == userView.id) {
-      return BadRequestResponse('You cannot favorite your own blog');
+      return BadRequestResponse(
+        ErrorMessageCode.cannotActionOwnBlog,
+        'You cannot favorite your own blog',
+      );
     }
 
     final isFavoritedOrNot = (await db.favoriteBlogsUserses
@@ -63,7 +72,10 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
         .firstOrNull;
 
     if (isFavoritedOrNot != null && request.isFavorite) {
-      return BadRequestResponse('You already favorited this blog');
+      return BadRequestResponse(
+        ErrorMessageCode.alreadyFavorited,
+        'Blog already favorited',
+      );
     }
 
     if (request.isFavorite) {
@@ -75,7 +87,9 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
             ),
           )
           .then<Response>((_) => OkResponse())
-          .onError((e, _) => InternalServerErrorResponse(e.toString()))
+          .onError(
+            (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+          )
           .whenComplete(db.close);
     }
     return db
@@ -92,11 +106,13 @@ Future<Response> _onFavoritesPostRequest(RequestContext context) async {
           ],
         )
         .then<Response>((_) => OkResponse())
-        .onError((e, _) => InternalServerErrorResponse(e.toString()))
+        .onError(
+          (e, _) => InternalServerErrorResponse(ErrorMessageCode.serverError),
+        )
         .whenComplete(db.close);
   } on CheckedFromJsonException catch (e) {
-    return BadRequestResponse(e.message);
+    return BadRequestResponse(ErrorMessageCode.bodyInvalid, e.message);
   } catch (e) {
-    return InternalServerErrorResponse(e.toString());
+    return InternalServerErrorResponse(ErrorMessageCode.serverError);
   }
 }

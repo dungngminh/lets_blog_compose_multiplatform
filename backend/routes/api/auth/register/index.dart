@@ -52,7 +52,7 @@ Future<Response> _onRegisterPostRequest(RequestContext context) async {
       )
       .then<Response>((_) => CreatedResponse())
       .onError(
-        (e, st) => InternalServerErrorResponse(ErrorMessageCode.unknownError),
+        (e, st) => InternalServerErrorResponse(ErrorMessageCode.serverError),
       )
       .whenComplete(db.close);
 }
