@@ -32,14 +32,13 @@ Multiplatform**. And now, **Let's Blog!** 🚀
 
 - This app shared UI, logic code between Android, iOS, Web, Desktop with Compose Multiplatform.
 
-- Includes 3 modules:
+- Includes 2 main modules:
 
   - `composeApp`: Shared code between Android, iOS, Web, Desktop.
-  - `backend`: Backend side, write in Dart, using Dart Frog framework.
+  - `backend`: Backend side written in Dart, using Dart Frog framework.
 
 - App architecture
-  follows [Recommended app architecture](https://developer.android.com/topic/architecture#recommended-app-arch)
-  from Android.
+  follows [Recommended app architecture](https://developer.android.com/topic/architecture#recommended-app-arch) from Android.
 
 ## What I used 💪
 
