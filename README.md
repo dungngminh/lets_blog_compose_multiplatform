@@ -102,7 +102,7 @@ This project includes 4 run configurations:
 
 ### Backend side
 
-Backend side is write in Dart, using Dart Frog framework, you can find it in install
+Backend side is written in Dart, using Dart Frog framework, you can find it in install
 instruction [here](/backend/Readme.md) from `backend` folder.
 
 ### Android
