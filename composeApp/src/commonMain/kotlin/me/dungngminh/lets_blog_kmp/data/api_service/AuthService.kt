@@ -16,5 +16,5 @@ interface AuthService {
     @POST("api/auth/register")
     suspend fun register(
         @Body registerRequest: RegisterRequest,
-    )
+    ): BaseResponse<Unit>
 }

@@ -10,6 +10,8 @@ import kotlinx.coroutines.withContext
 import me.dungngminh.lets_blog_kmp.data.api_service.AuthService
 import me.dungngminh.lets_blog_kmp.data.local.UserStore
 import me.dungngminh.lets_blog_kmp.data.local.UserStoreData
+import me.dungngminh.lets_blog_kmp.data.mappers.AppResult
+import me.dungngminh.lets_blog_kmp.data.mappers.runAppCatchingSuspend
 import me.dungngminh.lets_blog_kmp.data.models.request.auth.LoginRequest
 import me.dungngminh.lets_blog_kmp.data.models.request.auth.RegisterRequest
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
@@ -27,8 +29,8 @@ class AuthRepositoryImpl(
     override suspend fun login(
         email: String,
         password: String,
-    ): Result<Unit> =
-        runCatching {
+    ): AppResult<Unit> =
+        runAppCatchingSuspend {
             withContext(ioDispatcher) {
                 val response =
                     authService.login(
@@ -53,7 +55,7 @@ class AuthRepositoryImpl(
         email: String,
         password: String,
         confirmPassword: String,
-    ) = runCatching {
+    ) = runAppCatchingSuspend {
         withContext(ioDispatcher) {
             val registerRequest =
                 RegisterRequest(
@@ -62,7 +64,7 @@ class AuthRepositoryImpl(
                     confirmationPassword = confirmPassword,
                     fullName = name,
                 )
-            authService.register(registerRequest)
+            authService.register(registerRequest).data
         }
     }
 

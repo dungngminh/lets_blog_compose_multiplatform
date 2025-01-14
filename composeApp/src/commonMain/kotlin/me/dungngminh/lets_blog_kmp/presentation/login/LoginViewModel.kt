@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.isValidEmail
+import me.dungngminh.lets_blog_kmp.commons.types.AppError
+import me.dungngminh.lets_blog_kmp.data.mappers.fold
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
 enum class LoginValidationError {
@@ -28,7 +30,7 @@ data class LoginState(
     val isLoading: Boolean = false,
     val passwordVisible: Boolean = true,
     val isLoginFormValid: Boolean = false,
-    val error: String? = null,
+    val error: AppError? = null,
     val isLoginSuccess: Boolean = false,
 )
 
@@ -38,7 +40,7 @@ class LoginViewModel(
     private val _state = MutableStateFlow(LoginState())
     val state = _state
 
-    val currentState: LoginState
+    private val currentState: LoginState
         get() = _state.value
 
     fun changeEmail(email: String) {
@@ -102,11 +104,11 @@ class LoginViewModel(
                         )
                     }
                 },
-                onFailure = {
+                onFailure = { error ->
                     _state.update { state ->
                         state.copy(
                             isLoading = false,
-                            error = it.message,
+                            error = error,
                         )
                     }
                 },

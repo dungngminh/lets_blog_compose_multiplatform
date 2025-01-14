@@ -134,4 +134,10 @@
     <string name="general_yes">Yes</string>
     <string name="general_no">No</string>
     <string name="edit_user_profile_success">Edit user profile successfully</string>
+    <string name="general_error_please_check_your_network">Please check your network and try again</string>
+    <string name="general_error_you_have_already_favorited_this_blog">You have already favorited this blog</string>
+    <string name="general_error_invalid_email_or_password">Email or password is incorrect, please try again</string>
+    <string name="general_error_email_already_exists">Email already exists, please try another one</string>
+    <string name="general_error_you_can_not_action_your_own_blog">You can't take this action your own blog</string>
+    <string name="general_error_blog_not_found">Blog not found</string>
 </resources>

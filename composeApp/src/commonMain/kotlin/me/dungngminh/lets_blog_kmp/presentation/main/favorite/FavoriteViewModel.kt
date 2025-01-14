@@ -4,6 +4,9 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.hoc081098.flowext.flowFromSuspend
 import com.hoc081098.flowext.startWith
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +25,7 @@ sealed class FavoriteUiState {
     data object NoFavoriteBlogs : FavoriteUiState()
 
     data class Success(
-        val blogs: List<Blog>,
+        val blogs: ImmutableList<Blog> = persistentListOf(),
     ) : FavoriteUiState()
 
     data class Error(
@@ -65,7 +68,7 @@ class FavoriteViewModel(
                     if (blogs.isEmpty()) {
                         FavoriteUiState.NoFavoriteBlogs
                     } else {
-                        FavoriteUiState.Success(blogs)
+                        FavoriteUiState.Success(blogs.toImmutableList())
                     }
                 },
                 onFailure = { FavoriteUiState.Error(it.message ?: "Unknown error") },

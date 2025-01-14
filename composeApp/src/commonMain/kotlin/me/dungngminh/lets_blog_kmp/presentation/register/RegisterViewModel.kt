@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.update
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.MIN_USERNAME_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.isValidEmail
+import me.dungngminh.lets_blog_kmp.commons.types.AppError
+import me.dungngminh.lets_blog_kmp.data.mappers.fold
 import me.dungngminh.lets_blog_kmp.domain.repositories.AuthRepository
 
 enum class RegisterValidationError {
@@ -32,7 +34,7 @@ data class RegisterState(
     val isLoading: Boolean = false,
     val passwordVisible: Boolean = true,
     val confirmPasswordVisible: Boolean = true,
-    val error: String? = null,
+    val error: AppError? = null,
     val usernameError: RegisterValidationError? = null,
     val emailError: RegisterValidationError? = null,
     val passwordError: RegisterValidationError? = null,
@@ -47,7 +49,7 @@ class RegisterViewModel(
     private val _state = MutableStateFlow(RegisterState())
     val state = _state
 
-    val currentState: RegisterState
+    private val currentState: RegisterState
         get() = _state.value
 
     fun changeUsername(username: String) {
@@ -159,7 +161,7 @@ class RegisterViewModel(
                     _state.update { state ->
                         state.copy(
                             isLoading = false,
-                            error = it.message,
+                            error = it,
                         )
                     }
                 },

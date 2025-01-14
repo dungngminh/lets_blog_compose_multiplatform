@@ -62,7 +62,9 @@ import letsblogkmp.composeapp.generated.resources.validation_error_password_too_
 import me.dungngminh.lets_blog_kmp.LocalWindowSizeClass
 import me.dungngminh.lets_blog_kmp.commons.MIN_PASSWORD_LENGTH
 import me.dungngminh.lets_blog_kmp.commons.extensions.tabsVisualTransformation
+import me.dungngminh.lets_blog_kmp.commons.types.localizedMessageRes
 import me.dungngminh.lets_blog_kmp.presentation.register.RegisterScreen
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -84,7 +86,7 @@ object LoginScreen : Screen {
 
                     state.error != null -> {
                         launch {
-                            snackbarHostState.showSnackbar(state.error)
+                            snackbarHostState.showSnackbar(getString(state.error.localizedMessageRes))
                         }
                         viewModel.onErrorMessageShown()
                     }
