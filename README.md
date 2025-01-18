@@ -40,6 +40,8 @@ Multiplatform**. And now, **Let's Blog!** 🚀
 - App architecture
   follows [Recommended app architecture](https://developer.android.com/topic/architecture#recommended-app-arch) from Android.
 
+![architecture](art/Architecture.webp)
+
 ## What I used 💪
 
 - [Compose Multiplatform UI Framework](https://www.jetbrains.com/compose-multiplatform/) - Shared UI
