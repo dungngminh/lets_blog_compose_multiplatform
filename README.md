@@ -102,6 +102,10 @@ This project includes 4 run configurations:
   - `GEMINI_KEY`: Gemini API key
   - `BASE_URL`: Base URL for backend API
 
+- Account test:
+  - email: ngminhdung1311@gmail.com
+  - password: kminhdung123
+
 ### Backend side
 
 Backend side is written in Dart, using Dart Frog framework, you can find it in install
