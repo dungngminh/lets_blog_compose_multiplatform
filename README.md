@@ -67,7 +67,7 @@ Multiplatform**. And now, **Let's Blog!** 🚀
 
 - ✅ Android
 - ✅ iOS
-- ✅ [Web Wasm](https://dungngminh.github.io/lets_blog_compose_multiplatform/)
+- ✅ [Web Wasm](https://dungngminh.github.io/lets_blog_compose_multiplatform/) (Not available due to backend closing)
 - ✅ Desktop JVM
 
 ## How to run this project ❓
